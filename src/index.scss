@@ -1,0 +1,43 @@
+@use './styles/reset';
+
+/* 設計變數：依窩作夥 logo 色調 — 暖棕、米色、柔和 */
+:root {
+  --color-bg: #faf6f1;
+  --color-bg-elevated: #fffefb;
+  --color-surface: #f0e9e0;
+  --color-primary: #6b4423;
+  --color-primary-hover: #523a2a;
+  --color-primary-light: #e8ddd2;
+  --color-accent: #7d9b69;
+  --color-accent-soft: #d4e4c8;
+  --color-text: #2c1810;
+  --color-text-muted: #6b5b4f;
+  --color-border: #e0d5c9;
+  --font-sans: 'Noto Sans TC', system-ui, sans-serif;
+  --shadow-sm: 0 1px 2px rgba(44, 24, 16, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(44, 24, 16, 0.08), 0 2px 4px -2px rgba(44, 24, 16, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(44, 24, 16, 0.08), 0 4px 6px -4px rgba(44, 24, 16, 0.05);
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-primary);
+
+  &:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+  }
+}

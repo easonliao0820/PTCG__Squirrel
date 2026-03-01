@@ -1,0 +1,173 @@
+// 修正路徑：回到 src/styles/ 讀取變數
+@import "../../../styles/variables"; 
+
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 700px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 6vw;
+  background-color: $color-warm-bg; // 改用溫暖米色底
+  overflow: hidden;
+
+  // 左右導覽按鈕
+  .navBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background-color: $color-secondary; // 換成淺橘色
+    cursor: pointer;
+    transition: $transition-base;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: $color-dark; // 深咖啡色字
+
+    &:hover {
+      background-color: $color-primary; // 懸停變主色橘
+      transform: translateY(-50%) scale(1.1);
+      color: #fff;
+    }
+
+    &.prev { left: 2vw; }
+    &.next { right: 2vw; }
+  }
+}
+
+.container {
+  display: flex;
+  max-width: 1300px;
+  width: 100%;
+  gap: 60px;
+  align-items: stretch; 
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+}
+
+// 左側圖片區塊
+.imageSection {
+  flex: 1.2;
+  width: 100%;
+
+  .imagePlaceholder {
+    width: 100%;
+    min-height: 500px;
+    background-color: #fff; // 圖片背後用純白，讓去背圖更乾淨
+    border-radius: $radius-main;
+    box-shadow: $shadow-soft;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      height: 65vh;
+      object-fit: contain; // 確保比賽海報或產品圖不變形
+    }
+  }
+}
+
+// 右側文字資訊區塊
+.infoSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .header {
+    text-align: right;
+    margin-bottom: 25px;
+    
+    .mainTitle {
+      font-size: 3.5rem; // 稍微加大更有氣勢
+      font-weight: 800;
+      margin: 0;
+      color: $color-primary; // 標題改用主色橘
+      line-height: 1.1;
+    }
+    
+    .subTitle {
+      font-size: 1.4rem;
+      color: $color-dark;
+      margin-top: 8px;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+  }
+
+  // 共用方塊設定
+  .contentBox, .footerBox {
+    background-color: #fff; // 方塊改用白色
+    border-radius: $radius-main;
+    padding: 25px;
+    display: flex;
+    align-items: flex-start;
+    box-shadow: $shadow-soft;
+  }
+
+  // 1. 內文區
+  .contentBox:nth-of-type(1) {
+    height: 180px; 
+    margin-bottom: 20px;
+    overflow-y: auto;
+
+    .textContent {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: $color-dark;
+      text-align: justify;
+    }
+  }
+
+  // 2. 注意事項區
+  .contentBox:nth-of-type(2) {
+    height: 180px;
+    margin-bottom: 20px;
+    overflow-y: auto;
+    border-left: 5px solid $color-accent; // 側邊保留紅色提醒感
+
+    .textContent {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: $color-dark;
+
+      strong {
+        color: $color-accent; // PTCG 重要訊息仍可用紅
+        display: block;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  // 3. 底部資訊
+  .footerBox {
+    height: 70px;
+    margin-top: auto; 
+    background-color: $color-primary; // 底部按鈕感，改為主色橘
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+
+    p {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+  }
+}

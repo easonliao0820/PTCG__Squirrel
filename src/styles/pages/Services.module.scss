@@ -1,0 +1,258 @@
+@import "../../styles/variables";
+
+// --- 頁面基礎設定 ---
+.servicesContainer {
+  padding: 100px 6vw;
+  background-color: #fff; // 外部大背景維持純白
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 60px;
+  color: $color-dark;
+  font-weight: 800;
+}
+
+// --- 通用區塊樣式 (大外框) ---
+.serviceSection {
+  position: relative;
+  border-radius: 20px;
+  padding: 80px 40px 40px;
+  margin-bottom: 120px; // 區塊間距大一點，讓 Logo 有空間
+  transition: transform 0.3s ease;
+
+  // 懸浮圓形 Logo
+  .logoCircle {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 5;
+    
+    img {
+      width: 85%;
+      height: 85%;
+      object-fit: contain;
+    }
+  }
+}
+
+// --- 1. 咖啡區塊 (溫暖棕) ---
+.coffeeBg {
+  background-color: #fdf5e6; // 象牙色背景
+  .contentGrid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.2fr;
+    gap: 20px;
+    
+    .menuImage, .subImage, .textBlock, .verticalMenu {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: $shadow-soft;
+    }
+    .verticalMenu { grid-row: span 2; }
+  }
+}
+
+// --- 2. PTCG 區塊 (寶可夢藍) ---
+.ptcgBg {
+  background-color: #e3f2fd; // 淺藍色背景
+  
+  .ptcgLayout {
+    .headerRow {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 40px;
+
+      .cardInfoText {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 30px;
+        border-radius: 15px;
+        h3 { color: #1976d2; margin-bottom: 15px; }
+        p { line-height: 1.6; color: #555; }
+      }
+
+      // 輪播圖與點點
+      .carouselWrapper {
+        flex: 1.5;
+        position: relative;
+        .calendarSlide {
+          background: #fff;
+          height: 250px;
+          border-radius: 15px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          color: #888;
+        }
+
+        .carouselDots {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 20px;
+          
+          .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #bbb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            
+            &.active {
+              background: $color-primary; // 使用品牌橘
+              width: 25px; // 啟動時變長條狀
+              border-radius: 5px;
+            }
+          }
+        }
+      }
+    }
+
+    // 圖片穿插文章區域
+    .articleWithImages {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      
+      .articleItem {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 15px;
+        border-radius: 12px;
+        
+        .imageBox {
+          background: #fff;
+          aspect-ratio: 3/4;
+          border-radius: 8px;
+          margin-bottom: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          img { width: 100%; height: 100%; object-fit: cover; }
+        }
+        
+        p {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #333;
+        }
+      }
+    }
+  }
+}
+
+// --- 3. 超人力霸王區塊 (經典紅) ---
+.ultraBg {
+  background-color: #ffebee; // 淺紅色背景
+  .ultraLayout {
+    display: flex;
+    gap: 30px;
+    
+    .badgeCol {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      .badge {
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        text-align: center;
+        font-weight: bold;
+        color: #d32f2f; // 超人紅
+        box-shadow: $shadow-soft;
+      }
+    }
+    
+    .mainInfo {
+      flex: 1;
+      background: rgba(255,255,255,0.8);
+      padding: 30px;
+      border-radius: 15px;
+    }
+    
+    .posterArea {
+      flex: 0 0 280px;
+      background: #fff;
+      border-radius: 15px;
+      height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: $shadow-soft;
+    }
+  }
+}
+
+// --- 4. 桌遊區塊 (森林綠) ---
+.boardGameBg {
+  background-color: #f1f8e9; // 淺綠色背景
+  .bgLayout {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    
+    .centerDesc {
+      flex: 1.5;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 15px;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: $shadow-soft;
+    }
+    
+    .sideImages {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      
+      .img {
+        background: #fff;
+        aspect-ratio: 1;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: $shadow-soft;
+        font-size: 0.8rem;
+        color: #999;
+      }
+    }
+  }
+}
+
+// --- 響應式處理 ---
+@media (max-width: 1024px) {
+  .ptcgLayout .articleWithImages { grid-template-columns: repeat(2, 1fr); }
+  .coffeeBg .contentGrid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .serviceSection { padding: 60px 20px 30px; }
+  .headerRow, .ultraLayout, .bgLayout { flex-direction: column; }
+  .bgLayout .sideImages { order: 2; width: 100%; }
+  .coffeeBg .contentGrid { grid-template-columns: 1fr; }
+  .ultraLayout .posterArea { width: 100%; flex: none; }
+}

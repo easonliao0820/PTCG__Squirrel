@@ -1,0 +1,140 @@
+// 修正路徑：向上跳三層回到 styles 目錄讀取變數檔
+@import "../../../styles/variables"; 
+
+.mapSection {
+  width: 100%;
+  padding: 80px 6vw;
+  background-color: $color-dark; // 使用 Logo 深咖啡色作為大區塊背景
+  color: #fff;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .sectionTitle {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+    font-weight: 700;
+    color: $color-secondary; // 標題改用亮眼的淺橘色
+  }
+}
+
+.layout {
+  display: flex;
+  gap: 40px;
+  align-items: stretch; // 保持左側資訊與右側地圖等高
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+// 左側資訊區
+.infoList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+
+  .infoBox {
+    background-color: $color-warm-bg; // 方塊改用溫暖米色
+    color: $color-dark; // 文字改用深咖啡色
+    padding: 25px;
+    border-radius: $radius-main; // 使用品牌圓角
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: $shadow-soft;
+
+    h4 {
+      margin: 0 0 12px 0;
+      font-size: 1.3rem;
+      border-bottom: 2px solid $color-secondary; // 底線改用淺橘色
+      padding-bottom: 5px;
+      width: fit-content;
+      color: $color-primary; // 小標題用主色橘
+    }
+
+    p {
+      margin: 5px 0;
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+
+    .detailList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      li {
+        margin-bottom: 6px;
+        font-size: 0.95rem;
+        display: flex;
+        &:before {
+          content: "•";
+          margin-right: 8px;
+          color: $color-primary; // 項目符號用橘色
+        }
+      }
+    }
+
+    .subText {
+      font-size: 0.9rem;
+      color: lighten($color-dark, 20%);
+      margin-top: 4px;
+    }
+
+    a {
+      color: $color-primary;
+      text-decoration: none;
+      font-weight: 700;
+      &:hover {
+        color: darken($color-primary, 10%);
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// 右側地圖區
+.mapWrap {
+  flex: 1.2; 
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+
+  .mapFrame {
+    flex: 1; 
+    min-height: 450px;
+    background-color: #fff;
+    border-radius: $radius-main;
+    overflow: hidden;
+    box-shadow: $shadow-soft;
+
+    iframe {
+      display: block;
+    }
+  }
+
+  .mapLink {
+    display: block;
+    background-color: $color-primary; // 按鈕改用主色橘
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    border-radius: $radius-main;
+    text-decoration: none;
+    font-weight: 700;
+    transition: $transition-base;
+
+    &:hover {
+      background-color: darken($color-primary, 10%);
+      transform: translateY(-2px);
+    }
+  }
+}

@@ -1,0 +1,165 @@
+@import "../../styles/variables";
+
+.pageWrapper {
+
+  margin: 0 auto;
+  padding: 40px 10vw;
+  background-color: $color-warm-bg; // 米色背景
+  min-height: 100vh;
+}
+
+.pageTitle {
+  text-align: center;
+  color: $color-dark;
+  font-size: 2rem;
+  margin-bottom: 40px;
+  font-weight: 800;
+}
+
+// 搜尋與篩選區
+.searchContainer {
+  background: #fff;
+  padding: 30px;
+  border-radius: $radius-main;
+  box-shadow: $shadow-soft;
+  margin-bottom: 50px;
+
+  .searchBar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+
+    .searchInput {
+      flex: 1;
+      padding: 12px 20px;
+      border: 2px solid $color-gray-light;
+      border-radius: 50px;
+      outline: none;
+      &:focus { border-color: $color-primary; }
+    }
+
+    .searchBtn {
+      padding: 0 30px;
+      background: $color-primary;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: $transition-base;
+      &:hover { background: darken($color-primary, 10%); }
+    }
+  }
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+
+  .filterGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .filterLabel {
+      font-weight: 600;
+      color: $color-dark;
+    }
+
+    .selectBox {
+      padding: 8px 15px;
+      border-radius: 8px;
+      border: 1px solid $color-gray-light;
+      background: #fdfdfd;
+      color: $color-dark;
+      cursor: pointer;
+    }
+  }
+}
+
+// 網格佈局
+.gameGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.gameCard {
+  background: #fff;
+  border-radius: $radius-main;
+  overflow: hidden;
+  box-shadow: $shadow-soft;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-10px);
+  }
+
+  .imageBox {
+    width: 100%;
+    aspect-ratio: 1 / 0.75;
+    background: $color-gray-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+  }
+
+  .infoBox {
+    padding: 20px;
+
+    .gameName {
+      font-size: 1.2rem;
+      color: $color-dark;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .tagGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+
+      .tag {
+        background: $color-secondary; // 淺橘色背景
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: $color-dark;
+        text-align: center;
+      }
+    }
+  }
+}
+
+// 分頁
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 60px;
+  color: $color-dark;
+
+  span {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: $transition-base;
+
+    &.active {
+      background: $color-primary;
+      color: #fff;
+    }
+
+    &:hover:not(.active) {
+      background: $color-secondary;
+    }
+  }
+}

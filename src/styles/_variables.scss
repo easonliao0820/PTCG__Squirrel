@@ -1,0 +1,16 @@
+// --- 品牌顏色 (依據 Logo 提取) ---
+$color-primary: #E8A24D;    // 松鼠主體橘
+$color-secondary: #F3D0A8;  // 淺色輔助橘
+$color-accent: #F06292;     // 腮紅粉紅 (點綴用)
+$color-dark: #5D4037;       // Logo 字體深咖啡 (取代純黑)
+$color-warm-bg: #FEF9F2;    // 溫暖米色底 (取代純白)
+$color-gray-light: #d6d6d6; // 斜面用的淺灰色
+
+// --- UI 規格 ---
+$radius-main: 12px;         // 配合 Logo 圓潤感的圓角
+$shadow-soft: 0 4px 15px rgba($color-dark, 0.1); // 柔和的深色陰影
+$transition-base: all 0.3s ease;
+
+// --- 響應式斷點 ---
+$breakpoint-mobile: 768px;
+$breakpoint-tablet: 992px;

@@ -1,0 +1,294 @@
+@import "../../styles/variables";
+
+// --- 基礎頁面設定 ---
+.pageWrapper {
+  margin: 0 auto;
+  padding: 40px 18vw;
+  background-color: $color-warm-bg;
+  min-height: 100vh;
+}
+
+.pageTitle {
+  text-align: center;
+  color: $color-dark;
+  font-size: 2.2rem;
+  margin-bottom: 40px;
+  font-weight: 800;
+}
+
+// --- 搜尋與日期篩選區 ---
+.filterSection {
+  margin-bottom: 50px;
+
+  .searchBar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+
+    input {
+      flex: 1;
+      padding: 12px 25px;
+      border: 2px solid $color-gray-light;
+      border-radius: 50px;
+      outline: none;
+      &:focus { border-color: $color-primary; }
+    }
+
+    .searchBtn {
+      padding: 0 30px;
+      background: $color-primary;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: $transition-base;
+      &:hover { background: darken($color-primary, 10%); }
+    }
+  }
+
+  .tagGroup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    .catTags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+
+      .tagBtn {
+        padding: 8px 18px;
+        background: $color-gray-light;
+        border: none;
+        border-radius: 50px;
+        color: $color-dark;
+        font-weight: 500;
+        cursor: pointer;
+        transition: $transition-base;
+        &:hover { background: $color-secondary; }
+      }
+    }
+
+    // 年份與月份選擇器容器
+    .dateSelectors {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      select {
+        padding: 8px 12px;
+        border: 1px solid darken($color-gray-light, 10%);
+        border-radius: $radius-main;
+        background: #fff;
+        color: $color-dark;
+        cursor: pointer;
+        font-size: 0.95rem;
+        &:focus { border-color: $color-primary; outline: none; }
+      }
+
+      .queryBtn {
+        background: #888; // 依照草圖維持灰色調
+        color: #fff;
+        border: none;
+        padding: 8px 20px;
+        border-radius: $radius-main;
+        font-weight: 600;
+        cursor: pointer;
+        transition: $transition-base;
+        &:hover { background: #666; }
+      }
+    }
+  }
+}
+
+// --- 活動列表手風琴 ---
+.eventList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.eventItem {
+  background: #fff;
+  border-radius: $radius-main;
+  overflow: hidden;
+  box-shadow: $shadow-soft;
+  transition: all 0.3s ease;
+
+  // 標題列
+  .eventHeader {
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: #ccc; // 預設收合背景色
+    transition: background 0.4s ease;
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $color-dark;
+    }
+
+    .headerRight {
+      display: flex;
+      align-items: center;
+      gap: 20px; // 符合指示：距離三角形 20px
+
+      .time {
+        font-size: 0.95rem;
+        color: #555;
+        font-weight: 500;
+      }
+
+      .arrow {
+        font-size: 0.8rem;
+        color: $color-dark;
+        transition: transform 0.3s ease;
+      }
+    }
+  }
+
+  // 動畫內容區
+  .eventBody {
+    max-height: 0; // 初始收合
+    overflow: hidden;
+    // 使用 cubic-bezier 讓收合感更平滑（收完再開的效果由 React 控制 State 切換觸發）
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
+    padding: 0 30px; 
+  }
+
+  // --- 展開狀態 ---
+  &.isOpen {
+    .eventHeader {
+      background: $color-secondary; // 展開時變為品牌淺橘色
+    }
+    .eventBody {
+      max-height: 1200px; // 足夠容納內容的高度
+      padding: 35px 30px;
+    }
+  }
+}
+
+// --- 展開後的內部分佈 ---
+.contentLayout {
+  display: flex;
+  gap: 30px;
+
+  // 圖片欄位
+  .imageCol {
+    flex: 0 0 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .imgPlaceholder {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #e5e5e5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  }
+
+  // 文字資訊欄位
+  .textCol {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    // 共用區塊樣式
+    .infoBar, .mainText, .noticeText, .dateBar {
+      padding: 18px;
+      border-radius: 6px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .infoBar { background: #f0f0f0; }
+    .mainText { background: #e8e8e8; min-height: 150px; }
+    .noticeText { background: #f0f0f0; color: #666; font-size: 0.95rem; }
+    
+    .dateBar {
+      background: #ddd;
+      width: fit-content;
+      align-self: flex-end; // 日期資訊靠右下
+      font-weight: 600;
+      padding: 10px 20px;
+    }
+  }
+
+  // --- 第二種版型：圖文對調 (Layout Type 2) ---
+  &.layoutType2 {
+    flex-direction: row; // 文字在左，圖片在右
+
+    .imageCol {
+      flex: 0 0 280px; // 側邊大圖版型
+      .imgPlaceholder {
+        aspect-ratio: 3 / 4; // 適合海報比例
+      }
+    }
+
+    .textCol {
+      .dateBar {
+        align-self: flex-start; // 改為靠左下
+      }
+    }
+  }
+}
+
+// --- 分頁樣式 ---
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 50px;
+
+  span {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    color: $color-dark;
+    transition: $transition-base;
+
+    &.active {
+      background: $color-primary;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    &:hover:not(.active) {
+      background: $color-secondary;
+    }
+  }
+}
+
+// 手機版自動適應
+@media (max-width: 768px) {
+  .contentLayout, .contentLayout.layoutType2 {
+    flex-direction: column;
+    .imageCol { flex: 1; flex-direction: row; }
+    .textCol .dateBar { align-self: stretch; text-align: center; }
+  }
+  
+  .eventHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    .headerRight { width: 100%; justify-content: space-between; }
+  }
+}

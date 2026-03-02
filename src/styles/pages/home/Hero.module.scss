@@ -1,58 +1,70 @@
-// 修正路徑：回到 src/styles/ 讀取變數
-@import "../../../styles/variables"; 
+@import "../../../styles/variables";
 
 .hero {
   position: relative;
   width: 100%;
-  min-height: 700px; 
+  min-height: 100vh; // 改為 min-height: 100vh，在大螢幕上更有氣勢
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 100px 6vw;
-  background-color: $color-warm-bg; // 改用溫暖米色底
+  padding: clamp(60px, 8vh, 120px) 6vw; // 使用 clamp 讓 padding 隨視窗高度縮放
+  background-color: $color-warm-bg;
   overflow: hidden;
+
+  @media (max-width: $breakpoint-tablet) {
+    min-height: auto;
+    padding: 80px 5vw;
+  }
 
   // 左右導覽按鈕
   .navBtn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 60px;
-    height: 60px;
+    width: clamp(45px, 4vw, 60px); // 按鈕大小隨螢幕流動
+    height: clamp(45px, 4vw, 60px);
     border-radius: 50%;
     border: none;
-    background-color: $color-secondary; // 換成淺橘色
+    background-color: $color-secondary;
     cursor: pointer;
     transition: $transition-base;
     z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    color: $color-dark; // 深咖啡色字
+    font-size: clamp(1rem, 1.5vw, 1.5rem);
+    color: $color-dark;
 
     &:hover {
-      background-color: $color-primary; // 懸停變主色橘
+      background-color: $color-primary;
       transform: translateY(-50%) scale(1.1);
       color: #fff;
     }
 
-    &.prev { left: 2vw; }
-    &.next { right: 2vw; }
+    &.prev {
+      left: 2vw;
+    }
+
+    &.next {
+      right: 2vw;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      display: none; // 手機版隱藏導覽鍵，通常建議用手勢滑送
+    }
   }
 }
 
 .container {
   display: flex;
-  max-width: 1300px;
+  max-width: 1440px; // 稍微放寬，在 1920 螢幕上更平衡
   width: 100%;
-  gap: 60px;
-  align-items: stretch; 
+  gap: clamp(30px, 4vw, 80px); // 縮短 gap 在較小視窗的距離
+  align-items: center; // 改為居中對齊
 
-  @media (max-width: 992px) {
+  @media (max-width: $breakpoint-tablet) {
     flex-direction: column;
-    align-items: center;
-    gap: 30px;
+    gap: 40px;
   }
 }
 
@@ -60,11 +72,14 @@
 .imageSection {
   flex: 1.2;
   width: 100%;
+  display: flex;
+  justify-content: center;
 
   .imagePlaceholder {
     width: 100%;
-    min-height: 500px;
-    background-color: #fff; // 圖片背後用純白，讓去背圖更乾淨
+    max-width: 700px; // 限制最大寬度，避免在 1920px 螢幕下圖片佔位過大
+    min-height: clamp(300px, 50vh, 500px); // 使用 clamp 控制高度
+    background-color: #fff;
     border-radius: $radius-main;
     box-shadow: $shadow-soft;
     position: relative;
@@ -72,10 +87,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 
     img {
-      height: 65vh;
-      object-fit: contain; // 確保比賽海報或產品圖不變形
+      width: 100%;
+      height: 100%;
+      max-height: 70vh; // 限制最大高度，確保在 MacBook Air 等較矮視窗不溢出
+      object-fit: contain;
+      padding: 20px;
     }
   }
 }
@@ -83,36 +102,43 @@
 // 右側文字資訊區塊
 .infoSection {
   flex: 1;
+  min-width: 0; // 防止 flex 項目溢出
   display: flex;
   flex-direction: column;
   width: 100%;
 
   .header {
     text-align: right;
-    margin-bottom: 25px;
-    
+    margin-bottom: clamp(15px, 3vh, 30px);
+
     .mainTitle {
-      font-size: 3.5rem; // 稍微加大更有氣勢
+      font-size: clamp(2rem, 4vw, 3.8rem); // 流動字體大小
       font-weight: 800;
       margin: 0;
-      color: $color-primary; // 標題改用主色橘
+      color: $color-primary;
       line-height: 1.1;
+      word-break: keep-all; // 避免中文標題隨意斷行
     }
-    
+
     .subTitle {
-      font-size: 1.4rem;
+      font-size: clamp(1rem, 1.4vw, 1.4rem);
       color: $color-dark;
       margin-top: 8px;
       font-weight: 600;
       opacity: 0.8;
     }
+
+    @media (max-width: $breakpoint-tablet) {
+      text-align: center;
+    }
   }
 
   // 共用方塊設定
-  .contentBox, .footerBox {
-    background-color: #fff; // 方塊改用白色
+  .contentBox,
+  .footerBox {
+    background-color: #fff;
     border-radius: $radius-main;
-    padding: 25px;
+    padding: clamp(15px, 2vw, 25px);
     display: flex;
     align-items: flex-start;
     box-shadow: $shadow-soft;
@@ -120,12 +146,13 @@
 
   // 1. 內文區
   .contentBox:nth-of-type(1) {
-    height: 180px; 
+    min-height: 150px; // 改為 min-height
+    max-height: 300px;
     margin-bottom: 20px;
     overflow-y: auto;
 
     .textContent {
-      font-size: 1.1rem;
+      font-size: clamp(0.95rem, 1.1vw, 1.15rem);
       line-height: 1.8;
       color: $color-dark;
       text-align: justify;
@@ -134,18 +161,19 @@
 
   // 2. 注意事項區
   .contentBox:nth-of-type(2) {
-    height: 180px;
-    margin-bottom: 20px;
+    min-height: 120px;
+    max-height: 250px;
+    margin-bottom: 25px;
     overflow-y: auto;
-    border-left: 5px solid $color-accent; // 側邊保留紅色提醒感
+    border-left: 5px solid $color-accent;
 
     .textContent {
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 1vw, 1.05rem);
       line-height: 1.7;
       color: $color-dark;
 
       strong {
-        color: $color-accent; // PTCG 重要訊息仍可用紅
+        color: $color-accent;
         display: block;
         margin-bottom: 5px;
         font-size: 1.1rem;
@@ -155,19 +183,30 @@
 
   // 3. 底部資訊
   .footerBox {
-    height: 70px;
-    margin-top: auto; 
-    background-color: $color-primary; // 底部按鈕感，改為主色橘
+    min-height: 60px;
+    height: auto;
+    margin-top: auto;
+    background-color: $color-primary;
     color: #fff;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    padding: clamp(10px, 1.5vw, 15px);
 
     p {
-      font-size: 1.1rem;
+      font-size: clamp(0.9rem, 1.1vw, 1.1rem);
       font-weight: 700;
       color: #fff;
       margin: 0;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    align-items: center;
+
+    .contentBox,
+    .footerBox {
+      width: 100%;
     }
   }
 }

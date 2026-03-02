@@ -1,4 +1,4 @@
-@import "../../../styles/variables"; 
+@import '../../variables.scss';
 
 // 定義入場動畫
 @keyframes fadeInUp {
@@ -6,6 +6,7 @@
     opacity: 0;
     transform: translateY(30px); // 從下方 30px 開始
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -17,10 +18,10 @@
   padding: 6rem 1.5rem;
   text-align: center;
   background-color: $color-warm-bg; // 換成品牌米色
-  border-top: 1px solid rgba($color-dark, 0.1); 
+  border-top: 1px solid rgba($color-dark, 0.1);
   border-radius: 30px;
   box-shadow: $shadow-soft; // 加入柔和陰影增加立體感
-  
+
   // 注入動畫
   animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }

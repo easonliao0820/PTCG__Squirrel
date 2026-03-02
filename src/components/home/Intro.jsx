@@ -1,4 +1,4 @@
-import styles from '../../styles/pages/home/Intro.module.scss';
+import styles from '../../styles/components/home/Intro.module.scss';
 
 const Intro = () => {
   return (

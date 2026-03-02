@@ -1,4 +1,4 @@
-@import "../../styles/variables";
+@use "../../styles/variables" as *;
 
 // --- 基礎頁面設定 ---
 .pageWrapper {
@@ -31,7 +31,10 @@
       border: 2px solid $color-gray-light;
       border-radius: 50px;
       outline: none;
-      &:focus { border-color: $color-primary; }
+
+      &:focus {
+        border-color: $color-primary;
+      }
     }
 
     .searchBtn {
@@ -43,7 +46,10 @@
       font-weight: 600;
       cursor: pointer;
       transition: $transition-base;
-      &:hover { background: darken($color-primary, 10%); }
+
+      &:hover {
+        background: darken($color-primary, 10%);
+      }
     }
   }
 
@@ -68,7 +74,10 @@
         font-weight: 500;
         cursor: pointer;
         transition: $transition-base;
-        &:hover { background: $color-secondary; }
+
+        &:hover {
+          background: $color-secondary;
+        }
       }
     }
 
@@ -86,7 +95,11 @@
         color: $color-dark;
         cursor: pointer;
         font-size: 0.95rem;
-        &:focus { border-color: $color-primary; outline: none; }
+
+        &:focus {
+          border-color: $color-primary;
+          outline: none;
+        }
       }
 
       .queryBtn {
@@ -98,7 +111,10 @@
         font-weight: 600;
         cursor: pointer;
         transition: $transition-base;
-        &:hover { background: #666; }
+
+        &:hover {
+          background: #666;
+        }
       }
     }
   }
@@ -159,7 +175,7 @@
     overflow: hidden;
     // 使用 cubic-bezier 讓收合感更平滑（收完再開的效果由 React 控制 State 切換觸發）
     transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
-    padding: 0 30px; 
+    padding: 0 30px;
   }
 
   // --- 展開狀態 ---
@@ -167,6 +183,7 @@
     .eventHeader {
       background: $color-secondary; // 展開時變為品牌淺橘色
     }
+
     .eventBody {
       max-height: 1200px; // 足夠容納內容的高度
       padding: 35px 30px;
@@ -207,17 +224,31 @@
     gap: 15px;
 
     // 共用區塊樣式
-    .infoBar, .mainText, .noticeText, .dateBar {
+    .infoBar,
+    .mainText,
+    .noticeText,
+    .dateBar {
       padding: 18px;
       border-radius: 6px;
       font-size: 1rem;
       line-height: 1.6;
     }
 
-    .infoBar { background: #f0f0f0; }
-    .mainText { background: #e8e8e8; min-height: 150px; }
-    .noticeText { background: #f0f0f0; color: #666; font-size: 0.95rem; }
-    
+    .infoBar {
+      background: #f0f0f0;
+    }
+
+    .mainText {
+      background: #e8e8e8;
+      min-height: 150px;
+    }
+
+    .noticeText {
+      background: #f0f0f0;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
     .dateBar {
       background: #ddd;
       width: fit-content;
@@ -233,6 +264,7 @@
 
     .imageCol {
       flex: 0 0 280px; // 側邊大圖版型
+
       .imgPlaceholder {
         aspect-ratio: 3 / 4; // 適合海報比例
       }
@@ -279,16 +311,30 @@
 
 // 手機版自動適應
 @media (max-width: 768px) {
-  .contentLayout, .contentLayout.layoutType2 {
+
+  .contentLayout,
+  .contentLayout.layoutType2 {
     flex-direction: column;
-    .imageCol { flex: 1; flex-direction: row; }
-    .textCol .dateBar { align-self: stretch; text-align: center; }
+
+    .imageCol {
+      flex: 1;
+      flex-direction: row;
+    }
+
+    .textCol .dateBar {
+      align-self: stretch;
+      text-align: center;
+    }
   }
-  
+
   .eventHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    .headerRight { width: 100%; justify-content: space-between; }
+
+    .headerRight {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 }

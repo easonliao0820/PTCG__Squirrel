@@ -1,4 +1,4 @@
-@import "../../styles/variables";
+@use "../../styles/variables" as *;
 
 .pageWrapper {
 
@@ -35,7 +35,10 @@
       border: 2px solid $color-gray-light;
       border-radius: 50px;
       outline: none;
-      &:focus { border-color: $color-primary; }
+
+      &:focus {
+        border-color: $color-primary;
+      }
     }
 
     .searchBtn {
@@ -47,7 +50,10 @@
       cursor: pointer;
       font-weight: 600;
       transition: $transition-base;
-      &:hover { background: darken($color-primary, 10%); }
+
+      &:hover {
+        background: darken($color-primary, 10%);
+      }
     }
   }
 }

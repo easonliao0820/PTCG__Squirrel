@@ -1,4 +1,4 @@
-import styles from '../../styles/pages/home/Cta.module.scss'
+import styles from '../../styles/components/home/Cta.module.scss'
 
 export default function Cta() {
   return (

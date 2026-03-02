@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from '../../styles/pages/home/Services.module.scss';
+import styles from '../../styles/components/home/Services.module.scss';
 
 const Services = () => {
   const [activeTab, setActiveTab] = useState('bar');

@@ -6,6 +6,7 @@ import {
   LocationMap,
   Cta,
   LocationGallery,
+  ChargingHours,
 } from '../components/home'
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
       <Intro />
       <Services />
       <LocationMap />
+      <ChargingHours />
       <LocationGallery />
       <Cta />
     </div>

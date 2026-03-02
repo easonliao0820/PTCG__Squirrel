@@ -1,0 +1,105 @@
+@import '../../variables';
+
+.chargingHours {
+    padding: 80px 0;
+    background-color: $color-warm-bg;
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .sectionTitle {
+        text-align: center;
+        font-size: 2rem;
+        color: $color-dark;
+        margin-bottom: 40px;
+        position: relative;
+
+        &::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: $color-primary;
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+    }
+
+    .grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .row {
+        display: flex;
+        gap: 20px;
+
+        @media (max-width: $breakpoint-mobile) {
+            flex-direction: column;
+        }
+    }
+
+    .item {
+        flex: 1;
+        background: #fff;
+        padding: 24px;
+        border-radius: $radius-main;
+        box-shadow: $shadow-soft;
+        display: flex;
+        align-items: center;
+        transition: $transition-base;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba($color-dark, 0.15);
+        }
+
+        &.label {
+            flex: 0 0 200px;
+            background: $color-secondary;
+            color: $color-dark;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+
+            @media (max-width: $breakpoint-mobile) {
+                flex: none;
+            }
+        }
+
+        &.value {
+            background: #fff;
+            color: $color-dark;
+            font-size: 1.1rem;
+        }
+    }
+
+    .noteBox {
+        background: #fff;
+        padding: 30px;
+        border-radius: $radius-main;
+        box-shadow: $shadow-soft;
+        margin-top: 10px;
+        text-align: center;
+        border-left: 5px solid $color-primary;
+
+        h4 {
+            color: $color-primary;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        p {
+            color: $color-dark;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            white-space: pre-line;
+        }
+    }
+}

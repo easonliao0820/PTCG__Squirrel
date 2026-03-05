@@ -1,97 +1,172 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import styles from '../styles/pages/Services.module.scss';
 
+const DEFAULT_IMG = '/images/location/turtwig.png';
+const COFFEE_ICON = '/images/icon/coffee_LOGO.png';
+const PTCG_ICON = '/images/icon/ptcg_LOGO.png';
+const UCG_ICON = '/images/icon/ucg_LOGO.png'; // 超人力霸王
+const BOARDGAME_ICON = '/images/icon/tablegame_LOGO.png';
+const MAIN_MASCOT = '/images/logo-squirrel-detective.png';
+
 const Services = () => {
+  const [activeCategory, setActiveCategory] = useState('咖啡餐飲');
+
+  const coffeeRef = useRef(null);
+  const ptcgRef = useRef(null);
+  const ultraRef = useRef(null);
+  const boardGameRef = useRef(null);
+
+  const categories = [
+    { name: '咖啡餐飲', ref: coffeeRef },
+    { name: 'PTCG', ref: ptcgRef },
+    { name: '超人力霸王', ref: ultraRef },
+    { name: '桌遊', ref: boardGameRef }
+  ];
+
+  const scrollToSection = (category) => {
+    setActiveCategory(category.name);
+    category.ref.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+
   return (
     <div className={styles.servicesContainer}>
       <h2 className={styles.pageTitle}>服務介紹</h2>
-      
-      {/* 1. 咖啡區塊 - 溫暖棕色調 */}
-      <section className={`${styles.serviceSection} ${styles.coffeeBg}`}>
+
+      <div className={styles.filterBar}>
+        {categories.map((cat) => (
+          <button
+            key={cat.name}
+            className={`${styles.filterBtn} ${activeCategory === cat.name ? styles.active : ''}`}
+            onClick={() => scrollToSection(cat)}
+          >
+            {cat.name}
+          </button>
+        ))}
+      </div>
+
+      {/* 1. 咖啡區塊 */}
+      <section ref={coffeeRef} className={`${styles.serviceSection} ${styles.coffeeSection}`}>
         <div className={styles.logoCircle}>
-          <img src="咖啡LOGO圖網址" alt="Coffee" />
+          <img src={COFFEE_ICON} alt="Coffee Logo" />
         </div>
-        <div className={styles.contentGrid}>
-          <div className={styles.menuImage}>菜單圖片</div>
-          <div className={styles.textBlock}>現磨手沖咖啡與在地烘焙點心...</div>
-          <div className={styles.subImage}>環境圖</div>
-          <div className={styles.textBlock}>營造放鬆的桌遊休憩空間...</div>
-          <div className={styles.verticalMenu}>飲品清單</div>
+        <div className={styles.coffeeGrid}>
+          <div className={styles.gridItem}>
+            <img src={DEFAULT_IMG} alt="Menu 1" />
+          </div>
+          <div className={styles.gridItem}>
+            <div className={styles.placeholderBox}>內文</div>
+          </div>
+          <div className={`${styles.gridItem} ${styles.rowSpan2}`}>
+            <img src={DEFAULT_IMG} alt="Vertical Menu" />
+          </div>
+          <div className={styles.gridItem}>
+            <div className={styles.placeholderBox}>內文</div>
+          </div>
+          <div className={styles.gridItem}>
+            <div className={styles.placeholderBox}>內文</div>
+          </div>
         </div>
       </section>
 
-      {/* 2. PTCG 區塊 - 寶可夢藍黃調與圖片穿插 */}
-      <section className={`${styles.serviceSection} ${styles.ptcgBg}`}>
+      {/* 2. PTCG 區塊 */}
+      <section ref={ptcgRef} className={`${styles.serviceSection} ${styles.ptcgSection}`}>
         <div className={styles.logoCircle}>
-          <img src="松鼠PTCG圖網址" alt="PTCG" />
+          <img src={PTCG_ICON} alt="PTCG Logo" />
         </div>
-        <div className={styles.ptcgLayout}>
-          <div className={styles.headerRow}>
-            <div className={styles.cardInfoText}>
-              <h3>最新活動資訊</h3>
-              <p>每週末舉辦道館賽，歡迎新手玩家加入...</p>
+
+        <div className={styles.mascotHeader}>
+          <div className={styles.yellowCircle}>
+            <img src={MAIN_MASCOT} alt="PTCG Main" />
+          </div>
+          <img src={DEFAULT_IMG} alt="Eevee" className={styles.eevee} />
+          <img src={DEFAULT_IMG} alt="Pikachu" className={styles.pikachu} />
+        </div>
+
+        <div className={styles.ptcgTopLayout}>
+          <div className={styles.leftCol}>
+            <div className={styles.ptcgArticleBox}>
+              <div className={styles.gymLogoContainer}>
+                <img src={DEFAULT_IMG} alt="Gym Logo" />
+              </div>
+              <div className={styles.articleContent}>
+                <p>官方認證教室</p>
+              </div>
             </div>
-            {/* 輪播圖容器 */}
-            <div className={styles.carouselWrapper}>
-              <div className={styles.calendarSlide}>活動日曆圖</div>
-              {/* 輪播圖點點 */}
+            <div className={styles.mascotRow}>
+              <img src={DEFAULT_IMG} alt="Whimsicott" />
+              <img src={DEFAULT_IMG} alt="Mimikyu" />
+              <img src={DEFAULT_IMG} alt="Turtwig" />
+            </div>
+          </div>
+          <div className={styles.rightCol}>
+            <div className={styles.squareCarousel}>
+              <img src={DEFAULT_IMG} alt="Activity Calendar" />
               <div className={styles.carouselDots}>
-                <span className={styles.dot}></span>
-                <span className={`${styles.dot} ${styles.active}`}></span>
-                <span className={styles.dot}></span>
+                <span className={styles.active}></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
               </div>
             </div>
           </div>
-          
-          {/* 圖片穿插文章區域 */}
-          <div className={styles.articleWithImages}>
-            <div className={styles.articleItem}>
-              <div className={styles.imageBox}>卡牌展示 1</div>
-              <p>專業卡牌教學指導</p>
-            </div>
-            <div className={styles.articleItem}>
-              <div className={styles.imageBox}>卡牌展示 2</div>
-              <p>完整的對戰環境</p>
-            </div>
-            <div className={styles.articleItem}>
-              <div className={styles.imageBox}>卡牌展示 3</div>
-              <p>官方認證裁判駐點</p>
-            </div>
-            <div className={styles.articleItem}>
-              <div className={styles.imageBox}>卡牌展示 4</div>
-              <p>多樣化限定周邊販售</p>
-            </div>
-          </div>
+        </div>
+
+        <div className={styles.cardShowcaseGrid}>
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className={styles.cardItem}>JPG</div>
+          ))}
         </div>
       </section>
 
-      {/* 3. 超人力霸王區塊 - 經典紅白黑 */}
-      <section className={`${styles.serviceSection} ${styles.ultraBg}`}>
-        <div className={styles.logoCircle}>LOGO</div>
+      {/* 3. 超人力霸王區塊 */}
+      <section ref={ultraRef} className={`${styles.serviceSection} ${styles.ultraSection}`}>
+        <div className={styles.ultraLogoOverlay}>
+          <img src={UCG_ICON} alt="Ultra Logo" />
+        </div>
         <div className={styles.ultraLayout}>
-          <div className={styles.badgeCol}>
-            <div className={styles.badge}>Ultra League</div>
-            <div className={styles.badge}>Card Game</div>
+          <div className={styles.badgeColumn}>
+            <div className={`${styles.ultraBadge} ${styles.redBadge}`}>
+              <img src={DEFAULT_IMG} alt="Ultra League" />
+            </div>
+            <div className={`${styles.ultraBadge} ${styles.whiteBadge}`}>
+              <img src={DEFAULT_IMG} alt="Card Game" />
+            </div>
           </div>
-          <div className={styles.mainInfo}>超人力霸王卡牌對戰區介紹內容...</div>
-          <div className={styles.posterArea}>活動海報展示</div>
+          <div className={styles.ultraDescriptionBox}>
+            <div className={styles.innerArticle}>
+              內文
+            </div>
+          </div>
+          <div className={styles.ultraPosterFrame}>
+            <img src={DEFAULT_IMG} alt="Ultra Poster" />
+          </div>
         </div>
       </section>
 
-      {/* 4. 桌遊區塊 - 森林綠/原木色調 */}
-      <section className={`${styles.serviceSection} ${styles.boardGameBg}`}>
+      {/* 4. 桌遊區塊 */}
+      <section ref={boardGameRef} className={`${styles.serviceSection} ${styles.boardGameSection}`}>
         <div className={styles.logoCircle}>
-          <img src="桌遊盒裝LOGO網址" alt="BoardGames" />
+          <img src={BOARDGAME_ICON} alt="Board Game Logo" />
         </div>
-        <div className={styles.bgLayout}>
-          <div className={styles.sideImages}>
-            <div className={styles.img}>盒裝圖 1</div>
-            <div className={styles.img}>盒裝圖 2</div>
+        <div className={styles.boardGameLayout}>
+          <div className={styles.boxArtGrid}>
+            <div className={styles.boxArt}>JPG</div>
+            <div className={styles.boxArt}>JPG</div>
+            <div className={styles.boxArt}>JPG</div>
+            <div className={styles.boxArt}>JPG</div>
           </div>
-          <div className={styles.centerDesc}>收錄超過 200 款熱門桌遊...</div>
-          <div className={styles.sideImages}>
-            <div className={styles.img}>盒裝圖 3</div>
-            <div className={styles.img}>盒裝圖 4</div>
+          <div className={styles.boardGameDescription}>
+            內文
+          </div>
+          <div className={styles.boxArtGrid}>
+            <div className={styles.boxArt}>JPG</div>
+            <div className={styles.boxArt}>JPG</div>
+            <div className={styles.boxArt}>JPG</div>
+            <div className={styles.boxArt}>JPG</div>
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import styles from '../../styles/components/home/Services.module.scss';
+import styles from '../../styles/components/home/Charge.module.scss';
 
-const Services = () => {
+const Charge = () => {
   const [activeTab, setActiveTab] = useState('bar');
   const [zoomImg, setZoomImg] = useState(null);
 
@@ -20,7 +20,7 @@ const Services = () => {
   const currentData = serviceData[activeTab] || serviceData.bar;
 
   return (
-    <section className={styles.services}>
+    <section className={styles.charge}>
       <div className={styles.container}>
         <h3 className={styles.sectionTitle}>區域介紹</h3>
         <div className={styles.layout}>
@@ -78,4 +78,4 @@ const Services = () => {
   );
 };
 
-export default Services;
+export default Charge;

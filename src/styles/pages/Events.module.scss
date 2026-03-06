@@ -71,12 +71,57 @@
         border: none;
         border-radius: 50px;
         color: $color-dark;
-        font-weight: 500;
+        font-weight: 600;
         cursor: pointer;
         transition: $transition-base;
 
+        &.ptcg {
+          background-color: #fbc02d;
+
+          &:hover {
+            background-color: #fdd835;
+          }
+        }
+
+        &.ultra {
+          background-color: #e53935;
+          color: #fff;
+
+          &:hover {
+            background-color: #ef5350;
+          }
+        }
+
+        &.boardgame {
+          background-color: #7cb342;
+          color: #fff;
+
+          &:hover {
+            background-color: #9ccc65;
+          }
+        }
+
+        &.match {
+          background-color: #1e88e5;
+          color: #fff;
+
+          &:hover {
+            background-color: #42a5f5;
+          }
+        }
+
+        &.shop {
+          background-color: #8d6e63;
+          color: #fff;
+
+          &:hover {
+            background-color: #a1887f;
+          }
+        }
+
         &:hover {
-          background: $color-secondary;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
       }
     }
@@ -103,7 +148,7 @@
       }
 
       .queryBtn {
-        background: #888; // 依照草圖維持灰色調
+        background: #6D4C41;
         color: #fff;
         border: none;
         padding: 8px 20px;
@@ -113,7 +158,7 @@
         transition: $transition-base;
 
         &:hover {
-          background: #666;
+          background: #5D4037;
         }
       }
     }
@@ -232,6 +277,20 @@
       border-radius: 6px;
       font-size: 1rem;
       line-height: 1.6;
+
+      ul {
+        margin-top: 10px;
+        padding-left: 20px;
+
+        li {
+          list-style-type: disc;
+          margin-bottom: 5px;
+
+          &::marker {
+            color: $color-primary;
+          }
+        }
+      }
     }
 
     .infoBar {

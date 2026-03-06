@@ -2,7 +2,7 @@ import styles from '../styles/pages/Home.module.scss'
 import {
   Hero,
   Intro,
-  Services,
+  Charge,
   LocationMap,
   Cta,
   LocationGallery,
@@ -14,7 +14,7 @@ export default function Home() {
     <div className={styles.page}>
       <Hero />
       <Intro />
-      <Services />
+      <Charge />
       <LocationMap />
       <ChargingHours />
       <LocationGallery />

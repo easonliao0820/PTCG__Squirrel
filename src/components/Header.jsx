@@ -5,8 +5,7 @@ const navItems = [
   { to: '/', label: '首頁', type: 'route' },
   { to: '/services', label: '服務介紹', type: 'route' },
   { to: '/events', label: '活動排程', type: 'route' },
-  { to: '/board_gmaes', label: '桌遊品項', type: 'route' },
-  { to: '/schedule', label: '販售周邊', type: 'route' },
+  { to: '/board_gmaes', label: '桌遊品項', type: 'route' }
 ]
 
 export default function Header() {

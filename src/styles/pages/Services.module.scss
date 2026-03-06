@@ -2,9 +2,7 @@
 
 .servicesContainer {
   padding: 10px 4vw;
-  max-width: 1400px;
-  margin: 0 auto;
-  background-color: #fff;
+  margin: 0 15%;
 }
 
 .pageTitle {
@@ -28,7 +26,7 @@
     background-color: #e0e0e0;
     color: #555;
     font-size: 1rem;
-    font-weight: 400;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
 
@@ -40,12 +38,57 @@
       background-color: #666;
       color: #fff;
     }
+
+    // 各主題對應的按鈕與 Hover 顏色
+    &.ptcg {
+      &.active {
+        background-color: #fbc02d; // 皮卡丘黃
+        color: #333; // 因為黃色比較亮，文字改深色
+      }
+
+      &:hover:not(.active) {
+        background-color: #fff59d;
+      }
+    }
+
+    &.coffee {
+      &.active {
+        background-color: #8d6e63; // 拿鐵咖啡色
+        color: #fff;
+      }
+
+      &:hover:not(.active) {
+        background-color: #d7ccc8;
+      }
+    }
+
+    &.ultra {
+      &.active {
+        background-color: #e53935; // 經典紅
+        color: #fff;
+      }
+
+      &:hover:not(.active) {
+        background-color: #ffcdd2;
+      }
+    }
+
+    &.boardgame {
+      &.active {
+        background-color: #7cb342; // 桌遊綠
+        color: #fff;
+      }
+
+      &:hover:not(.active) {
+        background-color: #c5e1a5;
+      }
+    }
   }
 }
 
 .serviceSection {
   position: relative;
-  background-color: #bdbdbd; // 基調灰色
+  background-color: #f5f5f5; // 預設淺灰
   border-radius: 20px;
   padding: 80px 40px 40px;
   margin-bottom: 80px;
@@ -77,11 +120,13 @@
 
 // 1. 咖啡區塊
 .coffeeSection {
+  background: linear-gradient(135deg, #fdfbf7 0%, #efebe9 100%); // 拿鐵咖啡色系
+
   .logoCircle {
     overflow: hidden;
 
     img {
-      width: 100%; // 增加 20% (130% * 1.2)
+      width: 100%;
       height: 100%;
       scale: 1.9;
     }
@@ -92,6 +137,17 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto auto;
     gap: 20px;
+
+    .splitSubGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+
+      .gridItem {
+        min-height: auto;
+        aspect-ratio: 1 / 1;
+      }
+    }
 
     .gridItem {
       background: #fff;
@@ -114,6 +170,30 @@
       }
     }
 
+    .zoomable {
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+
+        &::after {
+          content: "🔍 點擊放大";
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          background: rgba(0, 0, 0, 0.6);
+          color: #fff;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 0.8rem;
+          pointer-events: none;
+        }
+      }
+    }
+
     .placeholderBox {
       color: #888;
       font-weight: 500;
@@ -122,8 +202,74 @@
   }
 }
 
+// 圖片放大彈窗 (Modal)
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  animation: fadeIn 0.3s ease;
+}
+
+.modalContent {
+  height: 100%;
+  cursor: default;
+  animation: zoomIn 0.3s ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: #fff;
+  font-size: 3rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 // 2. PTCG 區塊
 .ptcgSection {
+  background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%); // 皮卡丘黃色系
+
   .mascotHeader {
     position: relative;
     height: 100px;
@@ -278,6 +424,8 @@
 
 // 3. 超人力霸王區塊
 .ultraSection {
+  background: linear-gradient(135deg, #fafafa 0%, #ffebee 100%); // 銀色與經典紅色系
+
   .ultraLogoOverlay {
     position: absolute;
     top: -60px;
@@ -300,26 +448,31 @@
 
   .ultraLayout {
     display: grid;
-    grid-template-columns: 0.8fr 1.5fr 1fr;
-    gap: 20px;
-    align-items: stretch;
+    grid-template-columns: 0.2fr 0.6fr 0.2fr;
+    gap: 50px;
+    align-items: center;
 
     .badgeColumn {
       display: flex;
       flex-direction: column;
       gap: 20px;
+      transform: scale(0.85); // 讓整個排版等比縮小，不影響外層佈局的原佔位
 
       .ultraBadge {
+        aspect-ratio: 1 / 1;
+        flex: none;
         border-radius: 15px;
-        padding: 25px;
+        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        min-height: 120px;
 
         img {
           width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: top;
         }
       }
 
@@ -335,6 +488,7 @@
     .ultraDescriptionBox {
       background: #fff;
       border-radius: 15px;
+      height: 100%;
       padding: 40px;
       display: flex;
       align-items: center;
@@ -344,18 +498,23 @@
         font-size: 1.2rem;
         color: #555;
         font-weight: 500;
+        text-align: center;
       }
     }
 
     .ultraPosterFrame {
-      background: #fff;
-      border-radius: 15px;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transform: scale(0.85); // 讓整個排版等比縮小，不影響外層佈局的原佔位
 
       img {
+        aspect-ratio: 1 / 1;
+        border-radius: 15px;
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: top;
       }
     }
   }
@@ -363,6 +522,8 @@
 
 // 4. 桌遊區塊
 .boardGameSection {
+  background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%); // 遊戲桌布綠色系
+
   .boardGameLayout {
     display: grid;
     grid-template-columns: 1fr 1.5fr 1fr;
@@ -411,11 +572,15 @@
 }
 
 @media (max-width: 1024px) {
+  .servicesContainer {
+    margin: 0 5%;
+  }
 
-  .ptcgSection .ptcgMainContent,
+  .ptcgSection .ptcgTopLayout,
   .ultraSection .ultraLayout,
   .boardGameSection .boardGameLayout {
     grid-template-columns: 1fr;
+    gap: 30px;
   }
 
   .ptcgSection .cardShowcaseGrid {
@@ -424,27 +589,98 @@
 
   .ultraSection .badgeColumn {
     flex-direction: row;
+    justify-content: center;
+
+    .ultraBadge {
+      max-width: 150px;
+      margin: 0 auto;
+    }
+  }
+
+  .ultraSection .ultraPosterFrame {
+    flex-direction: row;
+    justify-content: center;
+
+    img {
+      max-width: 150px;
+      margin: 0 auto;
+    }
   }
 }
 
 @media (max-width: 768px) {
-  .coffeeSection .coffeeGrid {
-    grid-template-columns: 1fr;
+  .servicesContainer {
+    margin: 0;
+    padding: 10px 5vw;
+  }
+
+  .filterBar {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 60px;
+
+    .filterBtn {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
   }
 
   .serviceSection {
     padding: 60px 20px 30px;
+    margin-bottom: 60px;
+    border-radius: 15px;
+
+    .logoCircle {
+      width: 90px;
+      height: 90px;
+      top: -45px;
+    }
   }
 
-  .ptcgSection .mascotHeader .eevee {
-    transform: translate(-80px, -20px);
-    width: 60px;
-    height: 60px;
+  .ultraSection .ultraLogoOverlay {
+    width: 100px;
+    height: 100px;
+    top: -50px;
   }
 
-  .ptcgSection .mascotHeader .pikachu {
-    transform: translate(25px, -20px);
-    width: 60px;
-    height: 60px;
+  .coffeeSection .coffeeGrid {
+    grid-template-columns: 1fr;
+
+    .gridItem.rowSpan2 {
+      grid-row: auto;
+      min-height: 250px;
+    }
+  }
+
+  .ptcgSection .mascotHeader {
+    height: auto;
+    min-height: 80px;
+
+    .yellowCircle {
+      width: 80px;
+      height: 80px;
+    }
+
+    .eevee {
+      transform: translate(-70px, -20px);
+      width: 60px;
+      height: 60px;
+    }
+
+    .pikachu {
+      transform: translate(15px, -20px);
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  .ptcgSection .ptcgTopLayout .leftCol .mascotRow {
+    flex-wrap: wrap;
+    gap: 10px;
+
+    img {
+      width: 65px;
+      height: 65px;
+    }
   }
 }

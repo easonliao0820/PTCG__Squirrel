@@ -6,29 +6,58 @@
 }
 
 .inner {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+}
+
+.leftSection {
+  flex: 1;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
+}
+
+.rightSection {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    align-items: center;
+    margin-top: 20px;
+  }
 }
 
 .footerInfo {
-  margin-bottom: 1rem;
-  text-align: left;
-  max-width: 36rem;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: 2rem;
 }
 
 .footerLine {
-  margin: 0 0 0.5rem;
-  font-size: 0.875rem;
+  margin: 0 0 0.8rem;
+  font-size: 0.9375rem;
   color: var(--color-text-muted);
-  line-height: 1.5;
+  line-height: 1.6;
 
   a {
     color: var(--color-primary);
+    transition: color 0.2s;
 
     &:hover {
+      color: var(--color-primary-hover);
       text-decoration: underline;
     }
   }
@@ -36,26 +65,61 @@
 
 .footerLabel {
   display: inline-block;
-  min-width: 2.5em;
+  min-width: 3.5em;
   font-weight: 600;
   color: var(--color-text);
+  margin-right: 0.5rem;
 }
 
-.shopeeLink {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
+.footerLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--color-primary);
 
-  &:hover {
-    color: var(--color-primary-hover);
-    text-decoration: underline;
+  img {
+    height: 40px;
+    width: auto;
   }
 }
 
-.copyright {
-  margin: 0;
-  font-size: 0.875rem;
+.footerLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: flex-end;
+
+  @media (max-width: 768px) {
+    align-items: center;
+  }
+}
+
+.socialLink,
+.shopeeLink {
+  font-size: 0.9375rem;
   color: var(--color-text-muted);
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--color-primary);
+    transform: translateX(-5px);
+
+    @media (max-width: 768px) {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.shopeeLink {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.copyright {
+  margin-top: 2rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  opacity: 0.8;
 }

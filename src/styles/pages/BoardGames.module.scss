@@ -1,9 +1,8 @@
 @use "../../styles/variables" as *;
 
 .pageWrapper {
-
   margin: 0 auto;
-  padding: 40px 10vw;
+  padding: 20px 10vw;
   background-color: $color-warm-bg; // 米色背景
   min-height: 100vh;
 }
@@ -12,7 +11,7 @@
   text-align: center;
   color: $color-dark;
   font-size: 2rem;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   font-weight: 800;
 }
 

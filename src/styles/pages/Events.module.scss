@@ -3,7 +3,7 @@
 // --- 基礎頁面設定 ---
 .pageWrapper {
   margin: 0 auto;
-  padding: 40px 18vw;
+  padding: 20px 18vw;
   background-color: $color-warm-bg;
   min-height: 100vh;
 }
@@ -11,8 +11,8 @@
 .pageTitle {
   text-align: center;
   color: $color-dark;
-  font-size: 2.2rem;
-  margin-bottom: 40px;
+  font-size: 2rem;
+  margin-bottom: 20px;
   font-weight: 800;
 }
 
@@ -70,52 +70,48 @@
         background: $color-gray-light;
         border: none;
         border-radius: 50px;
-        color: $color-dark;
+        color: #fff;
         font-weight: 600;
         cursor: pointer;
         transition: $transition-base;
 
         &.ptcg {
-          background-color: #fbc02d;
+          background-color: #fbc12db1;
 
           &:hover {
-            background-color: #fdd835;
+            background-color: #fdd835b1;
           }
         }
 
         &.ultra {
-          background-color: #e53935;
-          color: #fff;
+          background-color: #e53935b1;
 
           &:hover {
-            background-color: #ef5350;
+            background-color: #ef5350b1;
           }
         }
 
         &.boardgame {
-          background-color: #7cb342;
-          color: #fff;
+          background-color: #7cb342b1;
 
           &:hover {
-            background-color: #9ccc65;
+            background-color: #9ccc65b1;
           }
         }
 
         &.match {
-          background-color: #1e88e5;
-          color: #fff;
+          background-color: #1e88e5b1;
 
           &:hover {
-            background-color: #42a5f5;
+            background-color: #42a5f5b1;
           }
         }
 
         &.shop {
-          background-color: #8d6e63;
-          color: #fff;
+          background-color: #8d6e63b1;
 
           &:hover {
-            background-color: #a1887f;
+            background-color: #a1887fb1;
           }
         }
 
@@ -139,7 +135,7 @@
         background: #fff;
         color: $color-dark;
         cursor: pointer;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
 
         &:focus {
           border-color: $color-primary;
@@ -173,7 +169,7 @@
 }
 
 .eventItem {
-  background: #fff;
+  background: #ffffff;
   border-radius: $radius-main;
   overflow: hidden;
   box-shadow: $shadow-soft;
@@ -181,16 +177,16 @@
 
   // 標題列
   .eventHeader {
-    padding: 20px 30px;
+    padding: 10px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    background: #ccc; // 預設收合背景色
+    background: #ffe09c; // 預設收合背景色
     transition: background 0.4s ease;
 
     .title {
-      font-size: 1.25rem;
+      font-size: 1rem;
       font-weight: 700;
       color: $color-dark;
     }

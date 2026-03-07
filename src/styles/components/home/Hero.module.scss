@@ -7,13 +7,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(60px, 8vh, 120px) 6vw; // 使用 clamp 讓 padding 隨視窗高度縮放
+  padding: clamp(40px, 5vh, 100px) 6vw;
   background-color: $color-warm-bg;
   overflow: hidden;
 
   @media (max-width: $breakpoint-tablet) {
     min-height: auto;
-    padding: 80px 5vw;
+    padding: 40px 5vw;
   }
 
   // 左右導覽按鈕

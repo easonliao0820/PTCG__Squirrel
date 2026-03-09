@@ -1,7 +1,6 @@
 export { default as Hero } from './Hero'
 export { default as Intro } from './Intro'
-export { default as Charge } from './Charge'
+export { default as Services } from './Services'
 export { default as LocationGallery } from './LocationGallery'
 export { default as LocationMap } from './LocationMap'
 export { default as Cta } from './Cta'
-export { default as ChargingHours } from './ChargingHours'

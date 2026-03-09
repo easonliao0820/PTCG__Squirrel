@@ -1,0 +1,212 @@
+@import "../../../styles/variables";
+
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh; // 改為 min-height: 100vh，在大螢幕上更有氣勢
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(60px, 8vh, 120px) 6vw; // 使用 clamp 讓 padding 隨視窗高度縮放
+  background-color: $color-warm-bg;
+  overflow: hidden;
+
+  @media (max-width: $breakpoint-tablet) {
+    min-height: auto;
+    padding: 80px 5vw;
+  }
+
+  // 左右導覽按鈕
+  .navBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(45px, 4vw, 60px); // 按鈕大小隨螢幕流動
+    height: clamp(45px, 4vw, 60px);
+    border-radius: 50%;
+    border: none;
+    background-color: $color-secondary;
+    cursor: pointer;
+    transition: $transition-base;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 1.5vw, 1.5rem);
+    color: $color-dark;
+
+    &:hover {
+      background-color: $color-primary;
+      transform: translateY(-50%) scale(1.1);
+      color: #fff;
+    }
+
+    &.prev {
+      left: 2vw;
+    }
+
+    &.next {
+      right: 2vw;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      display: none; // 手機版隱藏導覽鍵，通常建議用手勢滑送
+    }
+  }
+}
+
+.container {
+  display: flex;
+  max-width: 1440px; // 稍微放寬，在 1920 螢幕上更平衡
+  width: 100%;
+  gap: clamp(30px, 4vw, 80px); // 縮短 gap 在較小視窗的距離
+  align-items: center; // 改為居中對齊
+
+  @media (max-width: $breakpoint-tablet) {
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+// 左側圖片區塊
+.imageSection {
+  flex: 1.2;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  .imagePlaceholder {
+    width: 100%;
+    max-width: 700px; // 限制最大寬度，避免在 1920px 螢幕下圖片佔位過大
+    min-height: clamp(300px, 50vh, 500px); // 使用 clamp 控制高度
+    background-color: #fff;
+    border-radius: $radius-main;
+    box-shadow: $shadow-soft;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      max-height: 70vh; // 限制最大高度，確保在 MacBook Air 等較矮視窗不溢出
+      object-fit: contain;
+      padding: 20px;
+    }
+  }
+}
+
+// 右側文字資訊區塊
+.infoSection {
+  flex: 1;
+  min-width: 0; // 防止 flex 項目溢出
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .header {
+    text-align: right;
+    margin-bottom: clamp(15px, 3vh, 30px);
+
+    .mainTitle {
+      font-size: clamp(2rem, 4vw, 3.8rem); // 流動字體大小
+      font-weight: 800;
+      margin: 0;
+      color: $color-primary;
+      line-height: 1.1;
+      word-break: keep-all; // 避免中文標題隨意斷行
+    }
+
+    .subTitle {
+      font-size: clamp(1rem, 1.4vw, 1.4rem);
+      color: $color-dark;
+      margin-top: 8px;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    @media (max-width: $breakpoint-tablet) {
+      text-align: center;
+    }
+  }
+
+  // 共用方塊設定
+  .contentBox,
+  .footerBox {
+    background-color: #fff;
+    border-radius: $radius-main;
+    padding: clamp(15px, 2vw, 25px);
+    display: flex;
+    align-items: flex-start;
+    box-shadow: $shadow-soft;
+  }
+
+  // 1. 內文區
+  .contentBox:nth-of-type(1) {
+    min-height: 150px; // 改為 min-height
+    max-height: 300px;
+    margin-bottom: 20px;
+    overflow-y: auto;
+
+    .textContent {
+      font-size: clamp(0.95rem, 1.1vw, 1.15rem);
+      line-height: 1.8;
+      color: $color-dark;
+      text-align: justify;
+    }
+  }
+
+  // 2. 注意事項區
+  .contentBox:nth-of-type(2) {
+    min-height: 120px;
+    max-height: 250px;
+    margin-bottom: 25px;
+    overflow-y: auto;
+    border-left: 5px solid $color-accent;
+
+    .textContent {
+      font-size: clamp(0.9rem, 1vw, 1.05rem);
+      line-height: 1.7;
+      color: $color-dark;
+
+      strong {
+        color: $color-accent;
+        display: block;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  // 3. 底部資訊
+  .footerBox {
+    min-height: 60px;
+    height: auto;
+    margin-top: auto;
+    background-color: $color-primary;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(10px, 1.5vw, 15px);
+
+    p {
+      font-size: clamp(0.9rem, 1.1vw, 1.1rem);
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    align-items: center;
+
+    .contentBox,
+    .footerBox {
+      width: 100%;
+    }
+  }
+}

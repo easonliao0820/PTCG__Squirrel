@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../styles/components/home/LocationGallery.module.scss';
+import styles from '../../styles/pages/home/LocationGallery.module.scss';
 
 const Gallery = () => {
   // 準備 6 張示意圖 (實際開發請替換成真實路徑)

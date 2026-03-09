@@ -1,8 +1,9 @@
-@use "../../styles/variables" as *;
+@import "../../styles/variables";
 
 .pageWrapper {
+
   margin: 0 auto;
-  padding: 20px 10vw;
+  padding: 40px 10vw;
   background-color: $color-warm-bg; // 米色背景
   min-height: 100vh;
 }
@@ -11,7 +12,7 @@
   text-align: center;
   color: $color-dark;
   font-size: 2rem;
-  margin-bottom: 10px;
+  margin-bottom: 40px;
   font-weight: 800;
 }
 
@@ -34,10 +35,7 @@
       border: 2px solid $color-gray-light;
       border-radius: 50px;
       outline: none;
-
-      &:focus {
-        border-color: $color-primary;
-      }
+      &:focus { border-color: $color-primary; }
     }
 
     .searchBtn {
@@ -49,10 +47,7 @@
       cursor: pointer;
       font-weight: 600;
       transition: $transition-base;
-
-      &:hover {
-        background: darken($color-primary, 10%);
-      }
+      &:hover { background: darken($color-primary, 10%); }
     }
   }
 }

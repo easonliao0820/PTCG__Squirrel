@@ -1,0 +1,42 @@
+@import "../../../styles/variables"; 
+
+// 定義入場動畫
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px); // 從下方 30px 開始
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cta {
+  margin: 5vh 10vw;
+  padding: 6rem 1.5rem;
+  text-align: center;
+  background-color: $color-warm-bg; // 換成品牌米色
+  border-top: 1px solid rgba($color-dark, 0.1); 
+  border-radius: 30px;
+  box-shadow: $shadow-soft; // 加入柔和陰影增加立體感
+  
+  // 注入動畫
+  animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.ctaTitle {
+  margin: 0 10vw 1.5rem;
+  font-size: 1.8rem; // 稍微加大
+  font-weight: 700;
+  color: $color-primary; // 換成品牌主色橘
+}
+
+.ctaText {
+  margin: 0 auto;
+  max-width: 32rem;
+  font-size: 1.1rem;
+  color: $color-dark; // 使用深咖啡色
+  line-height: 1.8;
+  opacity: 0.9;
+}

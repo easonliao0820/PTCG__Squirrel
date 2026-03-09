@@ -6,58 +6,29 @@
 }
 
 .inner {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 40px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-  }
-}
-
-.leftSection {
-  flex: 1;
-  text-align: left;
-
-  @media (max-width: 768px) {
-    text-align: center;
-  }
-}
-
-.rightSection {
-  flex: 0 1 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1.5rem;
-
-  @media (max-width: 768px) {
-    align-items: center;
-    margin-top: 20px;
-  }
+  text-align: center;
 }
 
 .footerInfo {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .footerLine {
-  margin: 0 0 0.8rem;
-  font-size: 0.9375rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
-  line-height: 1.6;
+  line-height: 1.5;
 
   a {
     color: var(--color-primary);
-    transition: color 0.2s;
 
     &:hover {
-      color: var(--color-primary-hover);
       text-decoration: underline;
     }
   }
@@ -65,61 +36,26 @@
 
 .footerLabel {
   display: inline-block;
-  min-width: 3.5em;
+  min-width: 2.5em;
   font-weight: 600;
   color: var(--color-text);
-  margin-right: 0.5rem;
 }
 
-.footerLogo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-primary);
-
-  img {
-    height: 40px;
-    width: auto;
-  }
-}
-
-.footerLinks {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: flex-end;
-
-  @media (max-width: 768px) {
-    align-items: center;
-  }
-}
-
-.socialLink,
 .shopeeLink {
+  display: inline-block;
+  margin-bottom: 0.5rem;
   font-size: 0.9375rem;
-  color: var(--color-text-muted);
-  transition: all 0.2s;
-
-  &:hover {
-    color: var(--color-primary);
-    transform: translateX(-5px);
-
-    @media (max-width: 768px) {
-      transform: translateY(-2px);
-    }
-  }
-}
-
-.shopeeLink {
   font-weight: 600;
   color: var(--color-primary);
+
+  &:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+  }
 }
 
 .copyright {
-  margin-top: 2rem;
-  font-size: 0.8125rem;
+  margin: 0;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
-  opacity: 0.8;
 }

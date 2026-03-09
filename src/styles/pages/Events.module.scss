@@ -1,9 +1,9 @@
-@use "../../styles/variables" as *;
+@import "../../styles/variables";
 
 // --- 基礎頁面設定 ---
 .pageWrapper {
   margin: 0 auto;
-  padding: 20px 18vw;
+  padding: 40px 18vw;
   background-color: $color-warm-bg;
   min-height: 100vh;
 }
@@ -11,8 +11,8 @@
 .pageTitle {
   text-align: center;
   color: $color-dark;
-  font-size: 2rem;
-  margin-bottom: 20px;
+  font-size: 2.2rem;
+  margin-bottom: 40px;
   font-weight: 800;
 }
 
@@ -31,10 +31,7 @@
       border: 2px solid $color-gray-light;
       border-radius: 50px;
       outline: none;
-
-      &:focus {
-        border-color: $color-primary;
-      }
+      &:focus { border-color: $color-primary; }
     }
 
     .searchBtn {
@@ -46,10 +43,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: $transition-base;
-
-      &:hover {
-        background: darken($color-primary, 10%);
-      }
+      &:hover { background: darken($color-primary, 10%); }
     }
   }
 
@@ -70,55 +64,11 @@
         background: $color-gray-light;
         border: none;
         border-radius: 50px;
-        color: #fff;
-        font-weight: 600;
+        color: $color-dark;
+        font-weight: 500;
         cursor: pointer;
         transition: $transition-base;
-
-        &.ptcg {
-          background-color: #fbc12db1;
-
-          &:hover {
-            background-color: #fdd835b1;
-          }
-        }
-
-        &.ultra {
-          background-color: #e53935b1;
-
-          &:hover {
-            background-color: #ef5350b1;
-          }
-        }
-
-        &.boardgame {
-          background-color: #7cb342b1;
-
-          &:hover {
-            background-color: #9ccc65b1;
-          }
-        }
-
-        &.match {
-          background-color: #1e88e5b1;
-
-          &:hover {
-            background-color: #42a5f5b1;
-          }
-        }
-
-        &.shop {
-          background-color: #8d6e63b1;
-
-          &:hover {
-            background-color: #a1887fb1;
-          }
-        }
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+        &:hover { background: $color-secondary; }
       }
     }
 
@@ -135,16 +85,12 @@
         background: #fff;
         color: $color-dark;
         cursor: pointer;
-        font-size: 0.9rem;
-
-        &:focus {
-          border-color: $color-primary;
-          outline: none;
-        }
+        font-size: 0.95rem;
+        &:focus { border-color: $color-primary; outline: none; }
       }
 
       .queryBtn {
-        background: #6D4C41;
+        background: #888; // 依照草圖維持灰色調
         color: #fff;
         border: none;
         padding: 8px 20px;
@@ -152,10 +98,7 @@
         font-weight: 600;
         cursor: pointer;
         transition: $transition-base;
-
-        &:hover {
-          background: #5D4037;
-        }
+        &:hover { background: #666; }
       }
     }
   }
@@ -169,7 +112,7 @@
 }
 
 .eventItem {
-  background: #ffffff;
+  background: #fff;
   border-radius: $radius-main;
   overflow: hidden;
   box-shadow: $shadow-soft;
@@ -177,16 +120,16 @@
 
   // 標題列
   .eventHeader {
-    padding: 10px 15px;
+    padding: 20px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    background: #ffe09c; // 預設收合背景色
+    background: #ccc; // 預設收合背景色
     transition: background 0.4s ease;
 
     .title {
-      font-size: 1rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: $color-dark;
     }
@@ -216,7 +159,7 @@
     overflow: hidden;
     // 使用 cubic-bezier 讓收合感更平滑（收完再開的效果由 React 控制 State 切換觸發）
     transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
-    padding: 0 30px;
+    padding: 0 30px; 
   }
 
   // --- 展開狀態 ---
@@ -224,7 +167,6 @@
     .eventHeader {
       background: $color-secondary; // 展開時變為品牌淺橘色
     }
-
     .eventBody {
       max-height: 1200px; // 足夠容納內容的高度
       padding: 35px 30px;
@@ -265,45 +207,17 @@
     gap: 15px;
 
     // 共用區塊樣式
-    .infoBar,
-    .mainText,
-    .noticeText,
-    .dateBar {
+    .infoBar, .mainText, .noticeText, .dateBar {
       padding: 18px;
       border-radius: 6px;
       font-size: 1rem;
       line-height: 1.6;
-
-      ul {
-        margin-top: 10px;
-        padding-left: 20px;
-
-        li {
-          list-style-type: disc;
-          margin-bottom: 5px;
-
-          &::marker {
-            color: $color-primary;
-          }
-        }
-      }
     }
 
-    .infoBar {
-      background: #f0f0f0;
-    }
-
-    .mainText {
-      background: #e8e8e8;
-      min-height: 150px;
-    }
-
-    .noticeText {
-      background: #f0f0f0;
-      color: #666;
-      font-size: 0.95rem;
-    }
-
+    .infoBar { background: #f0f0f0; }
+    .mainText { background: #e8e8e8; min-height: 150px; }
+    .noticeText { background: #f0f0f0; color: #666; font-size: 0.95rem; }
+    
     .dateBar {
       background: #ddd;
       width: fit-content;
@@ -319,7 +233,6 @@
 
     .imageCol {
       flex: 0 0 280px; // 側邊大圖版型
-
       .imgPlaceholder {
         aspect-ratio: 3 / 4; // 適合海報比例
       }
@@ -366,30 +279,16 @@
 
 // 手機版自動適應
 @media (max-width: 768px) {
-
-  .contentLayout,
-  .contentLayout.layoutType2 {
+  .contentLayout, .contentLayout.layoutType2 {
     flex-direction: column;
-
-    .imageCol {
-      flex: 1;
-      flex-direction: row;
-    }
-
-    .textCol .dateBar {
-      align-self: stretch;
-      text-align: center;
-    }
+    .imageCol { flex: 1; flex-direction: row; }
+    .textCol .dateBar { align-self: stretch; text-align: center; }
   }
-
+  
   .eventHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-
-    .headerRight {
-      width: 100%;
-      justify-content: space-between;
-    }
+    .headerRight { width: 100%; justify-content: space-between; }
   }
 }

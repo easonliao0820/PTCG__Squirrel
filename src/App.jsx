@@ -7,7 +7,7 @@ import Events from './pages/client/Events'
 import Services from './pages/client/Services'
 
 // 後台組件 (Layout & Pages)
-import { AdminLayout } from './layouts/AdminLayout'
+import { AdminLayout } from './components/acminlayouts/AdminLayout'
 import { Dashboard } from './pages/admin/Dashboard'
 import { CalendarPage } from './pages/admin/calendar/CalendarPage'
 import { ActivityNewsPage } from './pages/admin/activity/ActivityNewsPage'

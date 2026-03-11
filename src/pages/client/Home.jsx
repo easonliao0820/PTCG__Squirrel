@@ -2,10 +2,11 @@ import styles from '../../styles/pages/Home.module.scss'
 import {
   Hero,
   Intro,
-  Services,
+  Charge,
   LocationMap,
   Cta,
   LocationGallery,
+  ChargingHours,
 } from '../../components/home'
 
 export default function Home() {
@@ -13,8 +14,9 @@ export default function Home() {
     <div className={styles.page}>
       <Hero />
       <Intro />
-      <Services />
+      <Charge />
       <LocationMap />
+      <ChargingHours />
       <LocationGallery />
       <Cta />
     </div>

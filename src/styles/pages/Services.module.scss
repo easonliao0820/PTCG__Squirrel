@@ -2,7 +2,7 @@
   padding: 10px 4vw;
   max-width: 1400px;
   background-color: #fff;
-  margin: 0 15%;
+  margin: 0 auto;
 }
 
 .pageTitle {
@@ -200,13 +200,15 @@
 
   .ptcgTopLayout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.5fr 0.7fr;
     gap: 40px;
     margin-bottom: 40px;
+    align-items: center;
 
     .leftCol {
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 30px;
 
       .ptcgArticleBox {
@@ -214,12 +216,25 @@
         padding: 30px;
         border-radius: 15px;
         display: flex;
+        flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 20px;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
+        .articleContent {
+          text-align: center;
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #333;
+        }
 
         .gymLogoContainer {
-          width: 80px;
-          height: 80px;
+          width: 30%;
+          aspect-ratio: 1 / 2;
 
           img {
             width: 100%;
@@ -248,7 +263,7 @@
         border-radius: 15px;
         padding: 20px;
         position: relative;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 0.5/ 0.5;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -491,7 +506,7 @@
 
 @media (max-width: 1024px) {
   .servicesContainer {
-    margin: 0 5%;
+    padding: 10px 5vw;
   }
 
   .ptcgSection .ptcgTopLayout,
@@ -502,24 +517,26 @@
   }
 
   .ptcgSection .cardShowcaseGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .servicesContainer {
-    margin: 0;
-    padding: 10px 5vw;
+  .pageTitle {
+    font-size: 2rem;
+    margin-bottom: 30px;
   }
 
   .filterBar {
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 60px;
+    padding: 0 10px;
 
     .filterBtn {
       padding: 8px 16px;
       font-size: 0.9rem;
+      flex: 1 1 120px; // 讓按鈕在小螢幕能自動填滿
     }
   }
 
@@ -529,37 +546,94 @@
     border-radius: 15px;
 
     .logoCircle {
-      width: 90px;
-      height: 90px;
-      top: -45px;
+      width: 85px;
+      height: 85px;
+      top: -42px;
     }
   }
 
   .coffeeSection .coffeeGrid {
     grid-template-columns: 1fr;
 
-    .gridItem.rowSpan2 {
-      grid-row: auto;
+    .gridItem {
       min-height: 250px;
     }
+
+    .gridItem.rowSpan2 {
+      grid-row: auto;
+    }
   }
 
-  .ptcgSection .ptcgTopLayout {
-    grid-template-columns: 1fr;
+  .ptcgSection {
+    .ptcgTopLayout {
+      grid-template-columns: 1fr;
+
+      .leftCol .mascotRow img {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    .cardShowcaseGrid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
   }
 
-  .ultraSection .ultraLayout {
-
-    .badgeColumn,
-    .ultraPosterFrame {
-      flex-direction: row;
-      justify-content: center;
-      flex-wrap: wrap;
+  .ultraSection {
+    .ultraLogoOverlay {
+      width: 85px;
+      height: 85px;
+      top: -42px;
     }
 
-    .ultraBadge,
-    img {
-      max-width: 150px;
+    .ultraLayout {
+      grid-template-columns: 1fr;
+      gap: 30px;
+
+      .badgeColumn,
+      .ultraPosterFrame {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .ultraBadge,
+      .ultraPosterFrame img {
+        max-width: 140px;
+        flex: 1 1 120px;
+      }
+
+      .ultraDescriptionBox {
+        padding: 30px 20px;
+        min-height: 200px;
+      }
     }
+  }
+
+  .boardGameSection {
+    .boardGameLayout {
+      grid-template-columns: 1fr;
+
+      .boxArtGrid {
+        order: 2;
+      }
+
+      .boardGameDescription {
+        order: 1;
+        padding: 30px 20px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .ptcgSection .cardShowcaseGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filterBar .filterBtn {
+    flex: 1 1 40%;
   }
 }

@@ -173,7 +173,7 @@ const Services = () => {
       {/* 4. 桌遊區塊 */}
       <section ref={boardGameRef} className={`${styles.serviceSection} ${styles.boardGameSection}`}>
         <div className={styles.logoCircle}>
-          <img src={BOARDGAME_ICON} alt="Board Game Logo" />
+          <img className={styles.logoCircleImg} src={BOARDGAME_ICON} alt="Board Game Logo" />
         </div>
         <div className={styles.boardGameLayout}>
           <div className={styles.boxArtGrid}>

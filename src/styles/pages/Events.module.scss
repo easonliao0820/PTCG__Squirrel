@@ -3,7 +3,7 @@
 // --- 基礎頁面設定 ---
 .pageWrapper {
   margin: 0 auto;
-  padding: 40px 18vw;
+  padding: 20px 15vw;
   background-color: $color-warm-bg;
   min-height: 100vh;
 }
@@ -11,8 +11,8 @@
 .pageTitle {
   text-align: center;
   color: $color-dark;
-  font-size: 2.2rem;
-  margin-bottom: 40px;
+  font-size: $pagetitle-size;
+  margin-bottom: 20px;
   font-weight: 800;
 }
 
@@ -27,11 +27,15 @@
 
     input {
       flex: 1;
-      padding: 12px 25px;
+      font-size: 0.85rem;
+      padding: 8px 20px;
       border: 2px solid $color-gray-light;
       border-radius: 50px;
       outline: none;
-      &:focus { border-color: $color-primary; }
+
+      &:focus {
+        border-color: $color-primary;
+      }
     }
 
     .searchBtn {
@@ -43,7 +47,10 @@
       font-weight: 600;
       cursor: pointer;
       transition: $transition-base;
-      &:hover { background: darken($color-primary, 10%); }
+
+      &:hover {
+        background: darken($color-primary, 10%);
+      }
     }
   }
 
@@ -61,14 +68,18 @@
 
       .tagBtn {
         padding: 8px 18px;
-        background: $color-gray-light;
+        background:$color-secondary;
         border: none;
         border-radius: 50px;
         color: $color-dark;
         font-weight: 500;
+        font-size: 0.8rem;
         cursor: pointer;
         transition: $transition-base;
-        &:hover { background: $color-secondary; }
+
+        &:hover {
+          background: $color-secondary;
+        }
       }
     }
 
@@ -79,26 +90,33 @@
       gap: 10px;
 
       select {
-        padding: 8px 12px;
+        padding: 6px 10px;
         border: 1px solid darken($color-gray-light, 10%);
         border-radius: $radius-main;
         background: #fff;
         color: $color-dark;
         cursor: pointer;
-        font-size: 0.95rem;
-        &:focus { border-color: $color-primary; outline: none; }
+        font-size: 0.8rem;
+
+        &:focus {
+          border-color: $color-primary;
+          outline: none;
+        }
       }
 
       .queryBtn {
-        background: #888; // 依照草圖維持灰色調
+        background: $color-primary;
         color: #fff;
         border: none;
-        padding: 8px 20px;
+        padding: 6px 14px;
         border-radius: $radius-main;
         font-weight: 600;
         cursor: pointer;
         transition: $transition-base;
-        &:hover { background: #666; }
+
+        &:hover {
+          background: #666;
+        }
       }
     }
   }
@@ -108,7 +126,7 @@
 .eventList {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 .eventItem {
@@ -120,16 +138,18 @@
 
   // 標題列
   .eventHeader {
-    padding: 20px 30px;
+    border-radius: $radius-main;
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    background: #ccc; // 預設收合背景色
+    border: 2px solid  $color-primary;
+    background: #fff; // 預設收合背景色
     transition: background 0.4s ease;
 
     .title {
-      font-size: 1.25rem;
+      font-size: 0.8rem;
       font-weight: 700;
       color: $color-dark;
     }
@@ -140,7 +160,7 @@
       gap: 20px; // 符合指示：距離三角形 20px
 
       .time {
-        font-size: 0.95rem;
+        font-size: 0.8rem;
         color: #555;
         font-weight: 500;
       }
@@ -157,16 +177,17 @@
   .eventBody {
     max-height: 0; // 初始收合
     overflow: hidden;
-    // 使用 cubic-bezier 讓收合感更平滑（收完再開的效果由 React 控制 State 切換觸發）
     transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
-    padding: 0 30px; 
+    padding: 0 30px;
   }
 
   // --- 展開狀態 ---
   &.isOpen {
     .eventHeader {
-      background: $color-secondary; // 展開時變為品牌淺橘色
+      border: 2px solid  $color-secondary;
+      background: $color-secondary;
     }
+
     .eventBody {
       max-height: 1200px; // 足夠容納內容的高度
       padding: 35px 30px;
@@ -181,7 +202,7 @@
 
   // 圖片欄位
   .imageCol {
-    flex: 0 0 200px;
+    flex: 0 0 150px;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -194,7 +215,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #777;
     }
   }
@@ -207,17 +228,31 @@
     gap: 15px;
 
     // 共用區塊樣式
-    .infoBar, .mainText, .noticeText, .dateBar {
+    .infoBar,
+    .mainText,
+    .noticeText,
+    .dateBar {
       padding: 18px;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 0.8rem;
       line-height: 1.6;
     }
 
-    .infoBar { background: #f0f0f0; }
-    .mainText { background: #e8e8e8; min-height: 150px; }
-    .noticeText { background: #f0f0f0; color: #666; font-size: 0.95rem; }
-    
+    .infoBar {
+      background: #f0f0f0;
+    }
+
+    .mainText {
+      background: #e8e8e8;
+      min-height: 150px;
+    }
+
+    .noticeText {
+      background: #f0f0f0;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
     .dateBar {
       background: #ddd;
       width: fit-content;
@@ -233,6 +268,7 @@
 
     .imageCol {
       flex: 0 0 280px; // 側邊大圖版型
+
       .imgPlaceholder {
         aspect-ratio: 3 / 4; // 適合海報比例
       }
@@ -279,16 +315,30 @@
 
 // 手機版自動適應
 @media (max-width: 768px) {
-  .contentLayout, .contentLayout.layoutType2 {
+
+  .contentLayout,
+  .contentLayout.layoutType2 {
     flex-direction: column;
-    .imageCol { flex: 1; flex-direction: row; }
-    .textCol .dateBar { align-self: stretch; text-align: center; }
+
+    .imageCol {
+      flex: 1;
+      flex-direction: row;
+    }
+
+    .textCol .dateBar {
+      align-self: stretch;
+      text-align: center;
+    }
   }
-  
+
   .eventHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    .headerRight { width: 100%; justify-content: space-between; }
+
+    .headerRight {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 }

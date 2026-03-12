@@ -1,9 +1,8 @@
 @import "../../styles/variables";
 
 .pageWrapper {
-
   margin: 0 auto;
-  padding: 40px 10vw;
+  padding: 20px 10vw;
   background-color: $color-warm-bg; // 米色背景
   min-height: 100vh;
 }
@@ -11,15 +10,15 @@
 .pageTitle {
   text-align: center;
   color: $color-dark;
-  font-size: 2rem;
-  margin-bottom: 40px;
+  font-size: $pagetitle-size;
+  margin-bottom: 20px;
   font-weight: 800;
 }
 
 // 搜尋與篩選區
 .searchContainer {
   background: #fff;
-  padding: 30px;
+  padding: 20px 30px;
   border-radius: $radius-main;
   box-shadow: $shadow-soft;
   margin-bottom: 50px;
@@ -30,16 +29,21 @@
     margin-bottom: 25px;
 
     .searchInput {
+      font-size: 0.75rem;
       flex: 1;
-      padding: 12px 20px;
+      padding: 8px 10px;
       border: 2px solid $color-gray-light;
       border-radius: 50px;
       outline: none;
-      &:focus { border-color: $color-primary; }
+
+      &:focus {
+        border-color: $color-primary;
+      }
     }
 
     .searchBtn {
-      padding: 0 30px;
+      font-size: 0.8rem;
+      padding: 0 20px;
       background: $color-primary;
       color: #fff;
       border: none;
@@ -47,7 +51,10 @@
       cursor: pointer;
       font-weight: 600;
       transition: $transition-base;
-      &:hover { background: darken($color-primary, 10%); }
+
+      &:hover {
+        background: darken($color-primary, 10%);
+      }
     }
   }
 }
@@ -69,7 +76,8 @@
     }
 
     .selectBox {
-      padding: 8px 15px;
+      font-size: 0.75rem;
+      padding: 6px 10px;
       border-radius: 8px;
       border: 1px solid $color-gray-light;
       background: #fdfdfd;
@@ -82,7 +90,7 @@
 // 網格佈局
 .gameGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 30px;
 }
 
@@ -99,7 +107,7 @@
 
   .imageBox {
     width: 100%;
-    aspect-ratio: 1 / 0.75;
+    aspect-ratio: 1 / 0.6;
     background: $color-gray-light;
     display: flex;
     align-items: center;

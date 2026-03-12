@@ -112,7 +112,7 @@
     margin-bottom: clamp(15px, 3vh, 30px);
 
     .mainTitle {
-      font-size: clamp(2rem, 4vw, 3.8rem); // 流動字體大小
+      font-size: clamp(2rem, 2vw, 3.8rem); // 流動字體大小
       font-weight: 800;
       margin: 0;
       color: $color-primary;
@@ -130,6 +130,9 @@
 
     @media (max-width: $breakpoint-tablet) {
       text-align: center;
+      .mainTitle {
+        font-size: clamp(1.5rem, 1vw, 2.5rem); // 流動字體大小
+      }
     }
   }
 

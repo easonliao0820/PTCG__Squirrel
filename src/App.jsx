@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 // 前台組件 (Layout & Pages)
 import Layout from './components/Layout'
+import Login from './components/Login'
 import Home from './pages/client/Home'
 import PlayPage from './pages/client/PlayPage'
 import Events from './pages/client/Events'
@@ -49,6 +50,9 @@ function App() {
           <Route path="cards" element={<CardsPage />} />
         </Route>
       </Route>
+
+      {/* 登入頁（獨立，不包在 Layout 內） */}
+      <Route path="/login" element={<Login />} />
 
       {/* 全域防呆：找不到路徑時回首頁 */}
       <Route path="*" element={<Navigate to="/" replace />} />

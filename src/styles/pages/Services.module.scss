@@ -200,16 +200,16 @@
 
   .ptcgTopLayout {
     display: grid;
-    grid-template-columns: 1.5fr 0.7fr;
-    gap: 40px;
-    margin-bottom: 40px;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 20px;
     align-items: center;
 
     .leftCol {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 30px;
+      height: 100%;
+      display: grid;
+      gap: 20px;
+      grid-template-rows: 1fr 0.1fr;
 
       .ptcgArticleBox {
         background: #fff;
@@ -219,7 +219,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 20px;
         width: 100%;
         max-width: 400px;
         margin: 0 auto;
@@ -233,8 +232,8 @@
         }
 
         .gymLogoContainer {
-          width: 30%;
-          aspect-ratio: 1 / 2;
+          width: 50%;
+          aspect-ratio: 1 / 1;
 
           img {
             width: 100%;
@@ -258,12 +257,13 @@
     }
 
     .rightCol {
+      width: 100%;
       .squareCarousel {
         background: #fff;
         border-radius: 15px;
         padding: 20px;
         position: relative;
-        aspect-ratio: 0.5/ 0.5;
+        aspect-ratio: 1/ 1;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -297,8 +297,9 @@
 
   .cardShowcaseGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    justify-content: center;
+    grid-template-columns: repeat(4, 22.5%);
+    gap: 10px 30px;
 
     .cardItem {
       background: #fff;

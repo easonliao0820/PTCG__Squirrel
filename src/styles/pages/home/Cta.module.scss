@@ -13,8 +13,9 @@
 }
 
 .cta {
-  margin: 5vh 10vw;
-  padding: 6rem 1.5rem;
+  max-width: 1400px;
+  margin: 10vh 80px;
+  padding: 3rem 0;
   text-align: center;
   background-color: $color-warm-bg; // 換成品牌米色
   border-top: 1px solid rgba($color-dark, 0.1); 

@@ -24,7 +24,7 @@ const BOARDGAME_ICON = '/images/icon/tablegame_LOGO.png';
 const MAIN_MASCOT = '/images/logo-squirrel-detective.png';
 
 const Services = () => {
-  const [activeCategory, setActiveCategory] = useState('咖啡餐飲');
+  const [activeCategory, setActiveCategory] = useState('ptcg');
   const [zoomImg, setZoomImg] = useState(null);
 
   const coffeeRef = useRef(null);
@@ -40,7 +40,7 @@ const Services = () => {
   ];
 
   const scrollToSection = (category) => {
-    setActiveCategory(category.name);
+    setActiveCategory(category.id);
     category.ref.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
@@ -55,7 +55,7 @@ const Services = () => {
         {categories.map((cat) => (
           <button
             key={cat.name}
-            className={`${styles.filterBtn} ${styles[cat.id]} ${activeCategory === cat.name ? styles.active : ''}`}
+            className={`${styles.filterBtn} ${styles[cat.id]} ${activeCategory === cat.id ? styles.active : ''}`}
             onClick={() => scrollToSection(cat)}
           >
             {cat.name}

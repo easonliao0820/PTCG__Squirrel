@@ -2,17 +2,17 @@ import styles from '../../styles/pages/PlayPage.module.scss';
 
 const PlayPage = () => {
   const games = [
-    { name: "拉密（Rummikub）", time: "60-90min", players: "3-4人", category: "策略", age: "10+", image: "/images/boardgame/boardgame1.jpeg" },
-    { name: "黃牌", time: "30min", players: "2-4人", category: "策略", age: "10+", image: "/images/boardgame/boardgame2.jpeg" },
-    { name: "瞎掰王 9UPPER", time: "30min", players: "3-10人", category: "派對", age: "8+", image: "/images/boardgame/boardgame3.jpeg" },
-    { name: "狼人殺", time: "15min", players: "2-5人", category: "派對", age: "7+", image: "/images/boardgame/boardgame4.jpeg" },
-    { name: "字字轉機（ANOMIA）", time: "30-60min", players: "8-18人", category: "陣營", age: "12+", image: "/images/boardgame/boardgame5.jpeg" },
-    { name: "電車難題", time: "30min", players: "5-10人", category: "陣營", age: "12+", image: "/images/boardgame/boardgame6.jpeg" },
-    { name: "說書人迪士尼Dixit Disney", time: "20min", players: "2-4人", category: "小品", age: "10+", image: "/images/boardgame/boardgame7.jpeg" },
-    { name: "與貓的距離", time: "30min", players: "3-6人", category: "派對", age: "8+", image: "/images/boardgame/boardgame8.jpeg" },
-    { name: "一刻館", time: "45min", players: "2-4人", category: "策略", age: "12+", image: "/images/boardgame/boardgame9.jpeg" },
-    { name: "地產大亨", time: "60-120min", players: "2-6人", category: "經典", age: "8+", image: "/images/boardgame/boardgame10.jpeg" },
-    { name: "壽司走走", time: "20min", players: "2-5人", category: "派對", age: "8+", image: "/images/boardgame/boardgame11.jpeg" },
+    { name: "拉密（Rummikub）", time: "30-60min", players: "2-4人", category: "經典/策略", age: "7+", image: "/images/boardgame/boardgame1.jpeg" },
+    { name: "黃牌", time: "20-45min", players: "4-10人", category: "派對/18禁", age: "18+", image: "/images/boardgame/boardgame2.jpeg" },
+    { name: "瞎掰王 9UPPER", time: "20-30min", players: "3-9人", category: "派對", age: "9+", image: "/images/boardgame/boardgame3.jpeg" },
+    { name: "狼人殺", time: "30-120min", players: "8-18人", category: "推理/陣營", age: "10+", image: "/images/boardgame/boardgame4.jpeg" },
+    { name: "字字轉機（ANOMIA）", time: "30min", players: "3-6人", category: "派對/反應", age: "10+", image: "/images/boardgame/boardgame5.jpeg" },
+    { name: "電車難題", time: "15-90min", players: "3-13人", category: "派對/社會", age: "15+", image: "/images/boardgame/boardgame6.jpeg" },
+    { name: "說書人迪士尼Dixit Disney", time: "30min", players: "3-6人", category: "派對/想像", age: "8+", image: "/images/boardgame/boardgame7.jpeg" },
+    { name: "與貓的距離", time: "15-40min", players: "2-6人", category: "派對", age: "8+", image: "/images/boardgame/boardgame8.jpeg" },
+    { name: "冒險少女公會", time: "45-75min", players: "2-4人", category: "策略/牌組構築", age: "14+", image: "/images/boardgame/boardgame9.jpeg" },
+    { name: "迷因在說話", time: "20-30min", players: "2-6人", category: "派對/迷因", age: "13+", image: "/images/boardgame/boardgame10.jpeg" },
+    { name: "電力公司", time: "120min", players: "2-6人", category: "策略", age: "12+", image: "/images/boardgame/boardgame11.jpeg" },
   ];
 
   return (

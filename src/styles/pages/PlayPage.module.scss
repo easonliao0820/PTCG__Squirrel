@@ -90,7 +90,7 @@
 // 網格佈局
 .gameGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 0.8fr));
   gap: 30px;
 }
 
@@ -107,7 +107,7 @@
 
   .imageBox {
     width: 100%;
-    aspect-ratio: 1 / 0.7; // 調整為更適合桌遊盒裝的比例
+    aspect-ratio: 1.2/1;
     background: $color-gray-light;
     overflow: hidden;
 
@@ -132,11 +132,11 @@
     .tagGrid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 4px;
 
       .tag {
         background: $color-secondary; // 淺橘色背景
-        padding: 6px 8px;
+        padding: 4px 4px;
         border-radius: 6px;
         font-size: 0.75rem;
         color: $color-dark;

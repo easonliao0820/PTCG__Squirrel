@@ -2,9 +2,8 @@
 
 .pageWrapper {
   @extend %layout-container;
-  padding: 20px 10vw;
-  background-color: $color-warm-bg; // 米色背景
   min-height: 100vh;
+  background-color: $color-warm-bg;
 }
 
 .pageTitle {
@@ -90,8 +89,17 @@
 // 網格佈局
 .gameGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 0.8fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 30px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
 }
 
 .gameCard {

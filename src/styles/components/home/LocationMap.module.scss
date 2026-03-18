@@ -1,8 +1,7 @@
 @import '../../variables.scss';
 
 .mapSection {
-  max-width: 1400px;
-  margin: 0 auto;
+  @extend %layout-container;
   padding: 80px 6vw;
   background-color: $color-dark; // 使用 Logo 深咖啡色作為大區塊背景
   color: #fff;

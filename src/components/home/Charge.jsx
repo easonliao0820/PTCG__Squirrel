@@ -7,11 +7,15 @@ const Charge = () => {
 
   const serviceData = {
     bar: {
-      images: ['/images/location/env-1.png', '/images/location/env-2.png', '/images/location/env-3.png'],
+      images: ['/images/area/bar1.jpeg', '/images/area/bar2.jpeg', '/images/area/bar3.jpeg', '/images/area/bar4.jpeg'],
       desc: '提供各式飲品與輕食，讓你在對戰之餘也能補充能量。'
     },
     play: {
-      images: ['/images/location/env-4.png', '/images/location/env-5.png', '/images/location/env-6.png'],
+      images: ['/images/area/env1.jpeg', '/images/area/env2.jpeg', '/images/area/env3.jpeg', '/images/area/env4.jpeg'],
+      desc: '寬敞舒適的對戰空間，配備專業牌墊與計分器。'
+    },
+    sales: {
+      images: ['/images/area/sales1.png', '/images/area/sales2.jpeg', '/images/area/sales3.jpeg', '/images/area/sales4.jpeg'],
       desc: '寬敞舒適的對戰空間，配備專業牌墊與計分器。'
     }
     // ... 其他資料類推
@@ -32,7 +36,7 @@ const Charge = () => {
                 className={`${styles.tabBtn} ${activeTab === tab ? styles.active : ''}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab === 'bar' ? '吧檯' : '遊玩區域'}
+                {tab === 'bar' ? '吧檯' : tab === 'play' ? '遊玩區域' : '單卡販售'}
               </button>
             ))}
           </div>
@@ -40,7 +44,7 @@ const Charge = () => {
           {/* 右側內容：加入 Hover 遮罩 */}
           <div className={styles.contentGrid} key={activeTab}>
             <div className={styles.topRow}>
-              {currentData.images.map((img, i) => (
+              {currentData.images.slice(0, 3).map((img, i) => (
                 <div key={i} className={styles.imgBox} onClick={() => setZoomImg(img)}>
                   <img src={img} alt="preview" />
                   <div className={styles.overlay}>
@@ -51,8 +55,8 @@ const Charge = () => {
             </div>
 
             <div className={styles.bottomRow}>
-              <div className={styles.largeImgBox} onClick={() => setZoomImg(currentData.images[0])}>
-                <img src={currentData.images[0]} alt="large preview" />
+              <div className={styles.largeImgBox} onClick={() => setZoomImg(currentData.images.at(-1))}>
+                <img src={currentData.images.at(-1)} alt="large preview" />
                 <div className={styles.overlay}>
                   <span>View Full Image</span>
                 </div>

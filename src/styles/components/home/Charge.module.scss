@@ -99,22 +99,42 @@
   }
 }
 
-// 圖片方塊與 Hover 遮罩
-.imgBox,
-.largeImgBox {
+.imgBox {
   position: relative;
   cursor: pointer;
   background-color: $color-gray-light;
   overflow: hidden;
-  border-radius: $radius-main; // 使用品牌圓角
+  border-radius: $radius-main;
+  aspect-ratio: 16 / 9; // 統一上方小圖比例
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block; // 防止底邊間隙
     transition: transform 0.5s ease;
   }
+}
 
+.largeImgBox {
+  position: relative;
+  cursor: pointer;
+  background-color: $color-gray-light;
+  overflow: hidden;
+  border-radius: $radius-main;
+  aspect-ratio: 4 / 3; // 統一下方大圖比例
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+}
+
+.imgBox,
+.largeImgBox {
   .overlay {
     position: absolute;
     inset: 0;

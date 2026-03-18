@@ -9,10 +9,10 @@ const Intro = () => {
           {/* 左側：斜對切圖片 */}
           <div className={styles.diagonalGrid}>
             <div className={styles.imageOne}>
-              <img src="/images/location/env-1.png" alt="店內環境1" />
+              <img src="/images/area/style1.png" alt="店內環境1" />
             </div>
             <div className={styles.imageTwo}>
-              <img src="/images/location/env-2.png" alt="店內環境2" />
+              <img src="/images/area/style2.png" alt="店內環境2" />
             </div>
           </div>
 
@@ -29,13 +29,13 @@ const Intro = () => {
             {/* 下半部：三連小圖 */}
             <div className={styles.bottomRow}>
               <div className={styles.smallImgBox}>
-                <img src="/images/location/env-3.png" alt="環境3" />
+                <img src="/images/area/style3.png" alt="環境3" />
               </div>
               <div className={styles.smallImgBox}>
-                <img src="/images/location/env-4.png" alt="環境4" />
+                <img src="/images/area/style4.png" alt="環境4" />
               </div>
               <div className={styles.smallImgBox}>
-                <img src="/images/location/env-4.png" alt="環境5" />
+                <img src="/images/area/style5.jpg" alt="環境5" />
               </div>
             </div>
           </div>

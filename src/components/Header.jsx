@@ -14,7 +14,7 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Link to="/" className={styles.logo}>
-          <img src="/images/logo-wozuoguo.png" alt="窩作夥" className={styles.logoImg} />
+          <img src="/images/logo-squirrel-detective.png" alt="窩作夥" className={styles.logoImg} />
           <span>窩作夥</span>
         </Link>
         <nav className={styles.nav}>

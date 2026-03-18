@@ -7,7 +7,7 @@
 .inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -22,7 +22,6 @@
   font-size: 1.25rem;
   color: var(--color-primary);
   text-decoration: none;
-  scale: 1.5;
   &:hover {
     text-decoration: none;
     color: var(--color-primary-hover);

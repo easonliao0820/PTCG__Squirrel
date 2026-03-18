@@ -1,3 +1,5 @@
+@import "../../styles/variables";
+
 .footer {
   margin-top: auto;
   background: var(--color-surface);
@@ -6,8 +8,7 @@
 }
 
 .inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  @extend %layout-container;
   display: flex;
   align-items: center;
   justify-content: space-between;

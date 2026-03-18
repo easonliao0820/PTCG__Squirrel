@@ -1,11 +1,9 @@
 @import "../../styles/variables";
 
 .servicesContainer {
+  @extend %layout-container;
   padding: 20px 4vw;
-  max-width: 1400px;
-  width: 80vw;
   background-color: $color-warm-bg;
-  margin: 0 auto;
   border-radius: 20px;
   margin-top: 2vh;
   margin-bottom: 5vh;

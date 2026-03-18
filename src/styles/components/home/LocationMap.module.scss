@@ -1,15 +1,11 @@
 @import '../../variables.scss';
 
 .mapSection {
-  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 80px 6vw;
   background-color: $color-dark; // 使用 Logo 深咖啡色作為大區塊背景
   color: #fff;
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
 
   .sectionTitle {
     text-align: center;

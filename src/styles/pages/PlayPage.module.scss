@@ -1,7 +1,7 @@
 @import "../../styles/variables";
 
 .pageWrapper {
-  margin: 0 auto;
+  @extend %layout-container;
   padding: 20px 10vw;
   background-color: $color-warm-bg; // 米色背景
   min-height: 100vh;

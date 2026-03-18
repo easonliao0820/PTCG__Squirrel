@@ -2,7 +2,7 @@
 
 // --- 基礎頁面設定 ---
 .pageWrapper {
-  margin: 0 auto;
+  @extend %layout-container;
   padding: 20px 15vw;
   background-color: $color-warm-bg;
   min-height: 100vh;
@@ -68,7 +68,7 @@
 
       .tagBtn {
         padding: 8px 18px;
-        background:$color-secondary;
+        background: $color-secondary;
         border: none;
         border-radius: 50px;
         color: $color-dark;
@@ -144,7 +144,7 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    border: 2px solid  $color-primary;
+    border: 2px solid $color-primary;
     background: #fff; // 預設收合背景色
     transition: background 0.4s ease;
 
@@ -184,7 +184,7 @@
   // --- 展開狀態 ---
   &.isOpen {
     .eventHeader {
-      border: 2px solid  $color-secondary;
+      border: 2px solid $color-secondary;
       background: $color-secondary;
     }
 

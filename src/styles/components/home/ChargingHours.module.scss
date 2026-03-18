@@ -5,10 +5,9 @@
     background-color: $color-warm-bg;
 
     .container {
+        @extend %layout-container;
         border: 2px dashed $color-primary;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding:3rem 20px;
+        padding: 3rem 20px;
         border-radius: $radius-main;
     }
 

@@ -1,5 +1,5 @@
 // 修正後的路徑：向上跳三層回到 styles 目錄
-@import "../../../styles/variables"; 
+@use "../../../styles/variables" as *;
 
 .gallerySection {
   width: 100%;

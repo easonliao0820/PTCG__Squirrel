@@ -1,5 +1,6 @@
+@use "sass:color";
 // 修正路徑：向上跳三層回到 styles 目錄讀取變數檔
-@import "../../../styles/variables"; 
+@use "../../../styles/variables" as *;
 
 .mapSection {
   width: 100%;
@@ -84,7 +85,7 @@
 
     .subText {
       font-size: 0.9rem;
-      color: lighten($color-dark, 20%);
+      color: color.adjust($color-dark, $lightness: 20%);
       margin-top: 4px;
     }
 
@@ -93,7 +94,7 @@
       text-decoration: none;
       font-weight: 700;
       &:hover {
-        color: darken($color-primary, 10%);
+        color: color.adjust($color-primary, $lightness: -10%);
         text-decoration: underline;
       }
     }
@@ -133,7 +134,7 @@
     transition: $transition-base;
 
     &:hover {
-      background-color: darken($color-primary, 10%);
+      background-color: color.adjust($color-primary, $lightness: -10%);
       transform: translateY(-2px);
     }
   }

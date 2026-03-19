@@ -1,4 +1,5 @@
-@import "../../../styles/variables"; 
+@use "sass:color";
+@use "../../../styles/variables" as *; 
 
 // 定義入場動畫
 @keyframes fadeInUp {
@@ -59,7 +60,7 @@
     text-decoration: none;
 
     &:hover {
-      background-color: darken($color-primary, 10%);
+      background-color: color.adjust($color-primary, $lightness: -10%);
       transform: translateY(-2px);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }

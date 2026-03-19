@@ -1,4 +1,5 @@
-@import "layout";
+@forward "layout";
+@use "layout" as *;
 // --- 品牌顏色 (依據 Logo 提取) ---
 $color-primary: #E8A24D; // 松鼠主體橘
 $color-secondary: #F3D0A8; // 淺色輔助橘

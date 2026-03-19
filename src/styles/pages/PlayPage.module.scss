@@ -1,9 +1,11 @@
-@import "../../styles/variables";
+@use "sass:color";
+@use "../../styles/variables" as *;
 
 .pageWrapper {
   @extend %layout-container;
   min-height: 100vh;
   background-color: $color-warm-bg;
+  margin-bottom: 30px;
 }
 
 .pageTitle {
@@ -52,7 +54,7 @@
       transition: $transition-base;
 
       &:hover {
-        background: darken($color-primary, 10%);
+        background: color.adjust($color-primary, $lightness: -10%);
       }
     }
   }

@@ -1,4 +1,5 @@
-@import "../../styles/variables";
+@use "sass:color";
+@use "../../styles/variables" as *;
 
 // --- 基礎頁面設定 ---
 .pageWrapper {
@@ -49,7 +50,7 @@
       transition: $transition-base;
 
       &:hover {
-        background: darken($color-primary, 10%);
+        background: color.adjust($color-primary, $lightness: -10%);
       }
     }
   }
@@ -91,7 +92,7 @@
 
       select {
         padding: 6px 10px;
-        border: 1px solid darken($color-gray-light, 10%);
+        border: 1px solid color.adjust($color-gray-light, $lightness: -10%);
         border-radius: $radius-main;
         background: #fff;
         color: $color-dark;

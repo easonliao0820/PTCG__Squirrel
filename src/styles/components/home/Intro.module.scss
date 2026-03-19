@@ -1,4 +1,4 @@
-@import '../../variables.scss';
+@use "../../variables.scss" as *;
 
 // 1. 定義從左滑入的動畫 (用於斜切圖)
 @keyframes fadeInLeft {

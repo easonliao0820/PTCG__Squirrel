@@ -1,89 +1,147 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import '../../../styles/pages/admin/activity/ActivityNewsPage.scss'
 
-const STORAGE_KEY = 'esn_activity_all'
-
-
-
-const categoryConfig = {
-  general: { label: '一般活動', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-  ptcg: { label: 'PTCG 比賽', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  ultraman: { label: '超人力霸王', color: 'bg-red-100 text-red-800 border-red-200' },
-  result: { label: '活動成果', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+const classConfig = {
+  1: { label: '一般活動', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+  2: { label: 'PTCG 比賽', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+  3: { label: '超人力霸王', color: 'bg-red-100 text-red-800 border-red-200' },
+  4: { label: '活動成果', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
 }
 
-const layoutOptions = [
-  { value: 'layout-left', label: '經典圖左', desc: '圖左文右' },
-  { value: 'layout-right', label: '焦點圖右', desc: '文左圖右' },
-  // { value: 'layout-top', label: '大圖置頂', desc: '大圖置頂' },
+const styleOptions = [
+  { value: 1, label: '經典圖左', desc: '圖左文右', className: 'layout-left' },
+  { value: 2, label: '焦點圖右', desc: '文左圖右', className: 'layout-right' },
 ]
 
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
-}
-
-function save(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-}
-
 export function ActivityNewsPage() {
-  const [items, setItems] = useState(load)
-  const [filter, setFilter] = useState('all')
+  const [items, setItems] = useState([])
+  const [filter, setFilter] = useState('all') // 'all' or class_id number
   const [editing, setEditing] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
   const [search, setSearch] = useState('')
-  const [form, setForm] = useState({
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const fileInputRef = useRef(null)
+
+  const defaultForm = {
     title: '',
     content: '',
     imageUrl: '',
-    category: 'general',
-    layout: 'layout-left',
+    uploadFile: null,
+    classId: 1,
+    styleId: 1,
     startAt: '',
     endAt: '',
-  })
+  }
 
-  useEffect(() => { save(items) }, [items])
+  const [form, setForm] = useState(defaultForm)
+
+  const fetchActivities = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/activities')
+      if (res.ok) {
+        const data = await res.json()
+        setItems(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch activities:', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchActivities()
+  }, [])
 
   const filteredItems = useMemo(() => {
     const keyword = search.trim().toLowerCase()
     return items.filter((i) => {
-      const matchCategory = filter === 'all' || i.category === filter
+      const matchCategory = filter === 'all' || i.classId === Number(filter)
       if (!matchCategory) return false
-      return !keyword || i.title.toLowerCase().includes(keyword) || i.content.toLowerCase().includes(keyword)
-    }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      return !keyword || i.title.toLowerCase().includes(keyword) || (i.content && i.content.toLowerCase().includes(keyword))
+    })
   }, [items, filter, search])
 
   const handleFileUpload = (e) => {
-    const file = e.target.files?.[0]; if (!file) return
+    const file = e.target.files?.[0]; 
+    if (!file) return
     const reader = new FileReader();
-    reader.onload = () => typeof reader.result === 'string' && setForm(f => ({ ...f, imageUrl: reader.result }))
+    reader.onload = () => {
+      setForm(f => ({ ...f, uploadFile: file, imageUrl: reader.result }))
+    }
     reader.readAsDataURL(file)
   }
 
-  const submit = () => {
+  const submit = async () => {
     if (!form.title.trim()) return alert('請輸入標題')
-    const now = new Date().toISOString()
-    const newItem = { ...form, updatedAt: now }
-    if (editing) {
-      setItems(items.map(i => i.id === editing.id ? { ...i, ...newItem } : i))
-    } else {
-      setItems([{ ...newItem, id: crypto.randomUUID(), createdAt: now }, ...items])
+    setIsLoading(true)
+
+    const formData = new FormData()
+    formData.append('title', form.title)
+    formData.append('content', form.content)
+    formData.append('classId', form.classId)
+    formData.append('styleId', form.styleId)
+    if (form.startAt) formData.append('startAt', form.startAt)
+    if (form.endAt) formData.append('endAt', form.endAt)
+    if (form.uploadFile) formData.append('image', form.uploadFile)
+
+    try {
+      let res;
+      if (editing) {
+        res = await fetch(`http://localhost:3000/api/activities/${editing.id}`, {
+          method: 'PUT',
+          body: formData
+        })
+      } else {
+        res = await fetch('http://localhost:3000/api/activities', {
+          method: 'POST',
+          body: formData
+        })
+      }
+
+      if (res.ok) {
+        alert(editing ? '更新成功！' : '建立成功！')
+        setIsCreating(false)
+        setEditing(null)
+        setForm(defaultForm)
+        fetchActivities()
+      } else {
+        const data = await res.json()
+        alert('儲存失敗：' + data.message)
+      }
+    } catch (err) {
+      console.error('Submit failed:', err)
+      alert('儲存失敗！')
+    } finally {
+      setIsLoading(false)
     }
-    setIsCreating(false); setEditing(null)
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('確定要刪除？')) return
+    try {
+      const res = await fetch(`http://localhost:3000/api/activities/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        fetchActivities()
+      } else {
+        alert('刪除失敗！')
+      }
+    } catch (err) {
+      console.error('Delete failed:', err)
+      alert('刪除失敗！')
+    }
   }
 
   // --- 渲染組件：編輯時的版面預覽 ---
   const LayoutPreview = ({ item }) => {
-    const config = categoryConfig[item.category] || categoryConfig.general
+    const config = classConfig[item.classId] || classConfig[1]
+    const styleOpt = styleOptions.find(o => o.value === item.styleId) || styleOptions[0]
+    const layoutClass = styleOpt.className
     const period = item.startAt || item.endAt ? `${item.startAt || ''} ~ ${item.endAt || ''}` : null
 
     return (
-      <div className={`preview-card ${item.layout}`}>
+      <div className={`preview-card ${layoutClass}`}>
         {item.imageUrl && (
-          <div className={`preview-img-wrapper ${item.layout === 'layout-top' ? 'top' : 'side'}`}>
+          <div className={`preview-img-wrapper ${layoutClass === 'layout-top' ? 'top' : 'side'}`}>
             <img src={item.imageUrl} alt="" />
           </div>
         )}
@@ -101,7 +159,7 @@ export function ActivityNewsPage() {
 
   // --- 渲染組件：列表項目 ---
   const AdminListItem = ({ item }) => {
-    const config = categoryConfig[item.category] || categoryConfig.general
+    const config = classConfig[item.classId] || classConfig[1]
     const period = item.startAt || item.endAt ? `${item.startAt || ''} ~ ${item.endAt || ''}` : null
 
     return (
@@ -111,7 +169,7 @@ export function ActivityNewsPage() {
             <span className={`badge ${config.color.split(' ').join(' ')}`}>
               {config.label}
             </span>
-            <span className="date-updated">更新於 {new Date(item.updatedAt).toLocaleDateString()}</span>
+            <span className="date-updated">發佈中</span>
           </div>
           <h3 className="item-title">{item.title}</h3>
           {period && <p className="item-period">📅 {period}</p>}
@@ -126,14 +184,28 @@ export function ActivityNewsPage() {
 
         <div className="item-actions">
           <button
-            onClick={() => { setEditing(item); setForm({ ...item, startAt: item.startAt || '', endAt: item.endAt || '' }) }}
+            onClick={() => {
+              setEditing(item)
+              setIsCreating(true)
+              setForm({
+                id: item.id,
+                title: item.title || '',
+                content: item.content || '',
+                imageUrl: item.imageUrl || '',
+                uploadFile: null,
+                classId: item.classId || 1,
+                styleId: item.styleId || 1,
+                startAt: item.startAt || '',
+                endAt: item.endAt || '',
+              })
+            }}
             className="action-btn edit"
             title="編輯"
           >
             ✏️
           </button>
           <button
-            onClick={() => confirm('確定要刪除？') && setItems(items.filter(i => i.id !== item.id))}
+            onClick={() => handleDelete(item.id)}
             className="action-btn delete"
             title="刪除"
           >
@@ -151,11 +223,11 @@ export function ActivityNewsPage() {
       <div className="page-header-container">
         <div>
           <h1 className="page-title">活動消息發佈</h1>
-          <p className="page-subtitle">統一管理店內公告與比賽紀錄。</p>
+          <p className="page-subtitle">統一管理店內公告與比賽紀錄，連接資料庫 `activity` 表格。</p>
         </div>
         {!showForm && (
           <button
-            onClick={() => { setIsCreating(true); setEditing(null); setForm({ ...form, title: '', content: '', imageUrl: '' }) }}
+            onClick={() => { setIsCreating(true); setEditing(null); setForm(defaultForm) }}
             className="btn-create"
           >
             + 撰寫新消息
@@ -168,16 +240,16 @@ export function ActivityNewsPage() {
           <div className="form-panel">
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">訊息分類</label>
-                <select className="form-select" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-                  {Object.entries(categoryConfig).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                <label className="form-label">活動分類 (Class)</label>
+                <select className="form-select" value={form.classId} onChange={e => setForm(f => ({ ...f, classId: Number(e.target.value) }))}>
+                  {Object.entries(classConfig).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">版面樣式</label>
+                <label className="form-label">版面樣式 (Style)</label>
                 <div className="layout-options">
-                  {layoutOptions.map(opt => (
-                    <button key={opt.value} onClick={() => setForm(f => ({ ...f, layout: opt.value }))} className={`layout-btn ${form.layout === opt.value ? 'active' : ''}`}>{opt.label}</button>
+                  {styleOptions.map(opt => (
+                    <button key={opt.value} onClick={() => setForm(f => ({ ...f, styleId: opt.value }))} className={`layout-btn ${form.styleId === opt.value ? 'active' : ''}`}>{opt.label}</button>
                   ))}
                 </div>
               </div>
@@ -200,11 +272,11 @@ export function ActivityNewsPage() {
 
             <div className="form-group">
               <label className="form-label">活動配圖</label>
-              <input type="file" accept="image/*" onChange={handleFileUpload} className="file-input" />
+              <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileUpload} className="file-input" />
             </div>
 
             <div className="form-actions">
-              <button onClick={submit} className="btn-save">儲存變更</button>
+              <button onClick={submit} className="btn-save" disabled={isLoading}>{isLoading ? '儲存中...' : '儲存變更'}</button>
               <button onClick={() => { setIsCreating(false); setEditing(null) }} className="btn-cancel">取消</button>
             </div>
           </div>
@@ -222,7 +294,7 @@ export function ActivityNewsPage() {
           <div className="list-controls">
             <div className="filter-tabs">
               <button onClick={() => setFilter('all')} className={`tab-btn ${filter === 'all' ? 'active' : ''}`}>全部</button>
-              {Object.entries(categoryConfig).map(([k, v]) => (
+              {Object.entries(classConfig).map(([k, v]) => (
                 <button key={k} onClick={() => setFilter(k)} className={`tab-btn ${filter === k ? 'active' : ''}`}>{v.label}</button>
               ))}
             </div>

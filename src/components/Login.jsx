@@ -17,33 +17,40 @@ export default function Login() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
-    // 定義管理員帳號物件
-    const ADMIN_ACCOUNT = { 
-        username: 'admin2k7', 
-        password: 'password2k7' 
-    }
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
         setError('')
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
+        setError('')
 
-        // 模擬 API 驗證
-        setTimeout(() => {
-            if (form.username === ADMIN_ACCOUNT.username && form.password === ADMIN_ACCOUNT.password) {
+        try {
+            const res = await fetch('http://localhost:3000/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account: form.username, password: form.password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.status === 'success') {
                 // 紀錄 Session 和 使用者名稱
                 localStorage.setItem('adminSession', 'true')
-                localStorage.setItem('adminUser', form.username)
+                localStorage.setItem('adminUser', data.user.account)
                 navigate('/admin/dashboard')
             } else {
-                setError('帳號或密碼錯誤，請重新輸入')
+                setError(data.message || '帳號或密碼錯誤')
                 setLoading(false)
             }
-        }, 600)
+        } catch (err) {
+            console.error('Login request failed:', err);
+            setError('無法連線到伺服器，請重試')
+            setLoading(false)
+        }
     }
 
     return (

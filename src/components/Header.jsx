@@ -10,6 +10,16 @@ const navItems = [
 ]
 
 export default function Header() {
+  const isAuthenticated = localStorage.getItem('adminSession') === 'true'
+  const adminUser = localStorage.getItem('adminUser') || '管理員'
+
+  const finalNavItems = navItems.map(item => {
+    if (item.to === '/login' && isAuthenticated) {
+      return { ...item, to: '/admin/dashboard', label: `${adminUser}管理` }
+    }
+    return item
+  })
+
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
@@ -18,7 +28,7 @@ export default function Header() {
           <span>窩作夥</span>
         </Link>
         <nav className={styles.nav}>
-          {navItems.map(({ to, label, type }) =>
+          {finalNavItems.map(({ to, label, type }) =>
             type === 'anchor' ? (
               <a key={to} href={to} className={styles.navLink}>
                 {label}

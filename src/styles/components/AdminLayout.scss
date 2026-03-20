@@ -2,19 +2,66 @@
     display: flex;
     min-height: 100vh;
     background-color: #f5f5f4;
+    position: relative; /* 為了讓絕對定位的 overlay 參考 */
+
+    .admin-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 90;
+        backdrop-filter: blur(2px);
+        @media (min-width: 1024px) {
+            display: none;
+        }
+    }
 
     .admin-main {
         flex: 1 1 0%;
-        overflow: auto;
+        min-width: 0; /* 防止溢出 */
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
 
-        @media (min-width: 1024px) {
-            padding: 3rem;
+        .admin-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background-color: #4a2c1d;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+
+            .menu-toggle {
+                background: none;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                color: #fff;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.875rem;
+            }
+            
+            .top-bar-title {
+                font-weight: 700;
+                font-size: 1rem;
+            }
+
+            @media (min-width: 1024px) {
+                display: none;
+            }
         }
 
         .admin-content {
+            padding: 1rem;
+            width: 100%;
             max-width: 64rem;
             margin: 0 auto;
-            width: 100%;
+
+            @media (min-width: 1024px) {
+                padding: 3rem;
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate, Link } from 'react-router-dom'
 import '../../styles/components/Sidebar.scss'
 
 const nav = [
@@ -11,7 +11,6 @@ const nav = [
   {
     title: '活動',
     items: [
-      // 依據截圖，在側邊欄顯示為「活動/比賽消息」
       { to: '/admin/activity/news', label: '活動/比賽消息' },
     ],
   },
@@ -24,11 +23,20 @@ const nav = [
   },
 ]
 
-export function Sidebar() {
+export function Sidebar({ mobileOpen, onClose }) {
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminSession')
+    localStorage.removeItem('adminUser')
+    onClose?.()
+    navigate('/login')
+  }
+
   return (
-    <aside className="admin-sidebar">
+    <aside className={`admin-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header">
-        <NavLink to="/admin/dashboard" className="brand-link">
+        <NavLink to="/admin/dashboard" className="brand-link" onClick={() => onClose?.()}>
           松鼠窩後台
         </NavLink>
       </div>
@@ -44,6 +52,7 @@ export function Sidebar() {
                 <li key={item.to} className="nav-item">
                   <NavLink
                     to={item.to}
+                    onClick={() => onClose?.()}
                     className={({ isActive }) =>
                       `nav-link ${isActive ? 'active' : ''}`
                     }
@@ -56,6 +65,15 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      <div className="sidebar-footer">
+        <button onClick={handleLogout} className="logout-btn">
+          登出
+        </button>
+        <Link to="/" className="home-link">
+          回到首頁
+        </Link>
+      </div>
     </aside>
   )
 }

@@ -129,6 +129,11 @@
         margin-top: 0.5rem;
         font-weight: 500;
       }
+
+      &.flex-1 {
+        flex: 1;
+        min-width: 220px;
+      }
     }
 
     .btn-submit {

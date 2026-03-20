@@ -17,6 +17,17 @@ import { MerchandisePage } from './pages/admin/products/MerchandisePage'
 import { BoardGamesPage } from './pages/admin/products/BoardGamesPage'
 import { CardsPage } from './pages/admin/products/CardsPage' // 您上傳的檔案
 
+// 路由保護組件
+function ProtectedRoute({ children }) {
+  const isAuthenticated = localStorage.getItem('adminSession') === 'true'
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
+}
+
 function App() {
 
   return (
@@ -30,7 +41,14 @@ function App() {
       </Route>
 
       {/* --- 後台路由區塊 (路徑前綴為 /admin) --- */}
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
         {/* 進入 /admin 時自動轉跳到 dashboard */}
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
 

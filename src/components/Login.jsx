@@ -1,13 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import styles from '../styles/components/Login.module.scss'
 
 export default function Login() {
     const navigate = useNavigate()
+
+    useEffect(() => {
+        const isAuthenticated = localStorage.getItem('adminSession') === 'true'
+        if (isAuthenticated) {
+            navigate('/admin/dashboard')
+        }
+    }, [navigate])
+
     const [form, setForm] = useState({ username: '', password: '' })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+
+    // 定義管理員帳號物件
+    const ADMIN_ACCOUNT = { 
+        username: 'admin2k7', 
+        password: 'password2k7' 
+    }
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
@@ -18,9 +32,12 @@ export default function Login() {
         e.preventDefault()
         setLoading(true)
 
-        // 簡單驗證（可之後接 API）
+        // 模擬 API 驗證
         setTimeout(() => {
-            if (form.username === 'admin' && form.password === 'squirrel') {
+            if (form.username === ADMIN_ACCOUNT.username && form.password === ADMIN_ACCOUNT.password) {
+                // 紀錄 Session 和 使用者名稱
+                localStorage.setItem('adminSession', 'true')
+                localStorage.setItem('adminUser', form.username)
                 navigate('/admin/dashboard')
             } else {
                 setError('帳號或密碼錯誤，請重新輸入')

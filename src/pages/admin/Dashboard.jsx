@@ -4,7 +4,7 @@ import '../../styles/pages/admin/Dashboard.scss'
 const quickLinks = [
   { to: '/admin/calendar', label: '行事曆', desc: '以月份管理行事曆圖片' },
   { to: '/admin/activity/news', label: '活動消息', desc: '店家活動消息編輯與圖片' },
-  { to: '/admin/activity/competition', label: '比賽消息', desc: 'PTCG、超人力霸王、活動成果' },
+  // { to: '/admin/activity/competition', label: '比賽消息', desc: 'PTCG、超人力霸王、活動成果' },
   { to: '/admin/products/merchandise', label: '周邊商品', desc: '周邊商品管理' },
   { to: '/admin/products/boardgames', label: '桌遊', desc: '種類與租借價格規定' },
 ]

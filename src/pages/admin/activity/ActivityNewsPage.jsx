@@ -15,7 +15,7 @@ const categoryConfig = {
 const layoutOptions = [
   { value: 'layout-left', label: '經典圖左', desc: '圖左文右' },
   { value: 'layout-right', label: '焦點圖右', desc: '文左圖右' },
-  { value: 'layout-top', label: '大圖置頂', desc: '大圖置頂' },
+  // { value: 'layout-top', label: '大圖置頂', desc: '大圖置頂' },
 ]
 
 function load() {

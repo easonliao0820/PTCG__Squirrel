@@ -1,36 +1,35 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import '../../../styles/pages/admin/calendar/CalendarPage.scss'
-
-const STORAGE_KEY = 'esn_calendar'
-
-function getMonths() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return []
-    return JSON.parse(raw)
-  } catch {
-    return []
-  }
-}
-
-function saveMonths(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-}
 
 function toMonthKey(year, month) {
   return `${year}-${String(month).padStart(2, '0')}`
 }
 
 export function CalendarPage() {
-  const [months, setMonths] = useState(getMonths)
+  const [months, setMonths] = useState([])
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
-  const [uploadUrl, setUploadUrl] = useState('')
+  const [uploadFile, setUploadFile] = useState(null)
   const [previewMonth, setPreviewMonth] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const fileInputRef = useRef(null)
+
+  const fetchCalendars = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/calendar')
+      if (res.ok) {
+        const data = await res.json()
+        setMonths(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch calendars:', err)
+    }
+  }
 
   useEffect(() => {
-    saveMonths(months)
-  }, [months])
+    fetchCalendars()
+  }, [])
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i)
   const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1)
@@ -39,33 +38,58 @@ export function CalendarPage() {
     (m) => m.year === selectedYear && m.month === selectedMonth
   )
 
-  const handleSave = () => {
-    if (!uploadUrl.trim()) return
-    const key = toMonthKey(selectedYear, selectedMonth)
-    const existing = months.findIndex(
-      (m) => toMonthKey(m.year, m.month) === key
-    )
-    const newItem = {
-      year: selectedYear,
-      month: selectedMonth,
-      imageUrl: uploadUrl.trim(),
-      createdAt: new Date().toISOString(),
+  const handleSave = async () => {
+    if (!uploadFile) return
+    setIsLoading(true)
+
+    const formData = new FormData()
+    formData.append('year', selectedYear)
+    formData.append('month', selectedMonth)
+    formData.append('image', uploadFile)
+
+    try {
+      const res = await fetch('http://localhost:3000/api/calendar/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (res.ok) {
+        alert('上傳成功！')
+        setUploadFile(null)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '' // 清除選擇的檔案
+        }
+        fetchCalendars()
+      } else {
+        const errData = await res.json()
+        alert('上傳失敗: ' + errData.error)
+      }
+    } catch (err) {
+      console.error(err)
+      alert('上傳失敗！')
+    } finally {
+      setIsLoading(false)
     }
-    if (existing >= 0) {
-      const next = [...months]
-      next[existing] = newItem
-      setMonths(next)
-    } else {
-      setMonths([...months, newItem])
-    }
-    setUploadUrl('')
   }
 
-  const handleDelete = (year, month) => {
+  const handleDelete = async (year, month) => {
     if (!confirm('確定要刪除？')) return
-    setMonths(months.filter((m) => !(m.year === year && m.month === month)))
-    if (previewMonth?.year === year && previewMonth?.month === month) {
-      setPreviewMonth(null)
+    
+    try {
+      const res = await fetch(`http://localhost:3000/api/calendar/${year}/${month}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        if (previewMonth?.year === year && previewMonth?.month === month) {
+          setPreviewMonth(null)
+        }
+        fetchCalendars()
+      } else {
+        alert('刪除失敗！')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('刪除失敗！')
     }
   }
 
@@ -114,30 +138,27 @@ export function CalendarPage() {
             <input
               type="file"
               accept="image/*"
+              ref={fileInputRef}
               onChange={(e) => {
                 const file = e.target.files?.[0]
-                if (!file) return
-                const reader = new FileReader()
-                reader.onload = () => {
-                  const result = reader.result
-                  if (typeof result === 'string') {
-                    setUploadUrl(result)
-                  }
+                if (file) {
+                  setUploadFile(file)
                 }
-                reader.readAsDataURL(file)
               }}
               className="file-input"
             />
             <p className="hint-text">
-              直接選擇圖片，系統會自動轉換並儲存。
+              直接選擇圖片，將會上傳至系統資料庫儲存。
             </p>
           </div>
           <button
             type="button"
             onClick={handleSave}
             className="btn-submit"
+            disabled={isLoading || !uploadFile}
+            style={{ opacity: (isLoading || !uploadFile) ? 0.5 : 1 }}
           >
-            {currentMonthData ? '更新檔案' : '確認上傳'}
+            {isLoading ? '處理中...' : (currentMonthData ? '更新檔案' : '確認上傳')}
           </button>
         </div>
       </section>

@@ -1,38 +1,80 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import '../../../styles/pages/admin/products/BoardGamesPage.scss'
 
-const STORAGE_KEY = 'esn_boardgames_v2'
+const parsePlayTime = (str) => {
+  if (!str) return { min: '', max: '', unit: '分鐘' };
+  const match = str.match(/(?:(\d+)-)?(\d+)\s*(分鐘|小時)?/);
+  if (match) {
+    if (match[1]) return { min: match[1], max: match[2], unit: match[3] || '分鐘' };
+    return { min: '', max: match[2], unit: match[3] || '分鐘' };
+  }
+  return { min: '', max: '', unit: '分鐘' };
+};
 
+const parsePlayerCount = (str) => {
+  if (!str) return { min: '', op: '~', max: '' };
+  const matchRange = str.match(/(\d+)[\-~](\d+)\s*人?/);
+  if (matchRange) return { min: matchRange[1], op: '~', max: matchRange[2] };
+  const matchExact = str.match(/(\d+)\s*人?/);
+  if (matchExact) return { min: '', op: '=', max: matchExact[1] };
+  return { min: '', op: '~', max: '' };
+};
 
-
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
-}
-
-function save(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-}
+const parseAge = (str) => {
+  const valid = ['0+', '6+', '12+', '15+', '18+'];
+  if (valid.includes(str)) return str;
+  const numMatch = str?.match(/\d+/);
+  if (numMatch) {
+    const n = Number(numMatch[0]);
+    if (n >= 18) return '18+';
+    if (n >= 15) return '15+';
+    if (n >= 12) return '12+';
+    if (n >= 6) return '6+';
+  }
+  return '0+';
+};
 
 export function BoardGamesPage() {
-  const [items, setItems] = useState(load)
+  const [items, setItems] = useState([])
   const [editing, setEditing] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
   const [search, setSearch] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [form, setForm] = useState({
+  const fileInputRef = useRef(null)
+
+  const defaultForm = {
     name: '',
     description: '',
-    playingTime: '',
-    suggestedAge: '',
-    playerCount: '',
+    playMin: '',
+    playMax: '',
+    playUnit: '分鐘',
+    ageLevel: '0+',
+    playerMin: '',
+    playerOp: '~',
+    playerMax: '',
     suitableGroup: '',
     imageUrl: '',
-  })
+    uploadFile: null,
+  }
 
-  useEffect(() => { save(items) }, [items])
+  const [form, setForm] = useState(defaultForm)
+
+  const fetchGames = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/games')
+      if (res.ok) {
+        const data = await res.json()
+        setItems(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch board games:', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchGames()
+  }, [])
 
   const filteredItems = useMemo(() => {
     const keyword = search.trim().toLowerCase()
@@ -40,56 +82,150 @@ export function BoardGamesPage() {
       !keyword ||
       item.name.toLowerCase().includes(keyword) ||
       item.description?.toLowerCase().includes(keyword)
-    ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    )
   }, [items, search])
 
   const openCreate = () => {
-    setForm({ name: '', description: '', playingTime: '', suggestedAge: '', playerCount: '', suitableGroup: '', imageUrl: '' })
+    setForm(defaultForm)
     setEditing(null)
     setIsCreating(true)
   }
 
   const openEdit = (item) => {
+    const parsedTime = parsePlayTime(item.playingTime)
+    const parsedPlayers = parsePlayerCount(item.playerCount)
+    const parsedAge = parseAge(item.suggestedAge)
+
     setForm({
+      id: item.id,
       name: item.name,
       description: item.description || '',
-      playingTime: item.playingTime,
-      suggestedAge: item.suggestedAge,
-      playerCount: item.playerCount,
-      suitableGroup: item.suitableGroup,
-      imageUrl: item.imageUrl,
+      suitableGroup: item.suitableGroup || '',
+      imageUrl: item.imageUrl || '',
+      uploadFile: null,
+      playMin: parsedTime.min,
+      playMax: parsedTime.max,
+      playUnit: parsedTime.unit,
+      ageLevel: parsedAge,
+      playerMin: parsedPlayers.min,
+      playerOp: parsedPlayers.op,
+      playerMax: parsedPlayers.max,
     })
     setEditing(item)
-    setIsCreating(false)
+    setIsCreating(true)
   }
 
   const handleFileUpload = (e) => {
-    const file = e.target.files?.[0]; if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return
     const reader = new FileReader()
-    reader.onload = () => typeof reader.result === 'string' && setForm(f => ({ ...f, imageUrl: reader.result }))
+    reader.onload = () => {
+      setForm(f => ({ ...f, uploadFile: file, imageUrl: reader.result }))
+    }
     reader.readAsDataURL(file)
   }
 
-  const submit = () => {
+  const submit = async () => {
     if (!form.name.trim()) return alert('請輸入桌遊名稱')
-    const now = new Date().toISOString()
+    setIsLoading(true)
 
-    if (editing) {
-      setItems(items.map(i => i.id === editing.id ? { ...i, ...form, updatedAt: now } : i))
+    let playingTime = '';
+    if (form.playMin && form.playMax) {
+      playingTime = `${form.playMin}-${form.playMax} ${form.playUnit}`;
+    } else if (form.playMax) {
+      playingTime = `${form.playMax} ${form.playUnit}`;
     } else {
-      setItems([{ id: crypto.randomUUID(), ...form, createdAt: now, updatedAt: now }, ...items])
+      playingTime = `--`;
     }
-    setIsCreating(false); setEditing(null)
+
+    let playerCount = '';
+    if (form.playerOp === '~') {
+      if (form.playerMin && form.playerMax) {
+        playerCount = `${form.playerMin}-${form.playerMax} 人`;
+      } else {
+        playerCount = `${form.playerMax || form.playerMin || ''} 人`;
+      }
+    } else {
+      if (form.playerMax) {
+        playerCount = `${form.playerMax} 人`;
+      } else {
+        playerCount = `--`;
+      }
+    }
+
+    const formData = new FormData()
+    formData.append('name', form.name)
+    formData.append('time', playingTime)
+    formData.append('age', form.ageLevel)
+    formData.append('people', playerCount)
+    formData.append('groups', form.suitableGroup)
+    formData.append('content', form.description)
+    if (form.uploadFile) formData.append('image', form.uploadFile)
+
+    try {
+      let res;
+      if (editing) {
+        res = await fetch(`http://localhost:3000/api/games/${editing.id}`, {
+          method: 'PUT',
+          body: formData
+        })
+      } else {
+        res = await fetch('http://localhost:3000/api/games', {
+          method: 'POST',
+          body: formData
+        })
+      }
+
+      if (res.ok) {
+        alert(editing ? '更新成功！' : '建立成功！')
+        setIsCreating(false)
+        setEditing(null)
+        setForm(defaultForm)
+        fetchGames()
+      } else {
+        const data = await res.json()
+        alert('儲存失敗：' + data.message)
+      }
+    } catch (err) {
+      console.error('Submit failed:', err)
+      alert('儲存失敗！')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('確定要刪除？')) return
+    try {
+      const res = await fetch(`http://localhost:3000/api/games/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        fetchGames()
+      } else {
+        alert('刪除失敗！')
+      }
+    } catch (err) {
+      console.error('Delete failed:', err)
+      alert('刪除失敗！')
+    }
   }
 
   const showForm = isCreating || editing
+
+  // Preview compilers
+  let previewPlayTime = '';
+  if (form.playMin && form.playMax) previewPlayTime = `${form.playMin}~${form.playMax} ${form.playUnit}`;
+  else if (form.playMax) previewPlayTime = `${form.playMax} ${form.playUnit}`;
+
+  let previewPlayerCount = '';
+  if (form.playerOp === '~') previewPlayerCount = `${form.playerMin && form.playerMax ? `${form.playerMin}~${form.playerMax}` : (form.playerMax || form.playerMin || '')} 人`;
+  else if (form.playerOp === '=') previewPlayerCount = `${form.playerMax || ''} 人`;
 
   return (
     <div className="board-games-page">
       <div className="page-header">
         <div>
           <h1 className="title">桌遊款式管理</h1>
-          <p className="subtitle">建立館內桌遊清單，提供玩家選遊戲時的參考指標。</p>
+          <p className="subtitle">連接資料庫 `game` 表單，提供玩家選遊戲時的參考指標。</p>
         </div>
         {!showForm && (
           <button onClick={openCreate} className="btn-create">
@@ -126,32 +262,59 @@ export function BoardGamesPage() {
                 />
               </div>
 
-              <div className="form-grid-4">
+              <div className="form-grid-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
                 <div className="form-group">
                   <label className="form-label">⏱️ 遊玩時間</label>
-                  <input value={form.playingTime} onChange={(e) => setForm(f => ({ ...f, playingTime: e.target.value }))} className="form-input" placeholder="30-45 分鐘" />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input type="number" min="1" value={form.playMin} onChange={(e) => setForm(f => ({ ...f, playMin: e.target.value }))} className="form-input" style={{ width: '60px' }} placeholder="起" />
+                    <span>~</span>
+                    <input type="number" min="1" value={form.playMax} onChange={(e) => setForm(f => ({ ...f, playMax: e.target.value }))} className="form-input" style={{ width: '60px' }} placeholder="迄" />
+                    <select value={form.playUnit} onChange={(e) => setForm(f => ({ ...f, playUnit: e.target.value }))} className="form-select" style={{ width: '80px', padding: '0.5rem' }}>
+                      <option value="min">min</option>
+                      <option value="hr">hr</option>
+                    </select>
+                  </div>
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">🎂 建議年齡</label>
-                  <input value={form.suggestedAge} onChange={(e) => setForm(f => ({ ...f, suggestedAge: e.target.value }))} className="form-input" placeholder="10 歲以上" />
+                  <select value={form.ageLevel} onChange={(e) => setForm(f => ({ ...f, ageLevel: e.target.value }))} className="form-select">
+                    <option value="0+">0+</option>
+                    <option value="6+">6+</option>
+                    <option value="12+">12+</option>
+                    <option value="15+">15+</option>
+                    <option value="18+">18+</option>
+                  </select>
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">👥 建議人數</label>
-                  <input value={form.playerCount} onChange={(e) => setForm(f => ({ ...f, playerCount: e.target.value }))} className="form-input" placeholder="2-4 人" />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {form.playerOp === '~' ? (
+                      <input type="number" min="1" value={form.playerMin} onChange={(e) => setForm(f => ({ ...f, playerMin: e.target.value }))} className="form-input" style={{ width: '60px' }} placeholder="起" />
+                    ) : null}
+                    <select value={form.playerOp} onChange={(e) => setForm(f => ({ ...f, playerOp: e.target.value }))} className="form-select" style={{ width: '50px', padding: '0.5rem' }}>
+                      <option value="~">~</option>
+                      <option value="=">=</option>
+                    </select>
+                    <input type="number" min="1" value={form.playerMax} onChange={(e) => setForm(f => ({ ...f, playerMax: e.target.value }))} className="form-input" style={{ width: '60px' }} placeholder={form.playerOp === '=' ? "數" : "迄"} />
+                    <span>人</span>
+                  </div>
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">🏷️ 適合族群</label>
                   <input value={form.suitableGroup} onChange={(e) => setForm(f => ({ ...f, suitableGroup: e.target.value }))} className="form-input" placeholder="新手入門" />
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ marginTop: '1rem' }}>
                 <label className="form-label">桌遊封面</label>
-                <input type="file" accept="image/*" onChange={handleFileUpload} className="file-input" />
+                <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileUpload} className="file-input" />
               </div>
 
               <div className="form-actions">
-                <button onClick={submit} className="btn-submit">儲存桌遊資訊</button>
+                <button onClick={submit} className="btn-submit" disabled={isLoading}>{isLoading ? '儲存中...' : '儲存桌遊資訊'}</button>
                 <button onClick={() => { setIsCreating(false); setEditing(null); }} className="btn-cancel">取消</button>
               </div>
             </div>
@@ -164,13 +327,17 @@ export function BoardGamesPage() {
                     {form.imageUrl ? <img src={form.imageUrl} alt="" /> : <div className="no-img">No Image</div>}
                   </div>
                   <div className="preview-content">
+                    <div className="preview-header-meta">
+                      <span className="group-badge">{form.suitableGroup || '適合族群'}</span>
+                      <span className="age-badge">🎂 {form.ageLevel}</span>
+                    </div>
                     <h4 className="preview-title">{form.name || '桌遊名稱'}</h4>
                     <p className="preview-desc">
                       {form.description || '這裡將會顯示這款桌遊的特色說明與玩法簡介...'}
                     </p>
                     <div className="preview-stats">
-                      <div className="stat">⏱️ {form.playingTime || '--'}</div>
-                      <div className="stat">👥 {form.playerCount || '--'}</div>
+                      <div className="stat">⏱️ {previewPlayTime || '--'}</div>
+                      <div className="stat">👥 {previewPlayerCount || '--'}</div>
                     </div>
                   </div>
                 </div>
@@ -196,7 +363,7 @@ export function BoardGamesPage() {
       <div className="game-grid">
         {filteredItems.length === 0 && !showForm && (
           <div className="empty-state">
-            目前沒有符合條件的桌遊
+            目前沒有建立任何桌遊
           </div>
         )}
         {filteredItems.map((item) => (
@@ -215,24 +382,24 @@ export function BoardGamesPage() {
 
               <div className="stats-grid">
                 <div className="stat-item">
-                  <div className="stat-label">Time</div>
+                  <div className="stat-label">時間</div>
                   <div className="stat-value">{item.playingTime}</div>
                 </div>
                 <div className="stat-item">
-                  <div className="stat-label">Age</div>
+                  <div className="stat-label">年齡</div>
                   <div className="stat-value">{item.suggestedAge}</div>
                 </div>
                 <div className="stat-item">
-                  <div className="stat-label">Players</div>
+                  <div className="stat-label">人數</div>
                   <div className="stat-value">{item.playerCount}</div>
                 </div>
               </div>
 
               <div className="card-actions">
                 <button onClick={() => openEdit(item)} className="btn-edit">
-                  Edit Details
+                  編輯內容
                 </button>
-                <button onClick={() => confirm('確定刪除？') && setItems(items.filter(i => i.id !== item.id))} className="btn-delete">
+                <button onClick={() => handleDelete(item.id)} className="btn-delete">
                   🗑️
                 </button>
               </div>

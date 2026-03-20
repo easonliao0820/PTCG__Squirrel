@@ -1,16 +1,22 @@
+@import "../../styles/variables";
+
 .servicesContainer {
-  padding: 10px 4vw;
-  max-width: 1400px;
-  background-color: #fff;
-  margin: 0 15%;
+  @extend %layout-container;
+  padding: 20px 4vw;
+  background-color: $color-warm-bg;
+  border-radius: 20px;
+  margin-top: 2vh;
+  margin-bottom: 5vh;
+  border: 2px dashed $color-primary;
 }
 
 .pageTitle {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   text-align: center;
-  margin-bottom: 40px;
-  color: #333;
+  margin-bottom: 30px;
+  color: #1a1a1a;
+  letter-spacing: 2px;
 }
 
 .filterBar {
@@ -25,10 +31,11 @@
     border: none;
     background-color: #f0f0f0;
     color: #555;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.05rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 1px;
 
     &:hover {
       background-color: #e0e0e0;
@@ -115,6 +122,28 @@
       object-fit: contain;
     }
   }
+
+  // 共用文章排版
+  .descText {
+    font-size: 1rem;
+    color: #4b5563;
+    line-height: 1.8;
+    text-align: justify;
+    word-break: break-all;
+
+    p {
+      margin-bottom: 1.25rem;
+      text-indent: 2em;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      font-size: 0.9375rem;
+    }
+  }
 }
 
 // 1. 咖啡區塊
@@ -150,6 +179,17 @@
       &.rowSpan2 {
         grid-row: span 2;
       }
+
+      // 文字格專用樣式
+      &.textItem {
+        font-size: 1rem;
+        padding: 15px 20px;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 200px;
+      }
     }
 
     .splitSubGrid {
@@ -166,11 +206,12 @@
     .zoomable {
       cursor: pointer;
       position: relative;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
 
       &:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        z-index: 5;
 
         &::after {
           content: "🔍 點擊放大";
@@ -196,30 +237,44 @@
 
 // 2. PTCG 區塊
 .ptcgSection {
+  gap: 30px;
   background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%); // 皮卡丘黃色系
 
   .ptcgTopLayout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    margin-bottom: 40px;
+    gap: 30px;
+    margin-bottom: 20px;
+    align-items: center;
 
     .leftCol {
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
+      height: 100%;
+      display: grid;
+      gap: 20px;
+      grid-template-rows: 1fr 0.1fr;
 
       .ptcgArticleBox {
         background: #fff;
         padding: 30px;
         border-radius: 15px;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 20px;
+        justify-content: center;
+        width: 100%;
+        margin: 0 auto;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
+        .articleContent {
+          text-align: center;
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #333;
+        }
 
         .gymLogoContainer {
-          width: 80px;
-          height: 80px;
+          width: 50%;
+          aspect-ratio: 1 / 1;
 
           img {
             width: 100%;
@@ -243,20 +298,20 @@
     }
 
     .rightCol {
+      width: 100%;
+
       .squareCarousel {
         background: #fff;
         border-radius: 15px;
         padding: 20px;
         position: relative;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 1/ 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
 
         img {
-          width: 100%;
-          height: 85%;
           object-fit: contain;
         }
 
@@ -282,8 +337,9 @@
 
   .cardShowcaseGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    justify-content: center;
+    grid-template-columns: repeat(4, 22.5%);
+    gap: 10px 30px;
 
     .cardItem {
       background: #fff;
@@ -330,11 +386,12 @@
     display: grid;
     grid-template-columns: 0.2fr 0.6fr 0.2fr;
     gap: 50px;
-    align-items: center;
+    align-items: stretch; // 改為拉伸高度
 
     .badgeColumn {
       display: flex;
       flex-direction: column;
+      justify-content: space-between; // 頭尾分散，達成「一樣高」的視覺感
       gap: 20px;
 
       .ultraBadge {
@@ -357,20 +414,19 @@
 
     .ultraDescriptionBox {
       background: #fff;
-      border-radius: 15px;
-      padding: 40px;
-      min-height: 300px;
+      border-radius: 20px;
+      padding: 30px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
-      color: #555;
-      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
     }
 
     .ultraPosterFrame {
       display: flex;
       flex-direction: column;
+      justify-content: space-between; // 頭尾分散，達成「一樣高」的視覺感
       gap: 20px;
 
       img {
@@ -386,40 +442,92 @@
 
 // 4. 桌遊區塊
 .boardGameSection {
-  background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%); // 遊戲桌布綠色系
+  background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+
+  .logoCircle {
+
+    img,
+    .logoCircleImg {
+      width: 100%;
+      height: 100%;
+      scale: 1.8;
+      object-fit: contain;
+    }
+  }
 
   .boardGameLayout {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr;
-    gap: 30px;
-    align-items: center;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 40px;
+    align-items: stretch;
 
     .boxArtGrid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; // 頭尾對齊，達成「一樣高」的視覺感
+      gap: 20px;
+      height: 100%;
 
       .boxArt {
         background: #fff;
-        aspect-ratio: 1 / 1;
-        border-radius: 10px;
+        aspect-ratio: 1.5 / 1;
+        width: 100%;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #ddd;
-        font-weight: bold;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        margin: 0 auto;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
       }
     }
 
     .boardGameDescription {
       background: #fff;
-      padding: 40px;
-      border-radius: 15px;
-      min-height: 200px;
+      padding: 30px;
+      border-radius: 20px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      text-align: center;
+      gap: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+      position: relative;
+
+      .mascotDecoration {
+        position: absolute;
+        top: -30px;
+        right: -20px;
+        width: 80px;
+        z-index: 5;
+
+        img {
+          width: 100%;
+          height: auto;
+          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+      }
+
+      .mainFeatureImg {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+        img {
+          width: 100%;
+          display: block;
+        }
+      }
+
     }
   }
 }
@@ -438,14 +546,13 @@
 }
 
 .modalContent {
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 90vw;
+  max-height: 90vh;
   cursor: default;
   animation: zoomIn 0.3s ease;
 
   img {
-    width: 100%;
-    height: 100%;
+    height: 90vh;
     object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
@@ -491,7 +598,7 @@
 
 @media (max-width: 1024px) {
   .servicesContainer {
-    margin: 0 5%;
+    padding: 10px 5vw;
   }
 
   .ptcgSection .ptcgTopLayout,
@@ -502,24 +609,26 @@
   }
 
   .ptcgSection .cardShowcaseGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .servicesContainer {
-    margin: 0;
-    padding: 10px 5vw;
+  .pageTitle {
+    font-size: $pagetitle-size;
+    margin-bottom: 30px;
   }
 
   .filterBar {
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 60px;
+    padding: 0 10px;
 
     .filterBtn {
       padding: 8px 16px;
       font-size: 0.9rem;
+      flex: 1 1 120px; // 讓按鈕在小螢幕能自動填滿
     }
   }
 
@@ -529,37 +638,102 @@
     border-radius: 15px;
 
     .logoCircle {
-      width: 90px;
-      height: 90px;
-      top: -45px;
+      width: 85px;
+      height: 85px;
+      top: -42px;
     }
   }
 
   .coffeeSection .coffeeGrid {
     grid-template-columns: 1fr;
 
-    .gridItem.rowSpan2 {
-      grid-row: auto;
+    .gridItem {
       min-height: 250px;
     }
+
+    .gridItem.rowSpan2 {
+      grid-row: auto;
+    }
   }
 
-  .ptcgSection .ptcgTopLayout {
-    grid-template-columns: 1fr;
+  .ptcgSection {
+    .ptcgTopLayout {
+      grid-template-columns: 1fr;
+
+      .leftCol .mascotRow img {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    .cardShowcaseGrid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
   }
 
-  .ultraSection .ultraLayout {
-
-    .badgeColumn,
-    .ultraPosterFrame {
-      flex-direction: row;
-      justify-content: center;
-      flex-wrap: wrap;
+  .ultraSection {
+    .ultraLogoOverlay {
+      width: 85px;
+      height: 85px;
+      top: -42px;
     }
 
-    .ultraBadge,
-    img {
-      max-width: 150px;
+    .ultraLayout {
+      grid-template-columns: 1fr;
+      gap: 30px;
+
+      .badgeColumn,
+      .ultraPosterFrame {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .ultraBadge,
+      .ultraPosterFrame img {
+        max-width: 140px;
+        flex: 1 1 120px;
+      }
+
+      .ultraDescriptionBox {
+        padding: 30px 20px;
+        min-height: 200px;
+      }
     }
+  }
+
+  .boardGameSection {
+    .boardGameLayout {
+      grid-template-columns: 1fr;
+
+      .boxArtGrid {
+        order: 2;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .boardGameDescription {
+        order: 1;
+        padding: 30px 20px;
+
+        .mascotDecoration {
+          top: -20px;
+          right: 0;
+          width: 60px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .ptcgSection .cardShowcaseGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filterBar .filterBtn {
+    flex: 1 1 40%;
   }
 }

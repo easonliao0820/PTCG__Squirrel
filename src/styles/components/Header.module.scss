@@ -1,3 +1,5 @@
+@use "../../styles/variables" as *;
+
 .header {
   background: var(--color-bg-elevated);
   border-bottom: 1px solid var(--color-border);
@@ -5,8 +7,7 @@
 }
 
 .inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  @extend %layout-container;
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;

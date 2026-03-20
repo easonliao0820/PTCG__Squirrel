@@ -4,12 +4,12 @@ import styles from '../../styles/pages/home/LocationGallery.module.scss';
 const Gallery = () => {
   // 準備 6 張示意圖 (實際開發請替換成真實路徑)
   const images = [
-    { id: 1, src: '/images/location/env-1.png', alt: '店內環境 1' },
-    { id: 2, src: '/images/location/env-2.png', alt: '店內環境 2' },
-    { id: 3, src: '/images/location/env-3.png', alt: '店內環境 3' },
-    { id: 4, src: '/images/location/env-4.png', alt: '店內環境 4' },
-    { id: 5, src: '/images/location/env-5.png', alt: '店內環境 5' },
-    { id: 6, src: '/images/location/env-6.png', alt: '店內環境 6' },
+    { id: 1, src: '/images/area/area1.jpeg', alt: '店內環境 1' },
+    { id: 2, src: '/images/area/area2.jpeg', alt: '店內環境 2' },
+    { id: 3, src: '/images/area/area3.jpeg', alt: '店內環境 3' },
+    { id: 4, src: '/images/area/area4.jpeg', alt: '店內環境 4' },
+    { id: 5, src: '/images/area/area5.jpeg', alt: '店內環境 5' },
+    { id: 6, src: '/images/area/area6.jpeg', alt: '店內環境 6' },
   ];
 
   return (

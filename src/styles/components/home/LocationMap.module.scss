@@ -1,15 +1,11 @@
-@import '../../variables.scss';
+@use "sass:color";
+@use '../../variables.scss' as *;
 
 .mapSection {
-  width: 100%;
+  @extend %layout-container;
   padding: 80px 6vw;
   background-color: $color-dark; // 使用 Logo 深咖啡色作為大區塊背景
   color: #fff;
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
 
   .sectionTitle {
     text-align: center;
@@ -85,7 +81,7 @@
 
     .subText {
       font-size: 0.9rem;
-      color: lighten($color-dark, 20%);
+      color: color.adjust($color-dark, $lightness: 20%);
       margin-top: 4px;
     }
 
@@ -95,7 +91,7 @@
       font-weight: 700;
 
       &:hover {
-        color: darken($color-primary, 10%);
+        color: color.adjust($color-primary, $lightness: -10%);
         text-decoration: underline;
       }
     }
@@ -135,7 +131,7 @@
     transition: $transition-base;
 
     &:hover {
-      background-color: darken($color-primary, 10%);
+      background-color: color.adjust($color-primary, $lightness: -10%);
       transform: translateY(-2px);
     }
   }

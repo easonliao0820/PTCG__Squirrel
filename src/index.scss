@@ -13,6 +13,7 @@
   --color-text: #2c1810;
   --color-text-muted: #6b5b4f;
   --color-border: #e0d5c9;
+  --color-warm-bg: #FEF9F2;
   --font-sans: 'Noto Sans TC', system-ui, sans-serif;
   --shadow-sm: 0 1px 2px rgba(44, 24, 16, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(44, 24, 16, 0.08), 0 2px 4px -2px rgba(44, 24, 16, 0.05);
@@ -25,7 +26,7 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   color: var(--color-text);
-  background: var(--color-bg);
+  background: var(--color-warm-bg);
   -webkit-font-smoothing: antialiased;
 }
 

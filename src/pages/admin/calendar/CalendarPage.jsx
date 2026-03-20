@@ -109,7 +109,7 @@ export function CalendarPage() {
               ))}
             </select>
           </div>
-          <div className="form-group" style={{ flex: 1, minWidth: '220px' }}>
+          <div className="form-group flex-1">
             <label className="form-label">上傳圖片檔案</label>
             <input
               type="file"

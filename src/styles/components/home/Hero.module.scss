@@ -1,4 +1,4 @@
-@import '../../variables.scss';
+@use "../../variables.scss" as *;
 
 .hero {
   position: relative;
@@ -57,10 +57,10 @@
 
 .container {
   display: flex;
-  max-width: 1440px; // 稍微放寬，在 1920 螢幕上更平衡
+  max-width: 1440px;
   width: 100%;
-  gap: clamp(30px, 4vw, 80px); // 縮短 gap 在較小視窗的距離
-  align-items: center; // 改為居中對齊
+  gap: clamp(30px, 4vw, 80px);
+  align-items: center;
 
   @media (max-width: $breakpoint-tablet) {
     flex-direction: column;

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 // 前台組件 (Layout & Pages)
 import Layout from './components/Layout'
+import Login from './components/Login'
 import Home from './pages/client/Home'
 import PlayPage from './pages/client/PlayPage'
 import Events from './pages/client/Events'
@@ -16,6 +17,17 @@ import { MerchandisePage } from './pages/admin/products/MerchandisePage'
 import { BoardGamesPage } from './pages/admin/products/BoardGamesPage'
 import { CardsPage } from './pages/admin/products/CardsPage' // 您上傳的檔案
 
+// 路由保護組件
+function ProtectedRoute({ children }) {
+  const isAuthenticated = localStorage.getItem('adminSession') === 'true'
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
+}
+
 function App() {
 
   return (
@@ -29,7 +41,14 @@ function App() {
       </Route>
 
       {/* --- 後台路由區塊 (路徑前綴為 /admin) --- */}
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
         {/* 進入 /admin 時自動轉跳到 dashboard */}
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
 
@@ -49,6 +68,9 @@ function App() {
           <Route path="cards" element={<CardsPage />} />
         </Route>
       </Route>
+
+      {/* 登入頁（獨立，不包在 Layout 內） */}
+      <Route path="/login" element={<Login />} />
 
       {/* 全域防呆：找不到路徑時回首頁 */}
       <Route path="*" element={<Navigate to="/" replace />} />

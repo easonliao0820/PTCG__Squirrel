@@ -48,7 +48,7 @@ export function BoardGamesPage() {
     description: '',
     playMin: '',
     playMax: '',
-    playUnit: '分鐘',
+    playUnit: 'min',
     ageLevel: '0+',
     playerMin: '',
     playerOp: '~',

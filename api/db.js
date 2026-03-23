@@ -3,9 +3,9 @@ const { Pool } = pg;
 
 const pool = new Pool({
   host: 'localhost',
-  database: 'PTCG__Squirrel',
-  user: 'postgres',
-  password: '20050111',
+  database: 'postgres',
+  user: 'esn',
+  password: '0820',
   port: 5432, // PostgreSQL預設埠號
 });
 

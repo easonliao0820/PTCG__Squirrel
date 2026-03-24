@@ -4,7 +4,7 @@ import styles from '../styles/components/Header.module.scss'
 const navItems = [
   { to: '/', label: '首頁', type: 'route' },
   { to: '/services', label: '服務介紹', type: 'route' },
-  { to: '/events', label: '活動介紹', type: 'route' },
+  { to: '/events', label: '所有活動', type: 'route' },
   { to: '/calendar', label: '歷年行事曆', type: 'route' },
   { to: '/playpage', label: '桌遊品項', type: 'route' },
   { to: '/login', label: '管理登入', type: 'route' },
@@ -29,17 +29,20 @@ export default function Header() {
           <span>窩作夥</span>
         </Link>
         <nav className={styles.nav}>
-          {finalNavItems.map(({ to, label, type }) =>
-            type === 'anchor' ? (
-              <a key={to} href={to} className={styles.navLink}>
+          {finalNavItems.map(({ to, label, type }) => {
+            const isLoginBtn = to === '/login' || to === '/admin/dashboard'
+            const linkClass = isLoginBtn ? `${styles.navLink} ${styles.loginBtn}` : styles.navLink
+            
+            return type === 'anchor' ? (
+              <a key={to} href={to} className={linkClass}>
                 {label}
               </a>
             ) : (
-              <Link key={to} to={to} className={styles.navLink}>
+              <Link key={to} to={to} className={linkClass}>
                 {label}
               </Link>
             )
-          )}
+          })}
         </nav>
       </div>
     </header>

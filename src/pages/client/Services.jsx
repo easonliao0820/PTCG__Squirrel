@@ -43,7 +43,7 @@ const Services = () => {
     { name: 'PTCG', ref: ptcgRef, id: 'ptcg' },
     { name: '咖啡餐飲', ref: coffeeRef, id: 'coffee' },
     { name: '超人力霸王', ref: ultraRef, id: 'ultra' },
-    { name: '桌遊', ref: boardGameRef, id: 'boardgame' }
+    { name: '桌遊/劇本殺', ref: boardGameRef, id: 'boardgame' }
   ];
 
   const scrollToSection = (category) => {
@@ -117,7 +117,45 @@ const Services = () => {
         </div>
       </section>
 
-      {/* 2. 咖啡區塊 */}
+      <section ref={boardGameRef} className={`${styles.serviceSection} ${styles.boardGameSection}`}>
+        <div className={styles.logoCircle}>
+          <img className={styles.logoCircleImg} src={BOARDGAME_ICON} alt="Board Game Logo" />
+        </div>
+        <div className={styles.boardGameLayout}>
+          <div className={styles.boxArtGrid}>
+            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG1)}>
+              <img src={BOARDGAME_IMG1} alt="Board Game 1" />
+            </div>
+            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG2)}>
+              <img src={BOARDGAME_IMG3} alt="Board Game 3" />
+            </div>
+          </div>
+
+          <div className={styles.boardGameDescription}>
+            <article className={styles.descText}>
+              <p>
+                松鼠窩嚴選百款國內外熱門桌遊與多部優質劇本殺，從輕鬆上手的派對遊戲、深情動人的情感劇本到燒腦的推理機制，滿足各種年齡層與聚會需求。無論是假日好友齊聚切磋，或是想體驗不同人生的沉浸式劇場，您都能在這裡找到專屬的樂趣。
+              </p>
+              <p>
+                我們提供舒適寬敞的遊玩空間與專業的教學服務，即便從未接觸過桌遊或劇本殺，也能在我們的引導下快速投入。現場更支援各項活動包場預約，致力於打造一個讓每位玩家都能暫時忘卻煩惱、流連忘返的休閒聖地！
+              </p>
+              <p>
+                建議來電預約，以確保有足夠的座位與人員服務，如有需要我們也歡迎預約包場!
+              </p>
+            </article>
+          </div>
+
+          <div className={styles.boxArtGrid}>
+            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG3)}>
+              <img src={BOARDGAME_IMG2} alt="Board Game 2" />
+            </div>
+            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG4)}>
+              <img src={BOARDGAME_IMG4} alt="Board Game 4" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section ref={coffeeRef} className={`${styles.serviceSection} ${styles.coffeeSection}`}>
         <div className={styles.logoCircle}>
           <img src={COFFEE_ICON} alt="Coffee Logo" />
@@ -158,7 +196,6 @@ const Services = () => {
         </div>
       </section>
 
-      {/* 3. 超人力霸王區塊 */}
       <section ref={ultraRef} className={`${styles.serviceSection} ${styles.ultraSection}`}>
         <div className={styles.ultraLogoOverlay}>
           <img src={UCG_ICON} alt="Ultra Logo" />
@@ -185,43 +222,6 @@ const Services = () => {
           <div className={styles.ultraPosterFrame}>
             <img src={UCG_POST1_IMG} alt="Ultra Poster 1" />
             <img src={UCG_POST2_IMG} alt="Ultra Poster 2" />
-          </div>
-        </div>
-      </section>
-
-      {/* 4. 桌遊區塊 */}
-      <section ref={boardGameRef} className={`${styles.serviceSection} ${styles.boardGameSection}`}>
-        <div className={styles.logoCircle}>
-          <img className={styles.logoCircleImg} src={BOARDGAME_ICON} alt="Board Game Logo" />
-        </div>
-        <div className={styles.boardGameLayout}>
-          <div className={styles.boxArtGrid}>
-            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG1)}>
-              <img src={BOARDGAME_IMG1} alt="Board Game 1" />
-            </div>
-            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG2)}>
-              <img src={BOARDGAME_IMG3} alt="Board Game 3" />
-            </div>
-          </div>
-
-          <div className={styles.boardGameDescription}>
-            <article className={styles.descText}>
-              <p>
-                松鼠窩嚴選百款國內外熱門桌遊，從輕鬆上手的派對遊戲、充滿驚喜的推理遊戲到深具挑戰的重量級策略對戰，滿足各種年齡層與聚會需求。無論是假日好友齊聚切磋，或是親子共學同樂，您都能在這裡找到最適合的樂趣。
-              </p>
-              <p>
-                我們提供舒適寬敞的遊玩環境與專業的店員教學服務，即便從未接觸過桌遊，也能在引導下快速融入。現場更備有豐富的周邊配件，致力於打造一個讓每位玩家都能沉浸其中、流連忘返的休閒聖地！
-              </p>
-            </article>
-          </div>
-
-          <div className={styles.boxArtGrid}>
-            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG3)}>
-              <img src={BOARDGAME_IMG2} alt="Board Game 2" />
-            </div>
-            <div className={`${styles.boxArt} ${styles.zoomable}`} onClick={() => setZoomImg(BOARDGAME_IMG4)}>
-              <img src={BOARDGAME_IMG4} alt="Board Game 4" />
-            </div>
           </div>
         </div>
       </section>

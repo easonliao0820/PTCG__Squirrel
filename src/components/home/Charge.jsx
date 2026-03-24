@@ -14,7 +14,7 @@ const Charge = () => {
     play: {
       label: '遊玩區域',
       images: ['/images/area/env1.jpeg', '/images/area/env2.jpeg', '/images/area/env3.jpeg', '/images/area/env4.jpeg'],
-      desc: '舒適的遊玩區域，提供各式桌遊，和足夠的座位讓您與親朋好友盡情享受遊玩時光。'
+      desc: '舒適的遊玩區域，提供各式桌遊，和足夠的座位讓您與親朋好友盡情享受遊玩時光。\n歡迎來訊包場預約！'
     },
     sales: {
       label: '單卡販售',

@@ -5,6 +5,7 @@ const navItems = [
   { to: '/', label: '首頁', type: 'route' },
   { to: '/services', label: '服務介紹', type: 'route' },
   { to: '/events', label: '活動介紹', type: 'route' },
+  { to: '/calendar', label: '歷年行事曆', type: 'route' },
   { to: '/playpage', label: '桌遊品項', type: 'route' },
   { to: '/login', label: '管理登入', type: 'route' },
 ]

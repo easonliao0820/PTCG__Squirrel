@@ -242,62 +242,68 @@
 
   .ptcgTopLayout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 20px;
-    align-items: center;
+    grid-template-columns: 1.2fr 0.8fr; // 分配更多寬度給文字
+    gap: 40px;
+    width: 100%;
+    margin: 0 auto 30px;
+    align-items: flex-start; // 改為頂部對齊，避免長度不同造成空隙
 
     .leftCol {
-      height: 100%;
-      display: grid;
-      gap: 20px;
-      grid-template-rows: 1fr 0.1fr;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
 
       .ptcgArticleBox {
         background: #fff;
-        padding: 30px;
-        border-radius: 15px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        margin: 0 auto;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 6px;
+          height: 100%;
+          background: #fbc02d; // 側邊主題裝飾線
+        }
 
         .articleContent {
-          text-align: center;
-          font-size: 1.5rem;
-          font-weight: 600;
+          text-align: left; // 改為左對齊更易讀
           color: #333;
-        }
 
-        .gymLogoContainer {
-          width: 50%;
-          aspect-ratio: 1 / 1;
-
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+          h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #2c1810;
+            text-align: center; // 標題維持置中
           }
-        }
-      }
 
-      .mascotRow {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
+          p {
+            font-size: 1.1rem;
+            line-height: 2; // 加大行距
+            text-align: justify;
+            text-indent: 2em;
+            margin-bottom: 1.5rem;
+            color: #4b5563;
 
-        img {
-          width: 60px;
-          height: 60px;
-          object-fit: contain;
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
         }
       }
     }
 
     .rightCol {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       width: 100%;
 
       .squareCarousel {
@@ -305,13 +311,17 @@
         border-radius: 15px;
         padding: 20px;
         position: relative;
-        aspect-ratio: 1/ 1;
+        aspect-ratio: 1 / 1;
+        max-width: 600px;
+        margin: 0 auto;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 
         img {
+          max-height: 85%;
           object-fit: contain;
         }
 
@@ -332,25 +342,65 @@
           }
         }
       }
+
+      .mascotRow {
+        display: flex;
+        flex-wrap: wrap; // 允許換行
+        justify-content: center; // 水平置中
+
+        max-width: 320px; // 限制寬度以達成第一列 3 個的效果
+        margin: 25px auto 0; // 整體區域置中
+        padding: 5px;
+
+        img {
+          width: 60px;
+          height: 60px;
+          object-fit: contain;
+          filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+          transition: transform 0.3s ease;
+
+          &:hover {
+            transform: scale(1.35) rotate(5deg);
+          }
+        }
+      }
     }
   }
 
   .cardShowcaseGrid {
     display: grid;
-    justify-content: center;
-    grid-template-columns: repeat(4, 22.5%);
-    gap: 10px 30px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px 60px;
+    width: 100%;
+    margin: 0 auto;
 
     .cardItem {
       background: #fff;
       aspect-ratio: 1 / 1;
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ccc;
-      font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; // 讓圖片填滿且不變形
+        transition: transform 0.5s ease;
+      }
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+
+        img {
+          transform: scale(1.1);
+        }
+      }
     }
   }
 }
@@ -602,10 +652,28 @@
   }
 
   .ptcgSection .ptcgTopLayout,
-  .ultraSection .ultraLayout,
   .boardGameSection .boardGameLayout {
     grid-template-columns: 1fr;
     gap: 30px;
+  }
+
+  /* iPad Air (820px) 左右比例縮放，避免圖片比例過大 */
+  .ultraSection .ultraLayout {
+    grid-template-columns: 120px 1fr 120px;
+    gap: 20px;
+    align-items: center;
+
+    .ultraBadge,
+    .ultraPosterFrame img {
+      width: 120px !important;
+      height: auto;
+      margin: 0 auto;
+    }
+    
+    .ultraDescriptionBox {
+      padding: 30px 20px;
+      min-height: 200px;
+    }
   }
 
   .ptcgSection .cardShowcaseGrid {
@@ -659,16 +727,21 @@
   .ptcgSection {
     .ptcgTopLayout {
       grid-template-columns: 1fr;
+      gap: 20px;
 
-      .leftCol .mascotRow img {
-        width: 50px;
-        height: 50px;
+      .rightCol .mascotRow {
+        max-width: 100%; // 行動版不限寬，讓它置中
+
+        img {
+          width: 45px;
+          height: 45px;
+        }
       }
     }
 
     .cardShowcaseGrid {
       grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+      gap: 20px;
     }
   }
 
@@ -731,6 +804,7 @@
 @media (max-width: 480px) {
   .ptcgSection .cardShowcaseGrid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .filterBar .filterBtn {

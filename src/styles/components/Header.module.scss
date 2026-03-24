@@ -59,3 +59,15 @@
     text-decoration: none;
   }
 }
+
+.loginBtn {
+  background: var(--color-primary);
+  color: #fff !important;
+  margin-left: 0.5rem;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--color-primary-hover) !important;
+    color: #fff !important;
+  }
+}

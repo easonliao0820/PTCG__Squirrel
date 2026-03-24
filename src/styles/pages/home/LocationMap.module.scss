@@ -89,10 +89,11 @@
       margin-top: 4px;
     }
 
-    a {
+    a, .inlineLink {
       color: $color-primary;
       text-decoration: none;
       font-weight: 700;
+      cursor: pointer;
       &:hover {
         color: color.adjust($color-primary, $lightness: -10%);
         text-decoration: underline;

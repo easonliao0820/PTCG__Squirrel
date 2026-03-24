@@ -1,0 +1,60 @@
+.backToTop {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 999;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateY(20px) scale(0.8);
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+
+  .iconBox {
+    background: linear-gradient(135deg, #fbc02d 0%, #f9a825 100%);
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(251, 192, 45, 0.4);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, #f9a825 0%, #f57f17 100%);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(251, 192, 45, 0.6);
+    }
+
+    svg {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+    }
+  }
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .backToTop {
+    bottom: 25px;
+    right: 25px;
+
+    .iconBox {
+      width: 48px;
+      height: 48px;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+}

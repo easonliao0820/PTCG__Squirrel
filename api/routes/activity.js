@@ -26,13 +26,14 @@ router.get('/activities', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT a.*, 
-             to_char(a.date_start, 'YYYY-MM-DD') as date_start_str,
-             to_char(a.date_end, 'YYYY-MM-DD') as date_end_str,
+             to_char(a."dateStart", 'YYYY-MM-DD') as date_start_str,
+             to_char(a."dateEnd", 'YYYY-MM-DD') as date_end_str,
              ac.name as class_name, 
-             ast.content as style_content
+             ast.content as style_content,
+             (SELECT json_agg(img) FROM "activityImg" WHERE "activityId" = a.id) as images
       FROM activity a
-      JOIN activity_class ac ON a.class_id = ac.id
-      JOIN activity_style ast ON a.style_id = ast.id
+      LEFT JOIN "activityClass" ac ON a."classId" = ac.id
+      LEFT JOIN "activityStyle" ast ON a."styleId" = ast.id
       ORDER BY a.id DESC
     `);
     const activities = result.rows.map(row => ({
@@ -41,11 +42,12 @@ router.get('/activities', async (req, res) => {
       startAt: row.date_start_str,
       endAt: row.date_end_str,
       content: row.content,
-      classId: row.class_id,
-      styleId: row.style_id,
+      classId: row.classId,
+      styleId: row.styleId,
       className: row.class_name,
       styleContent: row.style_content,
-      imageUrl: row.img ? `http://localhost:3000/uploads/activity/${row.img}` : null
+      url: row.url,
+      imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
     }));
     res.json(activities);
   } catch (err) {
@@ -55,71 +57,105 @@ router.get('/activities', async (req, res) => {
 });
 
 // API: 新增活動
-router.post('/activities', uploadActivity.single('image'), async (req, res) => {
+router.post('/activities', uploadActivity.array('images', 2), async (req, res) => {
+  const client = await pool.connect();
   try {
-    const { title, startAt, endAt, content, classId, styleId } = req.body;
-    const imgFilename = req.file ? req.file.filename : null;
+    await client.query('BEGIN');
+    const { title, startAt, endAt, content, classId, styleId, url } = req.body;
+    const files = req.files || [];
     
-    // date_start and date_end might be empty strings from frontend
     const dStart = startAt ? startAt : null;
     const dEnd = endAt ? endAt : null;
 
-    const result = await pool.query(
-      'INSERT INTO activity (title, date_start, date_end, content, class_id, style_id, img) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [title, dStart, dEnd, content, classId, styleId, imgFilename]
+    const result = await client.query(
+      'INSERT INTO activity (title, "dateStart", "dateEnd", content, "classId", "styleId", url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [title, dStart, dEnd, content, classId, styleId, url]
     );
+    const activityId = result.rows[0].id;
 
+    if (files.length > 0) {
+      for (const file of files) {
+        await client.query('INSERT INTO "activityImg" ("activityId", img) VALUES ($1, $2)', [activityId, file.filename]);
+      }
+    }
+
+    await client.query('COMMIT');
     res.json({ status: 'success', data: result.rows[0] });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Create activity failed:', err);
     res.status(500).json({ status: 'error', message: err.message });
+  } finally {
+    client.release();
   }
 });
 
 // API: 更新活動
-router.put('/activities/:id', uploadActivity.single('image'), async (req, res) => {
+router.put('/activities/:id', uploadActivity.array('images', 2), async (req, res) => {
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
     const id = req.params.id;
-    const { title, startAt, endAt, content, classId, styleId } = req.body;
+    const { title, startAt, endAt, content, classId, styleId, url } = req.body;
+    const files = req.files || [];
     const dStart = startAt ? startAt : null;
     const dEnd = endAt ? endAt : null;
 
-    let query = 'UPDATE activity SET title=$1, date_start=$2, date_end=$3, content=$4, class_id=$5, style_id=$6 WHERE id=$7 RETURNING *';
-    let values = [title, dStart, dEnd, content, classId, styleId, id];
+    await client.query(
+      'UPDATE activity SET title=$1, "dateStart"=$2, "dateEnd"=$3, content=$4, "classId"=$5, "styleId"=$6, url=$7 WHERE id=$8',
+      [title, dStart, dEnd, content, classId, styleId, url, id]
+    );
 
-    if (req.file) {
-      const oldResult = await pool.query('SELECT img FROM activity WHERE id=$1', [id]);
-      if (oldResult.rows.length > 0 && oldResult.rows[0].img) {
-        const oldFile = path.join('public', 'uploads', 'activity', oldResult.rows[0].img);
-        if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
+    // 如果有上傳新圖片，刪除舊的並存入新的
+    if (files.length > 0) {
+      const oldImgs = await client.query('SELECT img FROM "activityImg" WHERE "activityId"=$1', [id]);
+      for (const row of oldImgs.rows) {
+        const filePath = path.join('public', 'uploads', 'activity', row.img);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       }
+      await client.query('DELETE FROM "activityImg" WHERE "activityId"=$1', [id]);
 
-      query = 'UPDATE activity SET title=$1, date_start=$2, date_end=$3, content=$4, class_id=$5, style_id=$6, img=$7 WHERE id=$8 RETURNING *';
-      values = [title, dStart, dEnd, content, classId, styleId, req.file.filename, id];
+      for (const file of files) {
+        await client.query('INSERT INTO "activityImg" ("activityId", img) VALUES ($1, $2)', [id, file.filename]);
+      }
     }
 
-    const result = await pool.query(query, values);
-    res.json({ status: 'success', data: result.rows[0] });
+    await client.query('COMMIT');
+    res.json({ status: 'success' });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Update activity failed:', err);
     res.status(500).json({ status: 'error', message: err.message });
+  } finally {
+    client.release();
   }
 });
 
 // API: 刪除活動
 router.delete('/activities/:id', async (req, res) => {
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
     const id = req.params.id;
-    const oldResult = await pool.query('SELECT img FROM activity WHERE id=$1', [id]);
-    if (oldResult.rows.length > 0 && oldResult.rows[0].img) {
-      const oldFile = path.join('public', 'uploads', 'activity', oldResult.rows[0].img);
-      if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
+    
+    // 找出所有圖片並刪除檔案
+    const imgs = await client.query('SELECT img FROM "activityImg" WHERE "activityId"=$1', [id]);
+    for (const row of imgs.rows) {
+      const filePath = path.join('public', 'uploads', 'activity', row.img);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
-    await pool.query('DELETE FROM activity WHERE id=$1', [id]);
+
+    // 刪除活動 (會 Cascade 刪除 activityImg 記錄)
+    await client.query('DELETE FROM activity WHERE id=$1', [id]);
+
+    await client.query('COMMIT');
     res.json({ status: 'success' });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Delete activity failed:', err);
     res.status(500).json({ status: 'error', message: err.message });
+  } finally {
+    client.release();
   }
 });
 

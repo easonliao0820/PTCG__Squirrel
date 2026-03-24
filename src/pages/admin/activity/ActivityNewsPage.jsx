@@ -21,17 +21,16 @@ export function ActivityNewsPage() {
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   
-  const fileInputRef = useRef(null)
-
   const defaultForm = {
     title: '',
     content: '',
-    imageUrl: '',
-    uploadFile: null,
+    images: [null, null], // [File, File]
+    previews: ['', ''],   // [string, string]
     classId: 1,
     styleId: 1,
     startAt: '',
     endAt: '',
+    url: '',
   }
 
   const [form, setForm] = useState(defaultForm)
@@ -61,12 +60,18 @@ export function ActivityNewsPage() {
     })
   }, [items, filter, search])
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = (e, index) => {
     const file = e.target.files?.[0]; 
     if (!file) return
     const reader = new FileReader();
     reader.onload = () => {
-      setForm(f => ({ ...f, uploadFile: file, imageUrl: reader.result }))
+      setForm(f => {
+        const newImages = [...f.images]
+        const newPreviews = [...f.previews]
+        newImages[index] = file
+        newPreviews[index] = reader.result
+        return { ...f, images: newImages, previews: newPreviews }
+      })
     }
     reader.readAsDataURL(file)
   }
@@ -82,7 +87,13 @@ export function ActivityNewsPage() {
     formData.append('styleId', form.styleId)
     if (form.startAt) formData.append('startAt', form.startAt)
     if (form.endAt) formData.append('endAt', form.endAt)
-    if (form.uploadFile) formData.append('image', form.uploadFile)
+    if (form.url) formData.append('url', form.url)
+    // Append all selected files
+    form.images.forEach((file, idx) => {
+      if (file && (form.styleId === 1 || idx === 0)) {
+        formData.append('images', file)
+      }
+    })
 
     try {
       let res;
@@ -137,12 +148,15 @@ export function ActivityNewsPage() {
     const styleOpt = styleOptions.find(o => o.value === item.styleId) || styleOptions[0]
     const layoutClass = styleOpt.className
     const period = item.startAt || item.endAt ? `${item.startAt || ''} ~ ${item.endAt || ''}` : null
+    const validPreviews = (item.previews || []).filter((p, i) => p && (item.styleId === 1 || i === 0))
 
     return (
       <div className={`preview-card ${layoutClass}`}>
-        {item.imageUrl && (
-          <div className={`preview-img-wrapper ${layoutClass === 'layout-top' ? 'top' : 'side'}`}>
-            <img src={item.imageUrl} alt="" />
+        {validPreviews.length > 0 && (
+          <div className={`preview-img-wrapper ${layoutClass === 'layout-top' ? 'top' : 'side'} ${validPreviews.length > 1 ? 'multi' : ''}`}>
+            {validPreviews.map((url, idx) => (
+              <img key={idx} src={url} alt="" className={validPreviews.length > 1 ? 'split' : ''} />
+            ))}
           </div>
         )}
         <div className="preview-content">
@@ -176,9 +190,10 @@ export function ActivityNewsPage() {
           <p className="item-desc">{item.content}</p>
         </div>
 
-        {item.imageUrl && (
+        {item.imageUrls && item.imageUrls.length > 0 && (
           <div className="item-thumbnail">
-            <img src={item.imageUrl} alt="" />
+            <img src={item.imageUrls[0]} alt="" />
+            {item.imageUrls.length > 1 && <span className="img-count">+{item.imageUrls.length - 1}</span>}
           </div>
         )}
 
@@ -191,12 +206,13 @@ export function ActivityNewsPage() {
                 id: item.id,
                 title: item.title || '',
                 content: item.content || '',
-                imageUrl: item.imageUrl || '',
-                uploadFile: null,
+                images: [null, null],
+                previews: item.imageUrls || ['', ''],
                 classId: item.classId || 1,
                 styleId: item.styleId || 1,
                 startAt: item.startAt || '',
                 endAt: item.endAt || '',
+                url: item.url || '',
               })
             }}
             className="action-btn edit"
@@ -271,8 +287,44 @@ export function ActivityNewsPage() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">活動配圖</label>
-              <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileUpload} className="file-input" />
+              <label className="form-label">活動配圖 (最多 {form.styleId === 1 ? 2 : 1} 張)</label>
+              <div className="image-upload-grid">
+                {[...Array(form.styleId === 1 ? 2 : 1)].map((_, idx) => (
+                  <div key={idx} className="file-input-group">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => handleFileUpload(e, idx)} 
+                      className="file-input" 
+                    />
+                    {form.previews[idx] && (
+                      <div className="mini-preview">
+                        <img src={form.previews[idx]} alt="" />
+                        <button type="button" className="btn-remove" onClick={() => {
+                          setForm(f => {
+                            const newImages = [...f.images]
+                            const newPreviews = [...f.previews]
+                            newImages[idx] = null
+                            newPreviews[idx] = ''
+                            return { ...f, images: newImages, previews: newPreviews }
+                          })
+                        }}>✕</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">活動連結 (選填)</label>
+              <input
+                type="text"
+                value={form.url}
+                onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+                className="form-input"
+                placeholder="https://example.com"
+              />
             </div>
 
             <div className="form-actions">

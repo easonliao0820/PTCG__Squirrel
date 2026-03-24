@@ -16,6 +16,7 @@ import { ActivityNewsPage } from './pages/admin/activity/ActivityNewsPage'
 import { CompetitionPage } from './pages/admin/activity/CompetitionPage' // 您上傳的檔案
 import { MerchandisePage } from './pages/admin/products/MerchandisePage'
 import { BoardGamesPage } from './pages/admin/products/BoardGamesPage'
+import { LarpPage } from './pages/admin/products/LarpPage'
 import { CardsPage } from './pages/admin/products/CardsPage' // 您上傳的檔案
 
 // 路由保護組件
@@ -67,6 +68,7 @@ function App() {
         <Route path="products">
           <Route path="merchandise" element={<MerchandisePage />} />
           <Route path="boardgames" element={<BoardGamesPage />} />
+          <Route path="lapr" element={<LarpPage />} />
           <Route path="cards" element={<CardsPage />} />
         </Route>
       </Route>

@@ -18,6 +18,9 @@
   }
 
   .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
     margin-bottom: 2.5rem;
     padding: 0 0.5rem;
 
@@ -32,6 +35,23 @@
     .subtitle {
       color: #6b7280;
       font-size: 1rem;
+    }
+
+    .btn-create {
+      background-color: #111827;
+      color: white;
+      padding: 0.75rem 1.75rem;
+      border-radius: 9999px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+      &:hover {
+        background-color: #1f2937;
+        transform: translateY(-2px);
+      }
     }
   }
 
@@ -155,87 +175,88 @@
     }
   }
 
-  .month-grid {
+  .list-container {
+    padding: 0 0.5rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
+    flex-direction: column;
+    gap: 1rem;
 
     .empty-state {
-      width: 100%;
-      padding: 4rem;
+      padding: 5rem 0;
       text-align: center;
       background-color: #f9fafb;
+      border-radius: 1.5rem;
       border: 2px dashed #e5e7eb;
-      border-radius: 1rem;
       color: #9ca3af;
-      font-weight: 700;
+      font-weight: 500;
       font-size: 1.125rem;
     }
+  }
 
-    .month-card {
-      width: 160px;
-      border-radius: 1.25rem;
-      border: 1px solid #e5e7eb;
-      background-color: white;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .list-item-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background-color: white;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      border-color: #fcd34d;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
 
-      &:hover {
-        border-color: #fcd34d;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        transform: translateY(-4px);
-      }
-
-      .month-label {
-        width: 100%;
-        text-align: center;
-        padding: 1.5rem 1rem;
+      .item-badge {
         background-color: #fffbeb;
-        font-weight: 900;
         color: #b45309;
+        font-weight: 900;
         font-size: 1.25rem;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-
-        &:hover {
-          background-color: #fef3c7;
-        }
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #fef3c7;
       }
+    }
 
-      .month-actions {
-        display: flex;
-        padding: 0.5rem;
-        background-color: white;
-        border-top: 1px solid #f3f4f6;
+    .item-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-left: 1rem;
+      border-left: 1px solid #f3f4f6;
+      flex-shrink: 0;
 
-        .action-btn {
-          flex: 1;
-          font-size: 0.875rem;
-          font-weight: 800;
-          padding: 0.75rem 0.25rem;
-          border: none;
-          background: transparent;
-          cursor: pointer;
-          transition: all 0.2s;
-          border-radius: 0.5rem;
+      .action-btn {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s;
 
-          &.preview {
-            color: #d97706;
+        &.preview {
+          color: #d97706;
 
-            &:hover {
-              background-color: #fffbeb;
-            }
+          &:hover {
+            background-color: #fffbeb;
           }
+        }
 
-          &.delete {
-            color: #ef4444;
+        &.delete {
+          color: #ef4444;
 
-            &:hover {
-              background-color: #fef2f2;
-            }
+          &:hover {
+            background-color: #fef2f2;
           }
         }
       }

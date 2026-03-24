@@ -251,38 +251,39 @@ export function MerchandisePage() {
             </div>
           </div>
 
-          <div className="product-grid">
+          <div className="list-container">
             {filteredItems.length === 0 ? (
               <div className="empty-state">尚未建立商品。</div>
             ) : (
               filteredItems.map(item => (
-                <div key={item.id} className="product-card">
-                  <div className="card-image-wrapper">
+                <div key={item.id} className="list-item-card">
+                  <div className="item-content">
+                    <div className="item-meta">
+                      <span className={`stock-badge ${item.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                        {item.stock > 0 ? `庫存: ${item.stock}` : 'SOLD OUT'}
+                      </span>
+                    </div>
+
+                    <h3 className="item-title">{item.name}</h3>
+                    <p className="item-price">NT$ {item.price.toLocaleString()}</p>
+                    <p className="item-desc">{item.content || '暫無商品說明'}</p>
+                  </div>
+
+                  <div className="item-thumbnail">
                     {item.imageUrl ? (
                       <img src={item.imageUrl} alt={item.name} />
                     ) : (
                       <div className="no-image">無圖片</div>
                     )}
-                    <div className="stock-status">
-                      <span className={item.stock > 0 ? 'in-stock' : 'out-of-stock'}>
-                        {item.stock > 0 ? `STOCK: ${item.stock}` : 'SOLD OUT'}
-                      </span>
-                    </div>
                   </div>
 
-                  <div className="card-content">
-                    <h3 className="card-title">{item.name}</h3>
-                    <p className="card-desc">{item.content || '暫無商品說明'}</p>
-                    <p className="card-price">NT$ {item.price.toLocaleString()}</p>
-
-                    <div className="card-actions">
-                      <button onClick={() => openEdit(item)} className="btn-edit">
-                        編輯詳情
-                      </button>
-                      <button onClick={() => handleDelete(item.id)} className="btn-delete">
-                        🗑️
-                      </button>
-                    </div>
+                  <div className="item-actions">
+                    <button onClick={() => openEdit(item)} className="action-btn edit" title="編輯">
+                      ✏️
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="action-btn delete" title="刪除">
+                      🗑️
+                    </button>
                   </div>
                 </div>
               ))

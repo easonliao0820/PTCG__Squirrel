@@ -6,7 +6,9 @@ import adminRoutes from './routes/admin.js';
 import calendarRoutes from './routes/calendar.js';
 import activityRoutes from './routes/activity.js';
 import commodityRoutes from './routes/commodity.js';
-import gameRoutes from './routes/game.js';
+import boardGamesRoutes from './routes/boardGames.js';
+import laprRoutes from './routes/lapr.js';
+import tagRoutes from './routes/tag.js';
 
 const app = express();
 const PORT = 3000;
@@ -38,7 +40,9 @@ app.use('/api', adminRoutes);
 app.use('/api', calendarRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', commodityRoutes);
-app.use('/api', gameRoutes);
+app.use('/api', boardGamesRoutes);
+app.use('/api', laprRoutes);
+app.use('/api', tagRoutes);
 
 // 啟動 Express 伺服器
 app.listen(PORT, () => {

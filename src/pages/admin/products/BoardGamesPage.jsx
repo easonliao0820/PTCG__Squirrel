@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import '../../../styles/pages/admin/products/BoardGamesPage.scss'
+import { TagSelect } from '../../../components/admin/TagSelect'
 
 const parsePlayTime = (str) => {
   if (!str) return { min: '', max: '', unit: '分鐘' };
@@ -56,13 +57,14 @@ export function BoardGamesPage() {
     suitableGroup: '',
     imageUrl: '',
     uploadFile: null,
+    tags: [], // Array for TagSelect
   }
 
   const [form, setForm] = useState(defaultForm)
 
   const fetchGames = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/games')
+      const res = await fetch('http://localhost:3000/api/board-games')
       if (res.ok) {
         const data = await res.json()
         setItems(data)
@@ -110,6 +112,7 @@ export function BoardGamesPage() {
       playerMin: parsedPlayers.min,
       playerOp: parsedPlayers.op,
       playerMax: parsedPlayers.max,
+      tags: item.tags || [],
     })
     setEditing(item)
     setIsCreating(true)
@@ -160,17 +163,18 @@ export function BoardGamesPage() {
     formData.append('people', playerCount)
     formData.append('groups', form.suitableGroup)
     formData.append('content', form.description)
+    formData.append('tags', JSON.stringify(form.tags))
     if (form.uploadFile) formData.append('image', form.uploadFile)
 
     try {
       let res;
       if (editing) {
-        res = await fetch(`http://localhost:3000/api/games/${editing.id}`, {
+        res = await fetch(`http://localhost:3000/api/board-games/${editing.id}`, {
           method: 'PUT',
           body: formData
         })
       } else {
-        res = await fetch('http://localhost:3000/api/games', {
+        res = await fetch('http://localhost:3000/api/board-games', {
           method: 'POST',
           body: formData
         })
@@ -197,7 +201,7 @@ export function BoardGamesPage() {
   const handleDelete = async (id) => {
     if (!confirm('確定要刪除？')) return
     try {
-      const res = await fetch(`http://localhost:3000/api/games/${id}`, { method: 'DELETE' })
+      const res = await fetch(`http://localhost:3000/api/board-games/${id}`, { method: 'DELETE' })
       if (res.ok) {
         fetchGames()
       } else {
@@ -225,7 +229,7 @@ export function BoardGamesPage() {
       <div className="page-header">
         <div>
           <h1 className="title">桌遊款式管理</h1>
-          <p className="subtitle">連接資料庫 `game` 表單，提供玩家選遊戲時的參考指標。</p>
+          <p className="subtitle">連接資料庫 `boardGames` 表單，提供玩家選遊戲時的參考指標。</p>
         </div>
         {!showForm && (
           <button onClick={openCreate} className="btn-create">
@@ -306,6 +310,15 @@ export function BoardGamesPage() {
                   <label className="form-label">🏷️ 適合族群</label>
                   <input value={form.suitableGroup} onChange={(e) => setForm(f => ({ ...f, suitableGroup: e.target.value }))} className="form-input" placeholder="新手入門" />
                 </div>
+
+                <div className="form-group">
+                  <label className="form-label">🏷️ 標籤 (最多 2 個)</label>
+                  <TagSelect 
+                    selectedTags={form.tags} 
+                    onTagsChange={(newTags) => setForm(f => ({ ...f, tags: newTags }))} 
+                    max={2}
+                  />
+                </div>
               </div>
 
               <div className="form-group" style={{ marginTop: '1rem' }}>
@@ -331,6 +344,13 @@ export function BoardGamesPage() {
                       <span className="group-badge">{form.suitableGroup || '適合族群'}</span>
                       <span className="age-badge">🎂 {form.ageLevel}</span>
                     </div>
+                    {form.tags && form.tags.length > 0 && (
+                      <div className="preview-tags">
+                        {form.tags.map((t, i) => (
+                          <span key={i} className="tag-pill">{t}</span>
+                        ))}
+                      </div>
+                    )}
                     <h4 className="preview-title">{form.name || '桌遊名稱'}</h4>
                     <p className="preview-desc">
                       {form.description || '這裡將會顯示這款桌遊的特色說明與玩法簡介...'}
@@ -348,65 +368,65 @@ export function BoardGamesPage() {
       )}
 
       {!showForm && (
-        <div className="search-container">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
-            placeholder="搜尋名稱或特色說明…"
-          />
-          <span className="search-icon">🔍</span>
-        </div>
+        <>
+          <div className="search-container">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="search-input"
+              placeholder="搜尋名稱或特色說明…"
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+
+          <div className="list-container">
+            {filteredItems.length === 0 ? (
+              <div className="empty-state">
+                目前沒有建立任何桌遊
+              </div>
+            ) : (
+              filteredItems.map((item) => (
+                <div key={item.id} className="list-item-card">
+                  <div className="item-content">
+                    <div className="item-meta">
+                      <span className="group-badge">{item.suitableGroup || '無'}</span>
+                      <span className="age-badge">🎂 {item.suggestedAge || '0+'}</span>
+                    </div>
+                    <h3 className="item-title">{item.name}</h3>
+                    <p className="item-period">
+                      ⏱️ {item.playingTime || '--'} | 👥 {item.playerCount || '--'}
+                    </p>
+                    <p className="item-desc">
+                      {item.description || '暫無說明內容'}
+                    </p>
+                    {item.tags && item.tags.length > 0 && (
+                      <div className="item-tags">
+                        {item.tags.map((t, i) => <span key={i} className="tag-label">{t}</span>)}
+                      </div>
+                    )}
+                  </div>
+
+                  {item.imageUrl && (
+                    <div className="item-thumbnail">
+                      <img src={item.imageUrl} alt={item.name} />
+                    </div>
+                  )}
+
+                  <div className="item-actions">
+                    <button onClick={() => openEdit(item)} className="action-btn edit" title="編輯">
+                      ✏️
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="action-btn delete" title="刪除">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
       )}
-
-      <div className="game-grid">
-        {filteredItems.length === 0 && !showForm && (
-          <div className="empty-state">
-            目前沒有建立任何桌遊
-          </div>
-        )}
-        {filteredItems.map((item) => (
-          <div key={item.id} className="game-card">
-            <div className="card-image-wrapper">
-              {item.imageUrl && <img src={item.imageUrl} alt={item.name} />}
-              <div className="group-badge">{item.suitableGroup}</div>
-            </div>
-
-            <div className="card-content">
-              <h3 className="card-title">{item.name}</h3>
-
-              <p className="card-desc">
-                {item.description || '暫無說明內容'}
-              </p>
-
-              <div className="stats-grid">
-                <div className="stat-item">
-                  <div className="stat-label">時間</div>
-                  <div className="stat-value">{item.playingTime}</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-label">年齡</div>
-                  <div className="stat-value">{item.suggestedAge}</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-label">人數</div>
-                  <div className="stat-value">{item.playerCount}</div>
-                </div>
-              </div>
-
-              <div className="card-actions">
-                <button onClick={() => openEdit(item)} className="btn-edit">
-                  編輯內容
-                </button>
-                <button onClick={() => handleDelete(item.id)} className="btn-delete">
-                  🗑️
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

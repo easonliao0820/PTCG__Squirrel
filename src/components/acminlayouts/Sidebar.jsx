@@ -19,6 +19,7 @@ const nav = [
     items: [
       { to: '/admin/products/merchandise', label: '周邊商品' },
       { to: '/admin/products/boardgames', label: '桌遊' },
+      { to: '/admin/products/lapr', label: '劇本殺' },
     ],
   },
 ]

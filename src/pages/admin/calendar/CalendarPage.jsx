@@ -12,6 +12,7 @@ export function CalendarPage() {
   const [uploadFile, setUploadFile] = useState(null)
   const [previewMonth, setPreviewMonth] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   
   const fileInputRef = useRef(null)
 
@@ -59,6 +60,7 @@ export function CalendarPage() {
         if (fileInputRef.current) {
           fileInputRef.current.value = '' // 清除選擇的檔案
         }
+        setShowForm(false) // 返回列表
         fetchCalendars()
       } else {
         const errData = await res.json()
@@ -100,105 +102,122 @@ export function CalendarPage() {
   return (
     <div className="calendar-page">
       <div className="page-header">
-        <h1 className="title">行事曆管理</h1>
-        <p className="subtitle">
-          以月份分類上傳行事曆圖片，可提前上傳未來月份或瀏覽過往月份。
-        </p>
+        <div>
+          <h1 className="title">行事曆管理</h1>
+          <p className="subtitle">
+            以月份分類上傳行事曆圖片，可提前上傳未來月份或瀏覽過往月份。
+          </p>
+        </div>
+        {!showForm && (
+          <button onClick={() => setShowForm(true)} className="btn-create">
+            + 新增行事曆
+          </button>
+        )}
       </div>
 
-      <section className="section-card">
-        <h2 className="section-title">上傳行事曆</h2>
-        <div className="upload-form">
-          <div className="form-group">
-            <label className="form-label">年份</label>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="form-select"
-            >
-              {years.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
+      {showForm ? (
+        <section className="section-card">
+          <h2 className="section-title">上傳行事曆</h2>
+          <div className="upload-form">
+            <div className="form-group">
+              <label className="form-label">年份</label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="form-select"
+              >
+                {years.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">月份</label>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="form-select"
+              >
+                {monthOptions.map((m) => (
+                  <option key={m} value={m}>{m} 月</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group flex-1">
+              <label className="form-label">上傳圖片檔案</label>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    setUploadFile(file)
+                  }
+                }}
+                className="file-input"
+              />
+              <p className="hint-text">
+                直接選擇圖片，將會上傳至系統資料庫儲存。
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={handleSave}
+                className="btn-submit"
+                disabled={isLoading || !uploadFile}
+                style={{ opacity: (isLoading || !uploadFile) ? 0.5 : 1 }}
+              >
+                {isLoading ? '處理中...' : (currentMonthData ? '更新檔案' : '確認上傳')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="btn-submit"
+                style={{ backgroundColor: '#f3f4f6', color: '#4b5563' }}
+              >
+                取消
+              </button>
+            </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">月份</label>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="form-select"
-            >
-              {monthOptions.map((m) => (
-                <option key={m} value={m}>{m} 月</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group flex-1">
-            <label className="form-label">上傳圖片檔案</label>
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) {
-                  setUploadFile(file)
-                }
-              }}
-              className="file-input"
-            />
-            <p className="hint-text">
-              直接選擇圖片，將會上傳至系統資料庫儲存。
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="btn-submit"
-            disabled={isLoading || !uploadFile}
-            style={{ opacity: (isLoading || !uploadFile) ? 0.5 : 1 }}
-          >
-            {isLoading ? '處理中...' : (currentMonthData ? '更新檔案' : '確認上傳')}
-          </button>
-        </div>
-      </section>
-
-      <section className="section-card">
-        <h2 className="section-title">已上傳月份一覽</h2>
-        <div className="month-grid">
-          {sortedMonths.length === 0 ? (
-            <div className="empty-state">尚無行事曆資料，請先上傳。</div>
-          ) : (
-            sortedMonths.map((m) => (
-              <div key={toMonthKey(m.year, m.month)} className="month-card">
-                <button
-                  type="button"
-                  onClick={() => setPreviewMonth(m)}
-                  className="month-label"
-                >
-                  {m.year} 年 {m.month} 月
-                </button>
-                <div className="month-actions">
-                  <button
-                    type="button"
-                    onClick={() => setPreviewMonth(m)}
-                    className="action-btn preview"
-                  >
-                    預覽
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(m.year, m.month)}
-                    className="action-btn delete"
-                  >
-                    刪除
-                  </button>
+        </section>
+      ) : (
+        <section className="section-card">
+          <h2 className="section-title">已上傳月份一覽</h2>
+          <div className="list-container">
+            {sortedMonths.length === 0 ? (
+              <div className="empty-state">尚無行事曆資料，請先上傳。</div>
+            ) : (
+              sortedMonths.map((m) => (
+                <div key={toMonthKey(m.year, m.month)} className="list-item-card">
+                  <div className="item-content">
+                    <div className="item-badge">
+                      {m.year} 年 {m.month} 月
+                    </div>
+                  </div>
+                  <div className="item-actions">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMonth(m)}
+                      className="action-btn preview"
+                    >
+                      預覽
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(m.year, m.month)}
+                      className="action-btn delete"
+                    >
+                      刪除
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
+              ))
+            )}
+          </div>
+        </section>
+      )}
 
       {previewMonth && (
         <div className="modal-overlay" onClick={() => setPreviewMonth(null)}>

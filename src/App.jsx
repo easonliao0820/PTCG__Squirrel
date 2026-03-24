@@ -6,6 +6,7 @@ import Home from './pages/client/Home'
 import PlayPage from './pages/client/PlayPage'
 import Events from './pages/client/Events'
 import Services from './pages/client/Services'
+import CalendarHistory from './pages/client/CalendarHistory'
 
 // 後台組件 (Layout & Pages)
 import { AdminLayout } from './components/acminlayouts/AdminLayout'
@@ -38,6 +39,7 @@ function App() {
         <Route path="/playpage" element={<PlayPage />} />
         <Route path="/events" element={<Events />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/calendar" element={<CalendarHistory />} />
       </Route>
 
       {/* --- 後台路由區塊 (路徑前綴為 /admin) --- */}

@@ -1,0 +1,222 @@
+@use "sass:color";
+@use "../../styles/variables" as *;
+
+.pageWrapper {
+  @extend %layout-container;
+  min-height: 100vh;
+  background-color: $color-warm-bg;
+  margin: 30px auto;
+}
+
+.pageTitle {
+  text-align: center;
+  color: $color-dark;
+  font-size: $pagetitle-size;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+// 搜尋與篩選區 (參考 PlayPage)
+.searchContainer {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: $radius-main;
+  box-shadow: $shadow-soft;
+  margin-bottom: 50px;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+
+  .filterGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .filterLabel {
+      font-weight: 600;
+      color: $color-dark;
+    }
+
+    .selectBox {
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid $color-gray-light;
+      background: #fdfdfd;
+      color: $color-dark;
+      cursor: pointer;
+      outline: none;
+      transition: $transition-base;
+
+      &:focus {
+        border-color: $color-primary;
+      }
+    }
+  }
+
+  .resetBtn {
+    font-size: 0.8rem;
+    padding: 6px 20px;
+    background: $color-primary;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: $transition-base;
+
+    &:hover {
+      background: color.adjust($color-primary, $lightness: -10%);
+    }
+  }
+}
+
+.loading, .error, .noData {
+  text-align: center;
+  padding: 100px 0;
+  font-size: 1.2rem;
+  color: #888;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+  margin-bottom: 60px;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+}
+
+.calendarCard {
+  background: #fff;
+  border-radius: $radius-main;
+  overflow: hidden;
+  box-shadow: $shadow-soft;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  border: 1px solid rgba($color-dark, 0.05);
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: $color-primary;
+
+    .imageOverlay {
+      opacity: 1;
+    }
+    
+    img {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.imageWrapper {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: $color-gray-light;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+}
+
+.imageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($color-dark, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  
+  .zoomIcon {
+    font-size: 2rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  }
+}
+
+.cardInfo {
+  padding: 10px;
+  text-align: center;
+  background: #fff;
+
+  .date {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: $color-dark;
+    margin: 0;
+  }
+}
+
+// Modal for full-size viewing
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($color-dark, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  
+  img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: $radius-main;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  }
+
+  .closeBtn {
+    position: absolute;
+    top: -45px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    &:hover {
+      color: $color-primary;
+    }
+  }
+}

@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import '../../../styles/pages/admin/products/LarpPage.scss'
 import { TagSelect } from '../../../components/admin/TagSelect'
+import { Pagination } from '../../../components/admin/Pagination'
 
 export function LarpPage() {
   const [items, setItems] = useState([])
@@ -8,6 +9,8 @@ export function LarpPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   const defaultForm = {
     name: '',
@@ -19,12 +22,13 @@ export function LarpPage() {
 
   const [form, setForm] = useState(defaultForm)
 
-  const fetchLarp = async () => {
+  const fetchLarp = async (page = currentPage, searchTerm = search) => {
     try {
-      const res = await fetch('http://localhost:3000/api/lapr')
+      const res = await fetch(`http://localhost:3000/api/lapr?page=${page}&limit=20&search=${searchTerm}`)
       if (res.ok) {
-        const data = await res.json()
+        const { data, pagination } = await res.json()
         setItems(data)
+        setTotalPages(pagination.totalPages)
       }
     } catch (err) {
       console.error('Failed to fetch larp:', err)
@@ -32,18 +36,20 @@ export function LarpPage() {
   }
 
   useEffect(() => {
-    fetchLarp()
-  }, [])
+    fetchLarp(currentPage, search)
+  }, [currentPage])
 
-  const filteredItems = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
-    return items.filter((item) =>
-      !keyword ||
-      item.name.toLowerCase().includes(keyword) ||
-      item.publisher?.toLowerCase().includes(keyword) ||
-      item.remark?.toLowerCase().includes(keyword)
-    )
-  }, [items, search])
+  // 搜尋時回到第一頁
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentPage(1)
+      fetchLarp(1, search)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  // Server-side filtering now
+  const filteredItems = items
 
   const openCreate = () => {
     setForm(defaultForm)
@@ -273,6 +279,11 @@ export function LarpPage() {
               ))
             )}
           </div>
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={setCurrentPage} 
+          />
         </>
       )}
     </div>

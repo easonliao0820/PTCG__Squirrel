@@ -21,9 +21,27 @@ const gameStorage = multer.diskStorage({
 });
 const uploadGame = multer({ storage: gameStorage });
 
-// API: 取得所有桌遊
+// API: 取得所有桌遊 (支援分頁與搜尋)
 router.get('/board-games', async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+
+    let whereClause = '';
+    let params = [];
+    if (search) {
+      whereClause = 'WHERE b.name ILIKE $1 OR b.content ILIKE $1';
+      params.push(`%${search}%`);
+    }
+
+    // 取得總筆數
+    const countRes = await pool.query(`SELECT COUNT(*) FROM "boardGames" b ${whereClause}`, params);
+    const totalItems = parseInt(countRes.rows[0].count);
+
+    // 取得分頁資料
+    const dataParams = [...params, limit, offset];
     const result = await pool.query(`
       SELECT b.*, 
              (SELECT json_agg(t.title) 
@@ -31,20 +49,31 @@ router.get('/board-games', async (req, res) => {
               JOIN tag t ON pt."tagId" = t.id 
               WHERE pt.class = 'boardGames' AND pt."classId" = b.id) as tags
       FROM "boardGames" b 
+      ${whereClause}
       ORDER BY b.id DESC
-    `);
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+    `, dataParams);
+
     const games = result.rows.map(row => ({
       id: row.id,
       name: row.name,
       playingTime: row.time,
       suggestedAge: row.age,
       playerCount: row.people,
-      suitableGroup: row.groups,
       description: row.content,
       imageUrl: row.img ? `http://localhost:3000/uploads/boardGames/${row.img}` : null,
       tags: row.tags || []
     }));
-    res.json(games);
+
+    res.json({
+      data: games,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+        limit
+      }
+    });
   } catch (err) {
     console.error('Fetch board games failed:', err);
     res.status(500).json({ status: 'error', message: err.message });
@@ -56,12 +85,12 @@ router.post('/board-games', uploadGame.single('image'), async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { name, time, age, people, groups, content, tags } = req.body;
+    const { name, time, age, people, content, tags } = req.body;
     const imgFilename = req.file ? req.file.filename : null;
 
     const result = await client.query(
-      'INSERT INTO "boardGames" (name, time, age, people, groups, content, img) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [name, time, age, people, groups, content, imgFilename]
+      'INSERT INTO "boardGames" (name, time, age, people, content, img) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [name, time, age, people, content, imgFilename]
     );
     const gameId = result.rows[0].id;
 
@@ -99,10 +128,10 @@ router.put('/board-games/:id', uploadGame.single('image'), async (req, res) => {
   try {
     await client.query('BEGIN');
     const id = req.params.id;
-    const { name, time, age, people, groups, content, tags } = req.body;
+    const { name, time, age, people, content, tags } = req.body;
 
-    let query = 'UPDATE "boardGames" SET name=$1, time=$2, age=$3, people=$4, groups=$5, content=$6 WHERE id=$7';
-    let values = [name, time, age, people, groups, content, id];
+    let query = 'UPDATE "boardGames" SET name=$1, time=$2, age=$3, people=$4, content=$5 WHERE id=$6';
+    let values = [name, time, age, people, content, id];
 
     if (req.file) {
       const oldResult = await client.query('SELECT img FROM "boardGames" WHERE id=$1', [id]);
@@ -110,8 +139,8 @@ router.put('/board-games/:id', uploadGame.single('image'), async (req, res) => {
         const oldFile = path.join('public', 'uploads', 'boardGames', oldResult.rows[0].img);
         if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
       }
-      query = 'UPDATE "boardGames" SET name=$1, time=$2, age=$3, people=$4, groups=$5, content=$6, img=$7 WHERE id=$8';
-      values = [name, time, age, people, groups, content, req.file.filename, id];
+      query = 'UPDATE "boardGames" SET name=$1, time=$2, age=$3, people=$4, content=$5, img=$6 WHERE id=$7';
+      values = [name, time, age, people, content, req.file.filename, id];
     }
 
     await client.query(query, values);

@@ -1,15 +1,16 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import '../../../styles/pages/admin/products/BoardGamesPage.scss'
 import { TagSelect } from '../../../components/admin/TagSelect'
+import { Pagination } from '../../../components/admin/Pagination'
 
 const parsePlayTime = (str) => {
-  if (!str) return { min: '', max: '', unit: '分鐘' };
-  const match = str.match(/(?:(\d+)-)?(\d+)\s*(分鐘|小時)?/);
+  if (!str) return { min: '', max: '', unit: 'min' };
+  const match = str.match(/(?:(\d+)-)?(\d+)\s*(min|hr)?/);
   if (match) {
-    if (match[1]) return { min: match[1], max: match[2], unit: match[3] || '分鐘' };
-    return { min: '', max: match[2], unit: match[3] || '分鐘' };
+    if (match[1]) return { min: match[1], max: match[2], unit: match[3] || 'min' };
+    return { min: '', max: match[2], unit: match[3] || 'min' };
   }
-  return { min: '', max: '', unit: '分鐘' };
+  return { min: '', max: '', unit: 'min' };
 };
 
 const parsePlayerCount = (str) => {
@@ -41,6 +42,8 @@ export function BoardGamesPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   const fileInputRef = useRef(null)
 
@@ -54,7 +57,6 @@ export function BoardGamesPage() {
     playerMin: '',
     playerOp: '~',
     playerMax: '',
-    suitableGroup: '',
     imageUrl: '',
     uploadFile: null,
     tags: [], // Array for TagSelect
@@ -62,12 +64,13 @@ export function BoardGamesPage() {
 
   const [form, setForm] = useState(defaultForm)
 
-  const fetchGames = async () => {
+  const fetchGames = async (page = currentPage, searchTerm = search) => {
     try {
-      const res = await fetch('http://localhost:3000/api/board-games')
+      const res = await fetch(`http://localhost:3000/api/board-games?page=${page}&limit=20&search=${searchTerm}`)
       if (res.ok) {
-        const data = await res.json()
+        const { data, pagination } = await res.json()
         setItems(data)
+        setTotalPages(pagination.totalPages)
       }
     } catch (err) {
       console.error('Failed to fetch board games:', err)
@@ -75,17 +78,20 @@ export function BoardGamesPage() {
   }
 
   useEffect(() => {
-    fetchGames()
-  }, [])
+    fetchGames(currentPage, search)
+  }, [currentPage])
 
-  const filteredItems = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
-    return items.filter((item) =>
-      !keyword ||
-      item.name.toLowerCase().includes(keyword) ||
-      item.description?.toLowerCase().includes(keyword)
-    )
-  }, [items, search])
+  // 搜尋時回到第一頁
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentPage(1)
+      fetchGames(1, search)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  // Server-side filtering now
+  const filteredItems = items
 
   const openCreate = () => {
     setForm(defaultForm)
@@ -102,7 +108,6 @@ export function BoardGamesPage() {
       id: item.id,
       name: item.name,
       description: item.description || '',
-      suitableGroup: item.suitableGroup || '',
       imageUrl: item.imageUrl || '',
       uploadFile: null,
       playMin: parsedTime.min,
@@ -161,7 +166,6 @@ export function BoardGamesPage() {
     formData.append('time', playingTime)
     formData.append('age', form.ageLevel)
     formData.append('people', playerCount)
-    formData.append('groups', form.suitableGroup)
     formData.append('content', form.description)
     formData.append('tags', JSON.stringify(form.tags))
     if (form.uploadFile) formData.append('image', form.uploadFile)
@@ -307,15 +311,10 @@ export function BoardGamesPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">🏷️ 適合族群</label>
-                  <input value={form.suitableGroup} onChange={(e) => setForm(f => ({ ...f, suitableGroup: e.target.value }))} className="form-input" placeholder="新手入門" />
-                </div>
-
-                <div className="form-group">
                   <label className="form-label">🏷️ 標籤 (最多 2 個)</label>
-                  <TagSelect 
-                    selectedTags={form.tags} 
-                    onTagsChange={(newTags) => setForm(f => ({ ...f, tags: newTags }))} 
+                  <TagSelect
+                    selectedTags={form.tags}
+                    onTagsChange={(newTags) => setForm(f => ({ ...f, tags: newTags }))}
                     max={2}
                   />
                 </div>
@@ -341,7 +340,6 @@ export function BoardGamesPage() {
                   </div>
                   <div className="preview-content">
                     <div className="preview-header-meta">
-                      <span className="group-badge">{form.suitableGroup || '適合族群'}</span>
                       <span className="age-badge">🎂 {form.ageLevel}</span>
                     </div>
                     {form.tags && form.tags.length > 0 && (
@@ -390,7 +388,6 @@ export function BoardGamesPage() {
                 <div key={item.id} className="list-item-card">
                   <div className="item-content">
                     <div className="item-meta">
-                      <span className="group-badge">{item.suitableGroup || '無'}</span>
                       <span className="age-badge">🎂 {item.suggestedAge || '0+'}</span>
                     </div>
                     <h3 className="item-title">{item.name}</h3>
@@ -425,6 +422,11 @@ export function BoardGamesPage() {
               ))
             )}
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </>
       )}
     </div>

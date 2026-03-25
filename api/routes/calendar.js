@@ -25,15 +25,37 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// API: 取得所有行事曆
+// API: 取得所有行事曆 (支援分頁)
 router.get('/calendar', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM calendar ORDER BY year DESC, month DESC');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    // 取得總筆數
+    const countRes = await pool.query('SELECT COUNT(*) FROM calendar');
+    const totalItems = parseInt(countRes.rows[0].count);
+
+    // 取得分頁資料
+    const result = await pool.query(
+      'SELECT * FROM calendar ORDER BY year DESC, month DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+
     const calendars = result.rows.map(row => ({
       ...row,
       imageUrl: `http://localhost:3000/uploads/calendar/${row.img}`
     }));
-    res.json(calendars);
+
+    res.json({
+      data: calendars,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+        limit
+      }
+    });
   } catch (error) {
     console.error('Fetch calendars failed:', error);
     res.status(500).json({ error: error.message });

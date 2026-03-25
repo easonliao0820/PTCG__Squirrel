@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import '../../../styles/pages/admin/activity/ActivityNewsPage.scss'
+import { Pagination } from '../../../components/admin/Pagination'
 
 const classConfig = {
   1: { label: '一般活動', color: 'bg-blue-100 text-blue-800 border-blue-200' },
@@ -20,6 +21,8 @@ export function ActivityNewsPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   
   const defaultForm = {
     title: '',
@@ -35,12 +38,13 @@ export function ActivityNewsPage() {
 
   const [form, setForm] = useState(defaultForm)
 
-  const fetchActivities = async () => {
+  const fetchActivities = async (page = currentPage, searchTerm = search, classFilter = filter) => {
     try {
-      const res = await fetch('http://localhost:3000/api/activities')
+      const res = await fetch(`http://localhost:3000/api/activities?page=${page}&limit=20&search=${searchTerm}&classId=${classFilter}`)
       if (res.ok) {
-        const data = await res.json()
+        const { data, pagination } = await res.json()
         setItems(data)
+        setTotalPages(pagination.totalPages)
       }
     } catch (err) {
       console.error('Failed to fetch activities:', err)
@@ -48,17 +52,20 @@ export function ActivityNewsPage() {
   }
 
   useEffect(() => {
-    fetchActivities()
-  }, [])
+    fetchActivities(currentPage, search, filter)
+  }, [currentPage, filter])
 
-  const filteredItems = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
-    return items.filter((i) => {
-      const matchCategory = filter === 'all' || i.classId === Number(filter)
-      if (!matchCategory) return false
-      return !keyword || i.title.toLowerCase().includes(keyword) || (i.content && i.content.toLowerCase().includes(keyword))
-    })
-  }, [items, filter, search])
+  // 搜尋時回到第一頁
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentPage(1)
+      fetchActivities(1, search, filter)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  // Server-side filtering now
+  const filteredItems = items
 
   const handleFileUpload = (e, index) => {
     const file = e.target.files?.[0]; 
@@ -363,6 +370,11 @@ export function ActivityNewsPage() {
               filteredItems.map(item => <AdminListItem key={item.id} item={item} />)
             )}
           </div>
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={setCurrentPage} 
+          />
         </>
       )}
     </div>

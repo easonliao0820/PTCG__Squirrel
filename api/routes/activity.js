@@ -21,9 +21,36 @@ const activityStorage = multer.diskStorage({
 });
 const uploadActivity = multer({ storage: activityStorage });
 
-// API: 取得所有活動
+// API: 取得所有活動 (支援分頁、搜尋與分類篩選)
 router.get('/activities', async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+    const classId = req.query.classId || 'all';
+
+    let filters = [];
+    let params = [];
+    
+    if (search) {
+      params.push(`%${search}%`);
+      filters.push(`(a.title ILIKE $${params.length} OR a.content ILIKE $${params.length})`);
+    }
+    
+    if (classId !== 'all') {
+      params.push(classId);
+      filters.push(`a."classId" = $${params.length}`);
+    }
+
+    const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
+
+    // 取得總筆數
+    const countRes = await pool.query(`SELECT COUNT(*) FROM activity a ${whereClause}`, params);
+    const totalItems = parseInt(countRes.rows[0].count);
+
+    // 取得分頁資料
+    const dataParams = [...params, limit, offset];
     const result = await pool.query(`
       SELECT a.*, 
              to_char(a."dateStart", 'YYYY-MM-DD') as date_start_str,
@@ -34,8 +61,11 @@ router.get('/activities', async (req, res) => {
       FROM activity a
       LEFT JOIN "activityClass" ac ON a."classId" = ac.id
       LEFT JOIN "activityStyle" ast ON a."styleId" = ast.id
+      ${whereClause}
       ORDER BY a.id DESC
-    `);
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+    `, dataParams);
+
     const activities = result.rows.map(row => ({
       id: row.id,
       title: row.title,
@@ -49,7 +79,16 @@ router.get('/activities', async (req, res) => {
       url: row.url,
       imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
     }));
-    res.json(activities);
+
+    res.json({
+      data: activities,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+        limit
+      }
+    });
   } catch (err) {
     console.error('Fetch activities failed:', err);
     res.status(500).json({ status: 'error', message: err.message });

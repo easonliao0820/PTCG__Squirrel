@@ -3,9 +3,27 @@ import pool from '../db.js';
 
 const router = express.Router();
 
-// API: 取得所有 LARP
+// API: 取得所有 LARP (支援分頁與搜尋)
 router.get('/lapr', async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+
+    let whereClause = '';
+    let params = [];
+    if (search) {
+      whereClause = 'WHERE l.name ILIKE $1 OR l.publisher ILIKE $1 OR l.remark ILIKE $1';
+      params.push(`%${search}%`);
+    }
+
+    // 取得總筆數
+    const countRes = await pool.query(`SELECT COUNT(*) FROM lapr l ${whereClause}`, params);
+    const totalItems = parseInt(countRes.rows[0].count);
+
+    // 取得分頁資料
+    const dataParams = [...params, limit, offset];
     const result = await pool.query(`
       SELECT l.*, 
              (SELECT json_agg(t.title) 
@@ -13,8 +31,11 @@ router.get('/lapr', async (req, res) => {
               JOIN tag t ON pt."tagId" = t.id 
               WHERE pt.class = 'lapr' AND pt."classId" = l.id) as tags
       FROM lapr l 
+      ${whereClause}
       ORDER BY l.id DESC
-    `);
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+    `, dataParams);
+
     const laprs = result.rows.map(row => ({
       id: row.id,
       name: row.name,
@@ -23,7 +44,16 @@ router.get('/lapr', async (req, res) => {
       remark: row.remark,
       tags: row.tags || []
     }));
-    res.json(laprs);
+
+    res.json({
+      data: laprs,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+        limit
+      }
+    });
   } catch (err) {
     console.error('Fetch lapr failed:', err);
     res.status(500).json({ status: 'error', message: err.message });

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import '../../../styles/pages/admin/calendar/CalendarPage.scss'
+import { Pagination } from '../../../components/admin/Pagination'
 
 function toMonthKey(year, month) {
   return `${year}-${String(month).padStart(2, '0')}`
@@ -13,15 +14,18 @@ export function CalendarPage() {
   const [previewMonth, setPreviewMonth] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   
   const fileInputRef = useRef(null)
 
-  const fetchCalendars = async () => {
+  const fetchCalendars = async (page = currentPage) => {
     try {
-      const res = await fetch('http://localhost:3000/api/calendar')
+      const res = await fetch(`http://localhost:3000/api/calendar?page=${page}&limit=20`)
       if (res.ok) {
-        const data = await res.json()
+        const { data, pagination } = await res.json()
         setMonths(data)
+        setTotalPages(pagination.totalPages)
       }
     } catch (err) {
       console.error('Failed to fetch calendars:', err)
@@ -29,8 +33,8 @@ export function CalendarPage() {
   }
 
   useEffect(() => {
-    fetchCalendars()
-  }, [])
+    fetchCalendars(currentPage)
+  }, [currentPage])
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i)
   const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1)
@@ -216,6 +220,11 @@ export function CalendarPage() {
               ))
             )}
           </div>
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={setCurrentPage} 
+          />
         </section>
       )}
 

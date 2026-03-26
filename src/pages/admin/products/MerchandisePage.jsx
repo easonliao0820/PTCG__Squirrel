@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import '../../../styles/pages/admin/products/MerchandisePage.scss'
+import { Pagination } from '../../../components/admin/Pagination'
 
 export function MerchandisePage() {
   const [items, setItems] = useState([])
@@ -7,6 +8,8 @@ export function MerchandisePage() {
   const [isCreating, setIsCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   const fileInputRef = useRef(null)
 
@@ -21,12 +24,13 @@ export function MerchandisePage() {
 
   const [form, setForm] = useState(defaultForm)
 
-  const fetchCommodities = async () => {
+  const fetchCommodities = async (page = currentPage, searchTerm = search) => {
     try {
-      const res = await fetch('http://localhost:3000/api/commodities')
+      const res = await fetch(`http://localhost:3000/api/commodities?page=${page}&limit=20&search=${searchTerm}`)
       if (res.ok) {
-        const data = await res.json()
+        const { data, pagination } = await res.json()
         setItems(data)
+        setTotalPages(pagination.totalPages)
       }
     } catch (err) {
       console.error('Failed to fetch commodities:', err)
@@ -34,16 +38,20 @@ export function MerchandisePage() {
   }
 
   useEffect(() => {
-    fetchCommodities()
-  }, [])
+    fetchCommodities(currentPage, search)
+  }, [currentPage])
 
-  const filteredItems = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
-    return items.filter((item) =>
-      !keyword ||
-      item.name.toLowerCase().includes(keyword)
-    )
-  }, [items, search])
+  // 搜尋時回到第一頁
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentPage(1)
+      fetchCommodities(1, search)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  // Server-side filtering now
+  const filteredItems = items
 
   const openCreate = () => {
     setForm(defaultForm)
@@ -289,6 +297,11 @@ export function MerchandisePage() {
               ))
             )}
           </div>
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={setCurrentPage} 
+          />
         </>
       )}
     </div>

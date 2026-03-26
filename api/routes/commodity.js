@@ -21,10 +21,32 @@ const commodityStorage = multer.diskStorage({
 });
 const uploadCommodity = multer({ storage: commodityStorage });
 
-// API: 取得所有商品
+// API: 取得所有商品 (支援分頁與搜尋)
 router.get('/commodities', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM commodity ORDER BY id DESC');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+
+    let whereClause = '';
+    let params = [];
+    if (search) {
+      whereClause = 'WHERE name ILIKE $1';
+      params.push(`%${search}%`);
+    }
+
+    // 取得總筆數
+    const countRes = await pool.query(`SELECT COUNT(*) FROM commodity ${whereClause}`, params);
+    const totalItems = parseInt(countRes.rows[0].count);
+
+    // 取得分頁資料
+    const dataParams = [...params, limit, offset];
+    const result = await pool.query(
+      `SELECT * FROM commodity ${whereClause} ORDER BY id DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      dataParams
+    );
+
     const commodities = result.rows.map(row => ({
       id: row.id,
       name: row.name,
@@ -33,7 +55,16 @@ router.get('/commodities', async (req, res) => {
       content: row.content, // 商品說明
       imageUrl: row.img ? `http://localhost:3000/uploads/commodity/${row.img}` : null
     }));
-    res.json(commodities);
+
+    res.json({
+      data: commodities,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+        limit
+      }
+    });
   } catch (err) {
     console.error('Fetch commodities failed:', err);
     res.status(500).json({ status: 'error', message: err.message });

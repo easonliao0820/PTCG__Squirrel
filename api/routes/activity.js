@@ -9,7 +9,7 @@ const router = express.Router();
 const activityStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = 'public/uploads/activity';
-    if (!fs.existsSync(dir)){
+    if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     cb(null, dir);
@@ -32,12 +32,12 @@ router.get('/activities', async (req, res) => {
 
     let filters = [];
     let params = [];
-    
+
     if (search) {
       params.push(`%${search}%`);
       filters.push(`(a.title ILIKE $${params.length} OR a.content ILIKE $${params.length})`);
     }
-    
+
     if (classId !== 'all') {
       params.push(classId);
       filters.push(`a."classId" = $${params.length}`);
@@ -57,12 +57,14 @@ router.get('/activities', async (req, res) => {
              to_char(a."dateEnd", 'YYYY-MM-DD') as date_end_str,
              ac.name as class_name, 
              ast.content as style_content,
-             (SELECT json_agg(img) FROM "activityImg" WHERE "activityId" = a.id) as images
+             (SELECT json_agg(img) FROM "activityImg" WHERE "activityId" = a.id) as images,
+             (atop.id IS NOT NULL) as is_top
       FROM activity a
       LEFT JOIN "activityClass" ac ON a."classId" = ac.id
       LEFT JOIN "activityStyle" ast ON a."styleId" = ast.id
+      LEFT JOIN "activityTop" atop ON a.id = atop.activityid
       ${whereClause}
-      ORDER BY a.id DESC
+      ORDER BY is_top DESC, a.id DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, dataParams);
 
@@ -77,6 +79,7 @@ router.get('/activities', async (req, res) => {
       className: row.class_name,
       styleContent: row.style_content,
       url: row.url,
+      isTop: row.is_top,
       imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
     }));
 
@@ -102,7 +105,7 @@ router.post('/activities', uploadActivity.array('images', 2), async (req, res) =
     await client.query('BEGIN');
     const { title, startAt, endAt, content, classId, styleId, url } = req.body;
     const files = req.files || [];
-    
+
     const dStart = startAt ? startAt : null;
     const dEnd = endAt ? endAt : null;
 
@@ -176,7 +179,7 @@ router.delete('/activities/:id', async (req, res) => {
   try {
     await client.query('BEGIN');
     const id = req.params.id;
-    
+
     // 找出所有圖片並刪除檔案
     const imgs = await client.query('SELECT img FROM "activityImg" WHERE "activityId"=$1', [id]);
     for (const row of imgs.rows) {
@@ -195,6 +198,27 @@ router.delete('/activities/:id', async (req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   } finally {
     client.release();
+  }
+});
+
+// API: 切換置頂狀態 (最多5項)
+router.post('/activities/toggle-top', async (req, res) => {
+  const { activityId, isTop } = req.body;
+  try {
+    if (isTop) {
+      // 檢查是否已達 5 項上限
+      const countRes = await pool.query('SELECT COUNT(*) FROM "activityTop"');
+      if (parseInt(countRes.rows[0].count) >= 5) {
+        return res.status(400).json({ status: 'error', message: '最多只能設定 5 個置頂輪播項目' });
+      }
+      await pool.query('INSERT INTO "activityTop" (activityid) VALUES ($1) ON CONFLICT DO NOTHING', [activityId]);
+    } else {
+      await pool.query('DELETE FROM "activityTop" WHERE activityid=$1', [activityId]);
+    }
+    res.json({ status: 'success' });
+  } catch (err) {
+    console.error('Toggle top failed:', err);
+    res.status(500).json({ status: 'error', message: err.message });
   }
 });
 

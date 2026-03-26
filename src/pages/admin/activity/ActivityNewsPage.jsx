@@ -149,6 +149,26 @@ export function ActivityNewsPage() {
     }
   }
 
+  const handleToggleTop = async (id, isTop) => {
+    try {
+      const res = await fetch('http://localhost:3000/api/activities/toggle-top', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activityId: id, isTop: !isTop })
+      })
+      
+      if (res.ok) {
+        fetchActivities()
+      } else {
+        const data = await res.json()
+        alert(data.message || '置頂失敗')
+      }
+    } catch (err) {
+      console.error('Toggle top failed:', err)
+      alert('網路錯誤，請稍後再試')
+    }
+  }
+
   // --- 渲染組件：編輯時的版面預覽 ---
   const LayoutPreview = ({ item }) => {
     const config = classConfig[item.classId] || classConfig[1]
@@ -184,12 +204,22 @@ export function ActivityNewsPage() {
     const period = item.startAt || item.endAt ? `${item.startAt || ''} ~ ${item.endAt || ''}` : null
 
     return (
-      <div className="list-item-card">
+      <div className={`list-item-card ${item.isTop ? 'is-pinned' : ''}`}>
+        <div className="item-checkbox-container">
+          <input 
+            type="checkbox" 
+            checked={!!item.isTop} 
+            onChange={() => handleToggleTop(item.id, item.isTop)}
+            className="carousel-checkbox"
+            title="首頁輪播"
+          />
+        </div>
         <div className="item-content">
           <div className="item-meta">
             <span className={`badge ${config.color.split(' ').join(' ')}`}>
               {config.label}
             </span>
+            {item.isTop && <span className="badge featured-badge">🌟 首頁輪播</span>}
             <span className="date-updated">發佈中</span>
           </div>
           <h3 className="item-title">{item.title}</h3>

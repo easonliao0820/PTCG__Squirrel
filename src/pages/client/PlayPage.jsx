@@ -27,10 +27,11 @@ const PlayPage = () => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/board-games');
+        // 將 limit 設大一點以配合前端的過濾與搜尋邏輯
+        const response = await fetch('http://localhost:3000/api/board-games?limit=1000');
         if (response.ok) {
-          const data = await response.json();
-          setGames(data);
+          const json = await response.json();
+          setGames(json.data || []);
         }
       } catch (error) {
         console.error('Error fetching board games:', error);
@@ -84,8 +85,8 @@ const PlayPage = () => {
       // 人數區間判定
       const matchesPeople = isPeopleMatch(game.playerCount, activeFilters.people);
       
-      // 組合過濾
-      const matchesGroups = activeFilters.groups === '所有組合' || game.suitableGroup === activeFilters.groups;
+      // 組合過濾 (由 tags 取代原本可能的 suitableGroup)
+      const matchesGroups = activeFilters.groups === '所有組合' || (game.tags && game.tags.includes(activeFilters.groups));
       
       // 年齡過濾
       const matchesAge = activeFilters.age === '所有年齡' || game.suggestedAge === activeFilters.age;
@@ -118,7 +119,11 @@ const PlayPage = () => {
   const groupOptions = useMemo(() => {
     const options = ['所有組合'];
     games.forEach(game => {
-      if (game.suitableGroup && !options.includes(game.suitableGroup)) options.push(game.suitableGroup);
+      if (game.tags && Array.isArray(game.tags)) {
+        game.tags.forEach(tag => {
+          if (!options.includes(tag)) options.push(tag);
+        });
+      }
     });
     return options;
   }, [games]);
@@ -193,7 +198,7 @@ const PlayPage = () => {
                 <p className={styles.gameDesc}>{game.description}</p>
                 <div className={styles.tagGrid}>
                   <div className={styles.tag}><AiFillClockCircle /> {game.playingTime}</div>
-                  <div className={styles.tag}><AiOutlineTags /> {game.suitableGroup}</div>
+                  <div className={styles.tag}><AiOutlineTags /> {game.tags && game.tags.length > 0 ? game.tags.join(', ') : '無標籤'}</div>
                   <div className={styles.tag}><AiOutlineUser /> {game.playerCount}</div>
                   <div className={styles.tag}><AiOutlineDashboard /> {game.suggestedAge}</div>
                 </div>

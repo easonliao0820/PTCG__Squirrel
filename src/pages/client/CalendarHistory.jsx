@@ -22,8 +22,9 @@ const CalendarHistory = () => {
         if (!response.ok) {
           throw new Error('無法取得行事曆資料');
         }
-        const data = await response.json();
-        setCalendars(data);
+        const json = await response.json();
+        // 後端 API 回傳格式為 { data: [...], pagination: {...} }
+        setCalendars(json.data || []);
       } catch (err) {
         console.error('Fetch error:', err);
         setError(err.message);
@@ -50,11 +51,11 @@ const CalendarHistory = () => {
   };
 
   // 取得不重複的年份與月份供下拉選單使用
-  const availableYears = [...new Set(calendars.map(c => c.year))].sort((a, b) => b - a);
-  const availableMonths = [...new Set(calendars.map(c => c.month))].sort((a, b) => a - b);
+  const availableYears = [...new Set(calendars?.map(c => c.year))].sort((a, b) => b - a);
+  const availableMonths = [...new Set(calendars?.map(c => c.month))].sort((a, b) => a - b);
 
   // 根據選擇進行篩選
-  const filteredCalendars = calendars.filter(cal => {
+  const filteredCalendars = calendars?.filter(cal => {
     const matchYear = filterYear === 'All' || cal.year.toString() === filterYear;
     const matchMonth = filterMonth === 'All' || cal.month.toString() === filterMonth;
     return matchYear && matchMonth;

@@ -51,14 +51,25 @@ const Services = () => {
       try {
         const response = await fetch('http://localhost:3000/api/calendar');
         if (response.ok) {
-          const data = await response.json();
-          if (data && data.length > 0) {
-            // 排序找最新年份與月份
-            const sorted = data.sort((a, b) => {
-              if (b.year !== a.year) return b.year - a.year;
-              return b.month - a.month;
-            });
-            setLatestCalendar(sorted[0]);
+          const json = await response.json();
+          const calendars = json.data || [];
+          if (calendars.length > 0) {
+            // 取得目前的年份與月份
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+
+            // 尋找符合當下年月的行事曆
+            const currentMonthCalendar = calendars.find(
+              c => Number(c.year) === currentYear && Number(c.month) === currentMonth
+            );
+
+            if (currentMonthCalendar) {
+              setLatestCalendar(currentMonthCalendar);
+            } else {
+              // 如果沒有當月的，因為後端已經是最新排序，直接取第一筆
+              setLatestCalendar(calendars[0]);
+            }
           }
         }
       } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styles from '../../styles/pages/Services.module.scss';
 
 // 咖啡
@@ -44,6 +44,29 @@ const BOARDGAME_IMG4 = '/images/allofservice/boardgame4.jpg';
 const Services = () => {
   const [activeCategory, setActiveCategory] = useState('ptcg');
   const [zoomImg, setZoomImg] = useState(null);
+  const [latestCalendar, setLatestCalendar] = useState(null);
+
+  useEffect(() => {
+    const fetchLatestCalendar = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/calendar');
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            // 排序找最新年份與月份
+            const sorted = data.sort((a, b) => {
+              if (b.year !== a.year) return b.year - a.year;
+              return b.month - a.month;
+            });
+            setLatestCalendar(sorted[0]);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch calendar:', error);
+      }
+    };
+    fetchLatestCalendar();
+  }, []);
 
   const coffeeRef = useRef(null);
   const ptcgRef = useRef(null);
@@ -106,14 +129,15 @@ const Services = () => {
           </div>
           <div className={styles.rightCol}>
             <div className={styles.squareCarousel}>
-              <img src={DEFAULT_IMG} alt="Activity Calendar" />
-              <div className={styles.carouselDots}>
-                <span className={styles.active}></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+              <img 
+                src={latestCalendar ? latestCalendar.imageUrl : DEFAULT_IMG} 
+                alt="Latest Calendar" 
+                onClick={() => setZoomImg(latestCalendar ? latestCalendar.imageUrl : DEFAULT_IMG)}
+                style={{ cursor: 'pointer', transition: 'transform 0.3s ease' }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                title="點擊放大觀看最新行事曆"
+              />
             </div>
             <div className={styles.mascotRow}>
               <img src={EEVEE_IMG} alt="Eevee" />

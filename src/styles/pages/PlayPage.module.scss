@@ -210,3 +210,14 @@
     }
   }
 }
+
+.noResults {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 50px;
+  color: #888;
+  font-size: 1.1rem;
+  background: #fff;
+  border-radius: $radius-main;
+  box-shadow: $shadow-soft;
+}

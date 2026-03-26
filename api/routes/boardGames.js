@@ -23,7 +23,10 @@ const uploadGame = multer({ storage: gameStorage });
 
 // API: 取得所有桌遊
 router.get('/board-games', async (req, res) => {
+  console.log('GET /api/board-games called');
   try {
+    const countRes = await pool.query('SELECT COUNT(*) FROM "boardGames"');
+    console.log('Database row count from "boardGames":', countRes.rows[0].count);
     const result = await pool.query(`
       SELECT b.*, 
              (SELECT json_agg(t.title) 

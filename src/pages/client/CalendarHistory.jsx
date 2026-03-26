@@ -7,7 +7,11 @@ const CalendarHistory = () => {
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // 篩選與搜尋狀態
+  // 暫存篩選狀態 (下拉選單點選，但未點擊搜尋)
+  const [tempYear, setTempYear] = useState('All');
+  const [tempMonth, setTempMonth] = useState('All');
+
+  // 實際生效的篩選狀態 (點擊搜尋後生效)
   const [filterYear, setFilterYear] = useState('All');
   const [filterMonth, setFilterMonth] = useState('All');
 
@@ -31,6 +35,20 @@ const CalendarHistory = () => {
     fetchCalendars();
   }, []);
 
+  // 點擊搜尋按鈕
+  const handleSearch = () => {
+    setFilterYear(tempYear);
+    setFilterMonth(tempMonth);
+  };
+
+  // 重設篩選 (立即生效)
+  const handleReset = () => {
+    setTempYear('All');
+    setTempMonth('All');
+    setFilterYear('All');
+    setFilterMonth('All');
+  };
+
   // 取得不重複的年份與月份供下拉選單使用
   const availableYears = [...new Set(calendars.map(c => c.year))].sort((a, b) => b - a);
   const availableMonths = [...new Set(calendars.map(c => c.month))].sort((a, b) => a - b);
@@ -49,12 +67,12 @@ const CalendarHistory = () => {
     <div className={styles.pageWrapper}>
       <h2 className={styles.pageTitle}>歷年行事曆回顧</h2>
 
-      {/* 搜尋與篩選區 (參考 PlayPage) */}
+      {/* 搜尋與篩選區 */}
       <div className={styles.searchContainer}>
         <div className={styles.filterRow}>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>年份：</span>
-            <select className={styles.selectBox} value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
+            <select className={styles.selectBox} value={tempYear} onChange={(e) => setTempYear(e.target.value)}>
               <option value="All">全部年份</option>
               {availableYears.map(year => (
                 <option key={year} value={year}>{year} 年</option>
@@ -63,20 +81,18 @@ const CalendarHistory = () => {
           </div>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>月份：</span>
-            <select className={styles.selectBox} value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
+            <select className={styles.selectBox} value={tempMonth} onChange={(e) => setTempMonth(e.target.value)}>
               <option value="All">全部月份</option>
               {availableMonths.map(month => (
                 <option key={month} value={month}>{String(month).padStart(2, '0')} 月</option>
               ))}
             </select>
           </div>
-          {(filterYear !== 'All' || filterMonth !== 'All') && (
-            <button 
-              className={styles.resetBtn} 
-              onClick={() => { setFilterYear('All'); setFilterMonth('All'); }}
-            >
-              重設篩選
-            </button>
+          
+          <button className={styles.searchBtn} onClick={handleSearch}>搜尋</button>
+
+          {(filterYear !== 'All' || filterMonth !== 'All' || tempYear !== 'All' || tempMonth !== 'All') && (
+            <button className={styles.resetBtn} onClick={handleReset}>重設篩選</button>
           )}
         </div>
       </div>

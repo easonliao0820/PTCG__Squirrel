@@ -22,7 +22,7 @@ const LocationMap = () => {
                 <li>周二～周五 15:00－22:00 (免入場費)</li>
                 <li>周六、周日 10:00－22:00 (一小時 $50 / 全日 $200)</li>
                 <li>店內禁止外食，假日前一天延長至 24:00</li>
-                <li>如有特別節日或變動將會發布在FB/IG上也可以在 <Link to="/events" className={styles.inlineLink}>"所有活動"</Link> 查詢</li>
+                <li><p>如有特別節日或變動將會發布在FB/IG上也可以在 <Link to="/events" className={styles.inlineLink}>"所有活動"</Link> 查詢</p></li>
               </ul>
             </div>
 

@@ -10,8 +10,8 @@ const PlayPage = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [tempFilters, setTempFilters] = useState({
-    playType: '', // 空字串代表全部品項
-    people: '', // 改為文字輸入
+    playType: '一般桌遊',
+    people: '',
     groups: '所有組合',
     age: '所有年齡'
   });
@@ -19,7 +19,7 @@ const PlayPage = () => {
   // 實際生效的狀態 (點擊搜尋後，畫面根據此狀態進行過濾)
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState({
-    playType: '',
+    playType: '一般桌遊',
     people: '',
     groups: '所有組合',
     age: '所有年齡'
@@ -115,6 +115,14 @@ const PlayPage = () => {
     fetchGames();
   }, [currentPage, searchTerm, activeFilters.playType]);
 
+  // 類型選擇的處理函式：直接更新生效篩選 + 抓取對應標籤 (0=桌遊, 1=劇本殺)
+  const handleTypeChange = (newType) => {
+    // 同時更新 temp 與 active，讓資料立即重新抓取
+    setTempFilters(prev => ({ ...prev, playType: newType, groups: '所有組合' }));
+    setActiveFilters(prev => ({ ...prev, playType: newType, groups: '所有組合' }));
+    setCurrentPage(1);
+  };
+
   // 點擊搜尋按鈕
   const handleSearch = () => {
     setSearchTerm(inputValue);
@@ -198,18 +206,18 @@ const PlayPage = () => {
 
   const visiblePages = getVisiblePages();
 
-  // 提取組合選項 (其他改為固定)
+  // 組合選項：直接從目前類型的 games 中對應的 tags
+  // 這樣不管 tag 表的 class 欄位是否正確，都能正確展示
   const groupOptions = useMemo(() => {
-    const options = ['所有組合'];
+    if (!activeFilters.playType) return ['所有組合'];
+    const tagSet = new Set();
     games.forEach(game => {
       if (game.tags && Array.isArray(game.tags)) {
-        game.tags.forEach(tag => {
-          if (!options.includes(tag)) options.push(tag);
-        });
+        game.tags.forEach(tag => tagSet.add(tag));
       }
     });
-    return options;
-  }, [games]);
+    return ['所有組合', ...Array.from(tagSet).sort()];
+  }, [games, activeFilters.playType]);
 
   const ageOptions = ['所有年齡', '0+', '6+', '12+', '15+', '18+'];
 
@@ -238,11 +246,26 @@ const PlayPage = () => {
             <select
               className={styles.selectBox}
               value={tempFilters.playType}
-              onChange={(e) => handleTempFilterChange('playType', e.target.value)}
+              onChange={(e) => handleTypeChange(e.target.value)}
             >
-              <option value="">全部品項</option>
               <option value="一般桌遊">一般桌遊</option>
               <option value="劇本殺">劇本殺</option>
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>建議組合：</span>
+            <select
+              className={styles.selectBox}
+              value={tempFilters.groups}
+              onChange={(e) => handleTempFilterChange('groups', e.target.value)}
+              disabled={!tempFilters.playType} // 未選類型前禁用
+              style={{ opacity: !tempFilters.playType ? 0.5 : 1, cursor: !tempFilters.playType ? 'not-allowed' : 'pointer' }}
+            >
+              {!tempFilters.playType ? (
+                <option>請先選擇類型</option>
+              ) : (
+                groupOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)
+              )}
             </select>
           </div>
           <div className={styles.filterGroup}>
@@ -256,16 +279,6 @@ const PlayPage = () => {
               onChange={(e) => handleTempFilterChange('people', e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
-          </div>
-          <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>建議組合：</span>
-            <select
-              className={styles.selectBox}
-              value={tempFilters.groups}
-              onChange={(e) => handleTempFilterChange('groups', e.target.value)}
-            >
-              {groupOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-            </select>
           </div>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>建議年齡：</span>

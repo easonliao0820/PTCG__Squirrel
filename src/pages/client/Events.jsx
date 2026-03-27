@@ -26,12 +26,12 @@ const Events = () => {
   const itemsPerPage = 20; // 設定每頁顯示的活動數量
 
   const categories = [
-    { label: "全部活動", name: "All", id: "all" },
-    { label: "一般活動", name: "一般活動", id: "normal" },
-    { label: "PTCG比賽", name: "PTCG 比賽", id: "ptcg" },
-    { label: "桌遊/劇本殺", name: "桌遊/劇本殺", id: "boardgame" },
-    { label: "超人力霸王", name: "超人力霸王", id: "ultra" },
-    { label: "活動成果", name: "活動成果", id: "result" }
+    { label: "全部標籤", name: "All", dbId: "all", id: "all" },
+    { label: "一般活動", name: "一般活動", dbId: 1, id: "normal" },
+    { label: "PTCG 比賽", name: "PTCG 比賽", dbId: 2, id: "ptcg" },
+    { label: "桌遊/劇本殺", name: "桌遊/劇本殺", dbId: 3, id: "boardgame" },
+    { label: "超人力霸王", name: "超人力霸王", dbId: 4, id: "ultra" },
+    { label: "活動成果", name: "活動成果", dbId: 5, id: "result" }
   ];
   const years = ["2023", "2024", "2025", "2026", "2027"];
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
@@ -46,7 +46,7 @@ const Events = () => {
           search: searchTerm,
           year: searchYear,
           month: searchMonth,
-          classId: activeCategory === 'All' ? 'all' : categories.find(c => c.name === activeCategory)?.id || 'all'
+          classId: activeCategory === 'All' ? 'all' : categories.find(c => c.name === activeCategory)?.dbId || 'all'
         });
 
         const url = `http://localhost:3000/api/activities?${queryParams.toString()}`;
@@ -81,7 +81,14 @@ const Events = () => {
     setSearchYear(tempYear);
     setSearchMonth(tempMonth);
     setActiveCategory(tempCategory);
-    setCurrentPage(1); // 搜尋時回到第一頁
+    setCurrentPage(1); 
+  };
+
+  // 當分類標籤切換時，直接觸發搜尋 (與 PlayPage 同步)
+  const handleCategoryChange = (catName) => {
+    setTempCategory(catName);
+    setActiveCategory(catName);
+    setCurrentPage(1);
   };
 
   const goToPage = (page) => {
@@ -91,10 +98,25 @@ const Events = () => {
     }
   };
 
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
+  // 產生要顯示的頁碼 (處理過多頁碼的情況，與 PlayPage 同步)
+  const getVisiblePages = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    if (currentPage - delta > 2) range.unshift("...");
+    if (currentPage + delta < totalPages - 1) range.push("...");
+    range.unshift(1);
+    if (totalPages > 1) range.push(totalPages);
+    return range;
+  };
+
+  const visiblePages = getVisiblePages();
 
   return (
     <div className={styles.pageWrapper}>
@@ -120,7 +142,7 @@ const Events = () => {
                 key={cat.id}
                 className={`${styles.tagBtn} ${styles[cat.id]} ${tempCategory === cat.name ? styles.active : ''}`}
                 style={tempCategory === cat.name ? { background: '#e99713ff', color: '#fff' } : {}}
-                onClick={() => setTempCategory(cat.name)}
+                onClick={() => handleCategoryChange(cat.name)}
               >
                 {cat.label}
               </button>
@@ -209,11 +231,12 @@ const Events = () => {
             &lt;
           </span>
 
-          {pageNumbers.map(num => (
+          {visiblePages.map((num, idx) => (
             <span
-              key={num}
+              key={idx}
               className={currentPage === num ? styles.active : ''}
-              onClick={() => goToPage(num)}
+              onClick={() => typeof num === 'number' && goToPage(num)}
+              style={{ cursor: typeof num === 'number' ? 'pointer' : 'default' }}
             >
               {num}
             </span>

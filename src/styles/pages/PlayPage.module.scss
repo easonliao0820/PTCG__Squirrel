@@ -178,7 +178,15 @@
     }
 
     .gameDesc {
-      display: none; // 隱藏介紹文字
+      font-size: 0.75rem;
+      color: #777;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2; // 標準屬性
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .tagGrid {

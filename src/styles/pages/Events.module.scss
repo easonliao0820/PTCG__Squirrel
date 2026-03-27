@@ -213,7 +213,7 @@
   gap: clamp(15px, 3vw, 30px);
 
   .imageCol {
-    flex: 0 0 320px; // 再次加大圖片欄位 (從 180px 加大至 320px)
+    flex: 0 0 160px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start; // 改為頂部開始
@@ -285,7 +285,7 @@
     flex-direction: row;
 
     .imageCol {
-      flex: 0 0 clamp(300px, 35vw, 450px); // 再次加大海報版型圖片寬度
+      flex: 0 0 clamp(140px, 18vw, 200px);
 
       .imgPlaceholder {
         aspect-ratio: 3 / 4;

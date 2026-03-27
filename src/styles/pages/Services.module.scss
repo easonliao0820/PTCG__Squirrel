@@ -1,4 +1,4 @@
-@import "../../styles/variables";
+@import "../../styles/_variables";
 
 .servicesContainer {
   @extend %layout-container;
@@ -662,7 +662,7 @@
       height: auto;
       margin: 0 auto;
     }
-    
+
     .ultraDescriptionBox {
       padding: 30px 20px;
       min-height: 200px;

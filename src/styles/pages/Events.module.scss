@@ -213,7 +213,7 @@
   gap: clamp(15px, 3vw, 30px);
 
   .imageCol {
-    flex: 0 0 80px; // 縮小圖片欄位 (原 150px)
+    flex: 0 0 320px; // 再次加大圖片欄位 (從 180px 加大至 320px)
     display: flex;
     flex-direction: column;
     justify-content: flex-start; // 改為頂部開始
@@ -285,7 +285,7 @@
     flex-direction: row;
 
     .imageCol {
-      flex: 0 0 clamp(120px, 15vw, 180px); // 縮小海報版型圖片寬度
+      flex: 0 0 clamp(300px, 35vw, 450px); // 再次加大海報版型圖片寬度
 
       .imgPlaceholder {
         aspect-ratio: 3 / 4;
@@ -313,8 +313,8 @@
       margin: 0 auto;
 
       img {
-        width: calc(50% - 5px); // 讓兩張圖片能並排
-        max-width: 180px;
+        width: calc(50% - 12px); 
+        max-width: 500px; // 手機版上限加大，讓大螢幕手機顯示更震撼
       }
     }
 

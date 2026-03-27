@@ -11,8 +11,8 @@ const classConfig = {
 }
 
 const styleOptions = [
-  { value: 1, label: '經典圖左', desc: '圖左文右', className: 'layout-left' },
-  { value: 2, label: '焦點圖右', desc: '文左圖右', className: 'layout-right' },
+  { value: 0, label: '經典圖左', desc: '圖左文右', className: 'layout-left' },
+  { value: 1, label: '焦點圖右', desc: '文左圖右', className: 'layout-right' },
 ]
 
 export function ActivityNewsPage() {
@@ -37,7 +37,7 @@ export function ActivityNewsPage() {
       images: [null, null], // [File, File]
       previews: ['', ''],   // [string, string]
       classId: 1,
-      styleId: 1,
+      style: 0,
       startAt: `${year}-${month}-${day}`, // 預設為今天
       endAt: `${year+1}-${month}-${day}`,
       url: '',
@@ -99,13 +99,13 @@ export function ActivityNewsPage() {
     formData.append('title', form.title)
     formData.append('content', form.content)
     formData.append('classId', form.classId)
-    formData.append('styleId', form.styleId)
+    formData.append('style', form.style)
     if (form.startAt) formData.append('startAt', form.startAt)
     if (form.endAt) formData.append('endAt', form.endAt)
     if (form.url) formData.append('url', form.url)
     // Append all selected files
     form.images.forEach((file, idx) => {
-      if (file && (form.styleId === 1 || idx === 0)) {
+      if (file && (form.style === 0 || idx === 0)) {
         formData.append('images', file)
       }
     })
@@ -180,11 +180,11 @@ export function ActivityNewsPage() {
   // --- 渲染組件：編輯時的版面預覽 ---
   const LayoutPreview = ({ item }) => {
     const config = classConfig[item.classId] || classConfig[1]
-    const styleOpt = styleOptions.find(o => o.value === item.styleId) || styleOptions[0]
+    const styleOpt = styleOptions.find(o => o.value === item.style) || styleOptions[0]
     const layoutClass = styleOpt.className
     const displayEndAt = item.endAt;
     const period = item.startAt ? `${item.startAt} ~ ${displayEndAt}` : null;
-    const validPreviews = (item.previews || []).filter((p, i) => p && (item.styleId === 1 || i === 0))
+    const validPreviews = (item.previews || []).filter((p, i) => p && (item.style === 0 || i === 0))
 
     return (
       <div className={`preview-card ${layoutClass}`}>
@@ -256,7 +256,7 @@ export function ActivityNewsPage() {
                 images: [null, null],
                 previews: item.imageUrls || ['', ''],
                 classId: item.classId || 1,
-                styleId: item.styleId || 1,
+                style: item.style !== undefined ? item.style : 0,
                 startAt: item.startAt || '',
                 endAt: item.endAt || '',
                 url: item.url || '',
@@ -312,7 +312,7 @@ export function ActivityNewsPage() {
                 <label className="form-label">版面樣式 (Style)</label>
                 <div className="layout-options">
                   {styleOptions.map(opt => (
-                    <button key={opt.value} onClick={() => setForm(f => ({ ...f, styleId: opt.value }))} className={`layout-btn ${form.styleId === opt.value ? 'active' : ''}`}>{opt.label}</button>
+                    <button key={opt.value} onClick={() => setForm(f => ({ ...f, style: opt.value }))} className={`layout-btn ${form.style === opt.value ? 'active' : ''}`}>{opt.label}</button>
                   ))}
                 </div>
               </div>
@@ -334,9 +334,9 @@ export function ActivityNewsPage() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">活動配圖 (最多 {form.styleId === 1 ? 2 : 1} 張)</label>
+              <label className="form-label">活動配圖 (最多 {form.style === 0 ? 2 : 1} 張)</label>
               <div className="image-upload-grid">
-                {[...Array(form.styleId === 1 ? 2 : 1)].map((_, idx) => (
+                {[...Array(form.style === 0 ? 2 : 1)].map((_, idx) => (
                   <div key={idx} className="file-input-group">
                     <input 
                       type="file" 

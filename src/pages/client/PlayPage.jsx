@@ -4,7 +4,8 @@ import { AiFillClockCircle, AiOutlineUser, AiOutlineDashboard, AiOutlineTags } f
 
 const PlayPage = () => {
   const [games, setGames] = useState([]);
-  
+  const [isLoading, setIsLoading] = useState(false);
+
   // 暫存狀態 (使用者正在輸入或選擇，尚未點按點擊搜尋)
 
   const [inputValue, setInputValue] = useState('');
@@ -19,62 +20,100 @@ const PlayPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState({
     playType: '',
-    people: '', 
+    people: '',
     groups: '所有組合',
     age: '所有年齡'
   });
+
+  const [totalPages, setTotalPages] = useState(1);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
   useEffect(() => {
     const fetchGames = async () => {
+      setIsLoading(true);
       try {
-        // 同時抓取桌遊與劇本殺資料
-        const [bgRes, laprRes] = await Promise.all([
-          fetch('http://localhost:3000/api/board-games?limit=1000'),
-          fetch('http://localhost:3000/api/lapr?limit=1000')
+        const queryParams = new URLSearchParams({
+          limit: itemsPerPage,
+          search: searchTerm
+        });
+
+        // 1. 抓取分頁資訊 (總頁數) - 只有當搜尋或類別改變時才需要重新計算，但這裡合併處理
+        const [bgPagRes, laprPagRes] = await Promise.all([
+          fetch(`http://localhost:3000/api/board-games/pagination?${queryParams.toString()}`),
+          fetch(`http://localhost:3000/api/lapr/pagination?${queryParams.toString()}`)
         ]);
 
+        let bgTotal = 0;
+        let laprTotal = 0;
+
+        if (bgPagRes.ok) {
+          const json = await bgPagRes.json();
+          bgTotal = json.pagination.totalItems;
+        }
+        if (laprPagRes.ok) {
+          const json = await laprPagRes.json();
+          laprTotal = json.pagination.totalItems;
+        }
+
+        // 根據類型限制計算總數
+        let effectiveTotal = 0;
+        if (activeFilters.playType === '') effectiveTotal = bgTotal + laprTotal;
+        else if (activeFilters.playType === '一般桌遊') effectiveTotal = bgTotal;
+        else if (activeFilters.playType === '劇本殺') effectiveTotal = laprTotal;
+
+        setTotalPages(Math.ceil(effectiveTotal / itemsPerPage) || 1);
+
+        // 2. 抓取當前頁面資料
+        const dataParams = new URLSearchParams({
+          page: currentPage,
+          limit: activeFilters.playType === '' ? Math.ceil(itemsPerPage / 2) : itemsPerPage,
+          search: searchTerm
+        });
+
         let allGames = [];
+        const fetchPromises = [];
 
-        if (bgRes.ok) {
-          const bgJson = await bgRes.json();
-          const bgData = bgJson.data || [];
-          const normalizedBg = bgData.map(item => ({
-            ...item,
-            id: `bg_${item.id}`,
-            type: '一般桌遊'
-          }));
-          allGames = [...allGames, ...normalizedBg];
+        if (activeFilters.playType === '' || activeFilters.playType === '一般桌遊') {
+          fetchPromises.push(
+            fetch(`http://localhost:3000/api/board-games?${dataParams.toString()}`)
+              .then(res => res.ok ? res.json() : { data: [] })
+              .then(json => json.data.map(item => ({ ...item, type: '一般桌遊' })))
+          );
         }
 
-        if (laprRes.ok) {
-          const laprJson = await laprRes.json();
-          const laprData = laprJson.data || [];
-          const normalizedLapr = laprData.map(item => ({
-            id: `lapr_${item.id}`,
-            name: item.name,
-            description: item.remark || '無簡介',
-            playerCount: item.role || '無特定人數',
-            playingTime: '依劇本規定',
-            suggestedAge: '建議15+', // 預設值
-            imageUrl: null, // 劇本殺沒有圖片
-            tags: item.publisher ? [...(item.tags || []), item.publisher] : (item.tags || []),
-            type: '劇本殺'
-          }));
-          allGames = [...allGames, ...normalizedLapr];
+        if (activeFilters.playType === '' || activeFilters.playType === '劇本殺') {
+          fetchPromises.push(
+            fetch(`http://localhost:3000/api/lapr?${dataParams.toString()}`)
+              .then(res => res.ok ? res.json() : { data: [] })
+              .then(json => json.data.map(item => ({ 
+                id: `lapr_${item.id}`,
+                name: item.name,
+                description: item.remark || '無簡介',
+                playerCount: item.role || '無特定人數',
+                playingTime: '依劇本規定',
+                suggestedAge: '建議15+',
+                imageUrl: null,
+                tags: item.tags || [],
+                type: '劇本殺'
+              })))
+          );
         }
 
-        // 以名稱或 ID 稍微排序，或直接合併
+        const results = await Promise.all(fetchPromises);
+        allGames = results.flat();
+
         setGames(allGames);
       } catch (error) {
         console.error('Error fetching games:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchGames();
-  }, []);
+  }, [currentPage, searchTerm, activeFilters.playType]);
 
   // 點擊搜尋按鈕
   const handleSearch = () => {
@@ -91,14 +130,14 @@ const PlayPage = () => {
   const isPeopleMatch = (rangeStr, inputNum) => {
     if (!inputNum) return true; // 未輸入則不限
     if (!rangeStr) return false;
-    
+
     const num = parseInt(inputNum, 10);
     if (isNaN(num)) return true;
     const matches = rangeStr.match(/(\d+)(?:\s*[-~]\s*(\d+))?/);
     if (matches) {
       const min = parseInt(matches[1], 10);
       const max = matches[2] ? parseInt(matches[2], 10) : min;
-      
+
       // 如果格式是 "4人以上"，則 max 設為無限大
       const isMoreThan = rangeStr.includes('以上') || rangeStr.includes('+');
       return num >= min && (isMoreThan ? true : num <= max);
@@ -108,34 +147,20 @@ const PlayPage = () => {
 
   const filteredGames = useMemo(() => {
     return games.filter(game => {
-      // 分類過濾 (由 normalize 時加入的 type 欄位過濾)
-      const matchesPlayType = 
-        activeFilters.playType === '' ? true :
-        game.type === activeFilters.playType;
+      // 由於後端已經處理了 playType 與 search，這裡只需要處理剩餘的前端過濾 (或您可以之後再補後端)
+      // 注意：如果您希望完全後端過濾，請將 people, age 等也加入 query
 
-      // 關鍵字搜尋 (名稱或描述)
-      const matchesSearch = game.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (game.description && game.description.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      // 人數區間判定
+      const matchesType = activeFilters.playType === '' || game.type === activeFilters.playType;
       const matchesPeople = isPeopleMatch(game.playerCount, activeFilters.people);
-      
-      // 組合過濾 (由 tags 取代原本可能的 suitableGroup)
       const matchesGroups = activeFilters.groups === '所有組合' || (game.tags && game.tags.includes(activeFilters.groups));
-      
-      // 年齡過濾
       const matchesAge = activeFilters.age === '所有年齡' || game.suggestedAge === activeFilters.age;
 
-      return matchesPlayType && matchesSearch && matchesPeople && matchesGroups && matchesAge;
+      return matchesType && matchesPeople && matchesGroups && matchesAge;
     });
-  }, [games, searchTerm, activeFilters]);
+  }, [games, activeFilters]);
 
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredGames.length / itemsPerPage);
-  const paginatedGames = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredGames.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredGames, currentPage]);
+  // 分頁切片邏輯 (現在由後端提供 20 筆，前端只需要過濾後的這 20 筆即可)
+  const paginatedGames = filteredGames;
 
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -144,11 +169,34 @@ const PlayPage = () => {
     }
   };
 
-  // Generate page numbers to display
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
+  // 產生要顯示的頁碼 (處理過多頁碼的情況)
+  const getVisiblePages = () => {
+    const delta = 2; // 當前頁碼前後顯示幾頁
+    const range = [];
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      range.unshift("...");
+    }
+    if (currentPage + delta < totalPages - 1) {
+      range.push("...");
+    }
+
+    range.unshift(1);
+    if (totalPages > 1) {
+      range.push(totalPages);
+    }
+
+    return range;
+  };
+
+  const visiblePages = getVisiblePages();
 
   // 提取組合選項 (其他改為固定)
   const groupOptions = useMemo(() => {
@@ -172,10 +220,10 @@ const PlayPage = () => {
       {/* 搜尋區 */}
       <div className={styles.searchContainer}>
         <div className={styles.searchBar}>
-          <input 
-            type="text" 
-            placeholder="搜尋名稱或關鍵字..." 
-            className={styles.searchInput} 
+          <input
+            type="text"
+            placeholder="搜尋名稱或關鍵字..."
+            className={styles.searchInput}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -187,7 +235,7 @@ const PlayPage = () => {
         <div className={styles.filterRow}>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>類型：</span>
-            <select 
+            <select
               className={styles.selectBox}
               value={tempFilters.playType}
               onChange={(e) => handleTempFilterChange('playType', e.target.value)}
@@ -199,9 +247,9 @@ const PlayPage = () => {
           </div>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>指定人數：</span>
-            <input 
-              type="text" 
-              placeholder="例如: 6" 
+            <input
+              type="text"
+              placeholder="例如: 6"
               className={styles.selectBox} // 沿用樣式
               style={{ width: '80px' }}
               value={tempFilters.people}
@@ -211,7 +259,7 @@ const PlayPage = () => {
           </div>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>建議組合：</span>
-            <select 
+            <select
               className={styles.selectBox}
               value={tempFilters.groups}
               onChange={(e) => handleTempFilterChange('groups', e.target.value)}
@@ -221,7 +269,7 @@ const PlayPage = () => {
           </div>
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>建議年齡：</span>
-            <select 
+            <select
               className={styles.selectBox}
               value={tempFilters.age}
               onChange={(e) => handleTempFilterChange('age', e.target.value)}
@@ -234,7 +282,9 @@ const PlayPage = () => {
 
       {/* 桌遊卡片網格 */}
       <div className={styles.gameGrid}>
-        {paginatedGames.length > 0 ? (
+        {isLoading ? (
+          <div className={styles.noResults}>讀取中...</div>
+        ) : paginatedGames.length > 0 ? (
           paginatedGames.map((game) => (
             <div key={game.id} className={styles.gameCard}>
               <div className={styles.imageBox}>
@@ -260,24 +310,25 @@ const PlayPage = () => {
       {/* 分頁按鈕 */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <span 
+          <span
             onClick={() => goToPage(currentPage - 1)}
             style={{ opacity: currentPage === 1 ? 0.3 : 1, cursor: currentPage === 1 ? 'default' : 'pointer' }}
           >
             &lt;
           </span>
-          
-          {pageNumbers.map(num => (
-            <span 
-              key={num} 
+
+          {visiblePages.map((num, idx) => (
+            <span
+              key={idx}
               className={currentPage === num ? styles.active : ''}
-              onClick={() => goToPage(num)}
+              onClick={() => typeof num === 'number' && goToPage(num)}
+              style={{ cursor: typeof num === 'number' ? 'pointer' : 'default' }}
             >
               {num}
             </span>
           ))}
 
-          <span 
+          <span
             onClick={() => goToPage(currentPage + 1)}
             style={{ opacity: currentPage === totalPages ? 0.3 : 1, cursor: currentPage === totalPages ? 'default' : 'pointer' }}
           >

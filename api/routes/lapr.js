@@ -3,7 +3,37 @@ import pool from '../db.js';
 
 const router = express.Router();
 
-// API: 取得所有 LARP (支援分頁與搜尋)
+// API: 取得劇本殺分頁資訊 (總筆數與總頁數)
+router.get('/lapr/pagination', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+
+    const search = req.query.search || '';
+    
+    let whereClause = '';
+    let params = [];
+    if (search) {
+      whereClause = 'WHERE name ILIKE $1 OR publisher ILIKE $1 OR remark ILIKE $1';
+      params.push(`%${search}%`);
+    }
+
+    const countRes = await pool.query(`SELECT COUNT(*) FROM lapr ${whereClause}`, params);
+    const totalItems = parseInt(countRes.rows[0].count);
+
+    res.json({
+      status: 'success',
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        limit
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// API: 取得所有劇本殺 (支援分頁與搜尋)
 router.get('/lapr', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -18,18 +48,14 @@ router.get('/lapr', async (req, res) => {
       params.push(`%${search}%`);
     }
 
-    // 取得總筆數
-    const countRes = await pool.query(`SELECT COUNT(*) FROM lapr l ${whereClause}`, params);
-    const totalItems = parseInt(countRes.rows[0].count);
-
     // 取得分頁資料
     const dataParams = [...params, limit, offset];
     const result = await pool.query(`
       SELECT l.*, 
              (SELECT json_agg(t.title) 
-              FROM "playTag" pt 
-              JOIN tag t ON pt."tagId" = t.id 
-              WHERE pt.class = 'lapr' AND pt."classId" = l.id) as tags
+              FROM \"playTag\" pt 
+              JOIN tag t ON pt.\"tagId\" = t.id 
+              WHERE pt.class = 'lapr' AND pt.\"classId\" = l.id) as tags
       FROM lapr l 
       ${whereClause}
       ORDER BY l.id DESC
@@ -46,13 +72,8 @@ router.get('/lapr', async (req, res) => {
     }));
 
     res.json({
-      data: laprs,
-      pagination: {
-        totalItems,
-        totalPages: Math.ceil(totalItems / limit),
-        currentPage: page,
-        limit
-      }
+      status: 'success',
+      data: laprs
     });
   } catch (err) {
     console.error('Fetch lapr failed:', err);

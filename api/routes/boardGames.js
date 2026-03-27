@@ -21,6 +21,36 @@ const gameStorage = multer.diskStorage({
 });
 const uploadGame = multer({ storage: gameStorage });
 
+// API: 取得桌遊分頁資訊 (總筆數與總頁數)
+router.get('/board-games/pagination', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+
+    const search = req.query.search || '';
+    
+    let whereClause = '';
+    let params = [];
+    if (search) {
+      whereClause = 'WHERE name ILIKE $1 OR content ILIKE $1';
+      params.push(`%${search}%`);
+    }
+
+    const countRes = await pool.query(`SELECT COUNT(*) FROM "boardGames" ${whereClause}`, params);
+    const totalItems = parseInt(countRes.rows[0].count);
+
+    res.json({
+      status: 'success',
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        limit
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
 // API: 取得所有桌遊 (支援分頁與搜尋)
 router.get('/board-games', async (req, res) => {
   console.log('GET /api/board-games called');
@@ -67,13 +97,8 @@ router.get('/board-games', async (req, res) => {
     }));
 
     res.json({
-      data: games,
-      pagination: {
-        totalItems,
-        totalPages: Math.ceil(totalItems / limit),
-        currentPage: page,
-        limit
-      }
+      status: 'success',
+      data: games
     });
   } catch (err) {
     console.error('Fetch board games failed:', err);

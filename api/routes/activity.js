@@ -29,6 +29,8 @@ router.get('/activities', async (req, res) => {
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
     const classId = req.query.classId || 'all';
+    const year = req.query.year || 'All';
+    const month = req.query.month || 'All';
 
     let filters = [];
     let params = [];
@@ -41,6 +43,18 @@ router.get('/activities', async (req, res) => {
     if (classId !== 'all') {
       params.push(classId);
       filters.push(`a."classId" = $${params.length}`);
+    }
+
+    // 新增日期篩選邏輯
+    if (year !== 'All' && month !== 'All') {
+      params.push(`${year}-${month}%`);
+      filters.push(`to_char(a."dateStart", 'YYYY-MM') LIKE $${params.length}`);
+    } else if (year !== 'All') {
+      params.push(`${year}%`);
+      filters.push(`to_char(a."dateStart", 'YYYY-MM-DD') LIKE $${params.length}`);
+    } else if (month !== 'All') {
+      params.push(`%-${month}-%`);
+      filters.push(`to_char(a."dateStart", 'YYYY-MM-DD') LIKE $${params.length}`);
     }
 
     const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
@@ -227,34 +241,25 @@ router.get('/activities/top', async (req, res) => {
              to_char(a."dateStart", 'YYYY-MM-DD') as date_start_str,
              to_char(a."dateEnd", 'YYYY-MM-DD') as date_end_str,
              ac.name as class_name, 
-             ast.content as style_content,
-             (SELECT json_agg(row_to_json(ai)) FROM "activityImg" ai WHERE ai."activityId" = a.id) as images
+             (SELECT json_agg(img) FROM "activityImg" WHERE "activityId" = a.id) as images
       FROM activity a
       INNER JOIN "activityTop" atop ON a.id = atop.activityid
       LEFT JOIN "activityClass" ac ON a."classId" = ac.id
-      LEFT JOIN "activityStyle" ast ON a."styleId" = ast.id
       ORDER BY atop.id ASC
     `);
 
-    const activities = result.rows.map(row => {
-      const validImages = (row.images || []).filter(img => img !== null && (img.img || img.IMG));
-      return {
-        id: row.id,
-        title: row.title,
-        startAt: row.date_start_str,
-        endAt: row.date_end_str,
-        content: row.content,
-        classId: row.classId,
-        styleId: row.styleId,
-        className: row.class_name,
-        styleContent: row.style_content,
-        url: row.url,
-        imageUrls: validImages.map(imgObj => {
-          const fileName = imgObj.img || imgObj.IMG;
-          return `http://localhost:3000/uploads/activity/${fileName}`;
-        })
-      };
-    });
+    const activities = result.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      startAt: row.date_start_str,
+      endAt: row.date_end_str,
+      content: row.content,
+      classId: row.classId,
+      style: row.style,
+      className: row.class_name,
+      url: row.url,
+      imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
+    }));
 
     res.json({ status: 'success', data: activities });
   } catch (err) {

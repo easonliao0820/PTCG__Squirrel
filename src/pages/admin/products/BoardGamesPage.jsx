@@ -317,6 +317,7 @@ export function BoardGamesPage() {
                     selectedTags={form.tags}
                     onTagsChange={(newTags) => setForm(f => ({ ...f, tags: newTags }))}
                     max={2}
+                    tagClass={0}
                   />
                 </div>
               </div>

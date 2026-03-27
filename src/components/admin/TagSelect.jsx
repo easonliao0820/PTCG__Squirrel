@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import '../../styles/components/TagSelect.scss'
 
-export function TagSelect({ selectedTags = [], onTagsChange, max = 2 }) {
+export function TagSelect({ selectedTags = [], onTagsChange, max = 2, tagClass }) {
   const [allTags, setAllTags] = useState([])
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -10,7 +10,10 @@ export function TagSelect({ selectedTags = [], onTagsChange, max = 2 }) {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/tags')
+        const url = tagClass !== undefined 
+          ? `http://localhost:3000/api/tags?class=${tagClass}`
+          : 'http://localhost:3000/api/tags';
+        const res = await fetch(url)
         if (res.ok) {
           const data = await res.json()
           setAllTags(data)
@@ -20,7 +23,7 @@ export function TagSelect({ selectedTags = [], onTagsChange, max = 2 }) {
       }
     }
     fetchTags()
-  }, [])
+  }, [tagClass])
 
   useEffect(() => {
     const handleClickOutside = (event) => {

@@ -3,7 +3,7 @@
 .hero {
   position: relative;
   width: 100%;
-  min-height: 100vh; // 改為 min-height: 100vh，在大螢幕上更有氣勢
+  min-height: 80vh; // 改為 min-height: 100vh，在大螢幕上更有氣勢
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,10 +61,24 @@
   width: 100%;
   gap: clamp(30px, 4vw, 80px); // 縮短 gap 在較小視窗的距離
   align-items: center; // 改為居中對齊
+  
+  // 輪播動畫 (向左滑入)
+  animation: slideInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 
   @media (max-width: $breakpoint-tablet) {
     flex-direction: column;
     gap: 40px;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(40px); // 從右側滑入
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -148,8 +162,8 @@
   }
 
   // 1. 內文區
-  .contentBox:nth-of-type(1) {
-    min-height: 150px; // 改為 min-height
+  .textContentBox {
+    min-height: 150px;
     max-height: 300px;
     margin-bottom: 20px;
     overflow-y: auto;
@@ -162,24 +176,29 @@
     }
   }
 
-  // 2. 注意事項區
-  .contentBox:nth-of-type(2) {
-    min-height: 120px;
-    max-height: 250px;
+  // 2. 連結/注意事項區
+  .linkBox {
+    min-height: 80px;
     margin-bottom: 25px;
-    overflow-y: auto;
     border-left: 5px solid $color-accent;
+    align-items: center;
 
     .textContent {
       font-size: clamp(0.9rem, 1vw, 1.05rem);
       line-height: 1.7;
       color: $color-dark;
 
-      strong {
-        color: $color-accent;
-        display: block;
-        margin-bottom: 5px;
-        font-size: 1.1rem;
+      a {
+        color: $color-primary;
+        text-decoration: none;
+        font-weight: 700;
+        transition: $transition-base;
+        border-bottom: 2px solid transparent;
+
+        &:hover {
+          color: $color-accent;
+          border-bottom-color: $color-accent;
+        }
       }
     }
   }
@@ -213,3 +232,52 @@
     }
   }
 }
+
+// 向下滑動指示器
+.scrollIndicator {
+  position: absolute;
+  bottom: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: $color-dark;
+  opacity: 0.6;
+  font-size: 0.85rem;
+  font-weight: 500;
+  pointer-events: none;
+  animation: float 2s ease-in-out infinite;
+
+  .mouse {
+    width: 22px;
+    height: 35px;
+    border: 2px solid $color-dark;
+    border-radius: 20px;
+    position: relative;
+
+    .wheel {
+      width: 4px;
+      height: 7px;
+      background-color: $color-dark;
+      border-radius: 2px;
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: scroll 2s infinite;
+    }
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 10px); }
+}
+
+@keyframes scroll {
+  0% { opacity: 0; top: 6px; }
+  30% { opacity: 1; }
+  100% { opacity: 0; top: 18px; }
+}

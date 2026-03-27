@@ -57,7 +57,7 @@ router.get('/activities', async (req, res) => {
              to_char(a."dateEnd", 'YYYY-MM-DD') as date_end_str,
              ac.name as class_name, 
              ast.content as style_content,
-             (SELECT json_agg(img) FROM "activityImg" WHERE "activityId" = a.id) as images,
+             (SELECT json_agg(row_to_json(ai)) FROM "activityImg" ai WHERE ai."activityId" = a.id) as images,
              (atop.id IS NOT NULL) as is_top
       FROM activity a
       LEFT JOIN "activityClass" ac ON a."classId" = ac.id
@@ -68,20 +68,23 @@ router.get('/activities', async (req, res) => {
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, dataParams);
 
-    const activities = result.rows.map(row => ({
-      id: row.id,
-      title: row.title,
-      startAt: row.date_start_str,
-      endAt: row.date_end_str,
-      content: row.content,
-      classId: row.classId,
-      styleId: row.styleId,
-      className: row.class_name,
-      styleContent: row.style_content,
-      url: row.url,
-      isTop: row.is_top,
-      imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
-    }));
+    const activities = result.rows.map(row => {
+      const validImages = (row.images || []).filter(img => img !== null && img.img);
+      return {
+        id: row.id,
+        title: row.title,
+        startAt: row.date_start_str,
+        endAt: row.date_end_str,
+        content: row.content,
+        classId: row.classId,
+        styleId: row.styleId,
+        className: row.class_name,
+        styleContent: row.style_content,
+        url: row.url,
+        isTop: row.is_top,
+        imageUrls: validImages.map(imgObj => `http://localhost:3000/uploads/activity/${imgObj.img}`)
+      };
+    });
 
     res.json({
       data: activities,
@@ -218,6 +221,50 @@ router.post('/activities/toggle-top', async (req, res) => {
     res.json({ status: 'success' });
   } catch (err) {
     console.error('Toggle top failed:', err);
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// API: 取得置頂活動 (用於 Hero 輪播)
+router.get('/activities/top', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT a.*, 
+             to_char(a."dateStart", 'YYYY-MM-DD') as date_start_str,
+             to_char(a."dateEnd", 'YYYY-MM-DD') as date_end_str,
+             ac.name as class_name, 
+             ast.content as style_content,
+             (SELECT json_agg(row_to_json(ai)) FROM "activityImg" ai WHERE ai."activityId" = a.id) as images
+      FROM activity a
+      INNER JOIN "activityTop" atop ON a.id = atop.activityid
+      LEFT JOIN "activityClass" ac ON a."classId" = ac.id
+      LEFT JOIN "activityStyle" ast ON a."styleId" = ast.id
+      ORDER BY atop.id ASC
+    `);
+
+    const activities = result.rows.map(row => {
+      const validImages = (row.images || []).filter(img => img !== null && (img.img || img.IMG));
+      return {
+        id: row.id,
+        title: row.title,
+        startAt: row.date_start_str,
+        endAt: row.date_end_str,
+        content: row.content,
+        classId: row.classId,
+        styleId: row.styleId,
+        className: row.class_name,
+        styleContent: row.style_content,
+        url: row.url,
+        imageUrls: validImages.map(imgObj => {
+          const fileName = imgObj.img || imgObj.IMG;
+          return `http://localhost:3000/uploads/activity/${fileName}`;
+        })
+      };
+    });
+
+    res.json({ status: 'success', data: activities });
+  } catch (err) {
+    console.error('Fetch top activities failed:', err);
     res.status(500).json({ status: 'error', message: err.message });
   }
 });

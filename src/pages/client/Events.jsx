@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Events = () => {
   const [activeId, setActiveId] = useState(null);
-  
+
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +87,7 @@ const Events = () => {
       const matchesCat = activeCategory === 'All' || ev.className === activeCategory;
 
       const lowerSearch = searchTerm.toLowerCase();
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         (ev.title && ev.title.toLowerCase().includes(lowerSearch)) ||
         (ev.content && ev.content.toLowerCase().includes(lowerSearch));
 
@@ -122,10 +122,10 @@ const Events = () => {
       {/* 搜尋與篩選 */}
       <div className={styles.filterSection}>
         <div className={styles.searchBar}>
-          <input 
-            type="text" 
-            placeholder="搜尋活動名稱..." 
-            value={tempSearch} 
+          <input
+            type="text"
+            placeholder="搜尋活動名稱..."
+            value={tempSearch}
             onChange={(e) => setTempSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
@@ -166,7 +166,6 @@ const Events = () => {
           <div style={{ textAlign: 'center', padding: '50px', color: '#888' }}>找不到符合條件的活動。</div>
         )}
         {paginatedEvents.map((event, index) => {
-          const isLayout2 = index % 2 !== 0;
           return (
             <div key={event.id} className={`${styles.eventItem} ${activeId === event.id ? styles.isOpen : ''}`}>
               <div className={styles.eventHeader} onClick={() => handleToggle(event.id)}>
@@ -177,13 +176,12 @@ const Events = () => {
                 </div>
               </div>
               <div className={styles.eventBody}>
-                <div className={`${styles.contentLayout} ${isLayout2 ? styles.layoutType2 : ''}`}>
-                  
-                  {/* 圖左文右 (Layout 1) */}
-                  {!isLayout2 && (
+                <div className={`${styles.contentLayout} ${event.styleId == 0 ? styles.layoutType2 : ''}`}>
+
+                  {event.styleId == 0 && (
                     <div className={styles.imageCol}>
                       {event.imageUrls && event.imageUrls.length > 0 ? (
-                        event.imageUrls.map((url, i) => <img key={i} src={url} alt="活動海報" style={{ maxWidth: '100%', borderRadius: '8px'}} />)
+                        event.imageUrls.map((url, i) => <img key={i} src={url} alt="活動海報" style={{ maxWidth: '100%', borderRadius: '8px' }} />)
                       ) : (
                         <div className={styles.imgPlaceholder}>無海報</div>
                       )}
@@ -193,20 +191,20 @@ const Events = () => {
                   <div className={styles.textCol}>
                     <div className={styles.mainText} style={{ whiteSpace: 'pre-wrap' }}>
                       {event.content}
-                    </div>
-                    {event.url && (
+                      {event.url && (
                         <div style={{ marginTop: '15px' }}>
                           <a href={event.url} target="_blank" rel="noreferrer" style={{ color: '#007BFF', textDecoration: 'underline' }}>前往活動連結／報名資訊</a>
                         </div>
-                    )}
+                      )}
+                    </div>
                     <div className={styles.dateBar}>發布日期：{event.startAt} · 松鼠窩</div>
                   </div>
 
                   {/* 文左圖右 (Layout 2) */}
-                  {isLayout2 && (
+                  {event.styleId === 1 && (
                     <div className={styles.imageCol}>
                       {event.imageUrls && event.imageUrls.length > 0 ? (
-                        event.imageUrls.map((url, i) => <img key={i} src={url} alt="活動海報" style={{ maxWidth: '100%', borderRadius: '8px'}} />)
+                        event.imageUrls.map((url, i) => <img key={i} src={url} alt="活動海報" style={{ maxWidth: '100%', borderRadius: '8px' }} />)
                       ) : (
                         <div className={styles.imgPlaceholder}>無海報</div>
                       )}
@@ -223,16 +221,16 @@ const Events = () => {
       {/* 分頁按鈕 */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <span 
+          <span
             onClick={() => goToPage(currentPage - 1)}
             style={{ opacity: currentPage === 1 ? 0.3 : 1, cursor: currentPage === 1 ? 'default' : 'pointer' }}
           >
             &lt;
           </span>
-          
+
           {pageNumbers.map(num => (
-            <span 
-              key={num} 
+            <span
+              key={num}
               className={currentPage === num ? styles.active : ''}
               onClick={() => goToPage(num)}
             >
@@ -240,7 +238,7 @@ const Events = () => {
             </span>
           ))}
 
-          <span 
+          <span
             onClick={() => goToPage(currentPage + 1)}
             style={{ opacity: currentPage === totalPages ? 0.3 : 1, cursor: currentPage === totalPages ? 'default' : 'pointer' }}
           >

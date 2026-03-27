@@ -289,6 +289,7 @@ export function BoardGamesPage() {
                   <select value={form.ageLevel} onChange={(e) => setForm(f => ({ ...f, ageLevel: e.target.value }))} className="form-select">
                     <option value="0+">0+</option>
                     <option value="6+">6+</option>
+                    <option value="9+">9+</option>
                     <option value="12+">12+</option>
                     <option value="15+">15+</option>
                     <option value="18+">18+</option>

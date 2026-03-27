@@ -56,35 +56,29 @@ router.get('/activities', async (req, res) => {
              to_char(a."dateStart", 'YYYY-MM-DD') as date_start_str,
              to_char(a."dateEnd", 'YYYY-MM-DD') as date_end_str,
              ac.name as class_name, 
-             ast.content as style_content,
-             (SELECT json_agg(row_to_json(ai)) FROM "activityImg" ai WHERE ai."activityId" = a.id) as images,
+             (SELECT json_agg(img) FROM "activityImg" WHERE "activityId" = a.id) as images,
              (atop.id IS NOT NULL) as is_top
       FROM activity a
       LEFT JOIN "activityClass" ac ON a."classId" = ac.id
-      LEFT JOIN "activityStyle" ast ON a."styleId" = ast.id
       LEFT JOIN "activityTop" atop ON a.id = atop.activityid
       ${whereClause}
       ORDER BY is_top DESC, a.id DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, dataParams);
 
-    const activities = result.rows.map(row => {
-      const validImages = (row.images || []).filter(img => img !== null && img.img);
-      return {
-        id: row.id,
-        title: row.title,
-        startAt: row.date_start_str,
-        endAt: row.date_end_str,
-        content: row.content,
-        classId: row.classId,
-        styleId: row.styleId,
-        className: row.class_name,
-        styleContent: row.style_content,
-        url: row.url,
-        isTop: row.is_top,
-        imageUrls: validImages.map(imgObj => `http://localhost:3000/uploads/activity/${imgObj.img}`)
-      };
-    });
+    const activities = result.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      startAt: row.date_start_str,
+      endAt: row.date_end_str,
+      content: row.content,
+      classId: row.classId,
+      style: row.style,
+      className: row.class_name,
+      url: row.url,
+      isTop: row.is_top,
+      imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
+    }));
 
     res.json({
       data: activities,
@@ -106,15 +100,15 @@ router.post('/activities', uploadActivity.array('images', 2), async (req, res) =
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { title, startAt, endAt, content, classId, styleId, url } = req.body;
+    const { title, startAt, endAt, content, classId, style, url } = req.body;
     const files = req.files || [];
 
     const dStart = startAt ? startAt : null;
     const dEnd = endAt ? endAt : null;
 
     const result = await client.query(
-      'INSERT INTO activity (title, "dateStart", "dateEnd", content, "classId", "styleId", url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [title, dStart, dEnd, content, classId, styleId, url]
+      'INSERT INTO activity (title, "dateStart", "dateEnd", content, "classId", style, url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [title, dStart, dEnd, content, classId, style, url]
     );
     const activityId = result.rows[0].id;
 
@@ -141,14 +135,14 @@ router.put('/activities/:id', uploadActivity.array('images', 2), async (req, res
   try {
     await client.query('BEGIN');
     const id = req.params.id;
-    const { title, startAt, endAt, content, classId, styleId, url } = req.body;
+    const { title, startAt, endAt, content, classId, style, url } = req.body;
     const files = req.files || [];
     const dStart = startAt ? startAt : null;
     const dEnd = endAt ? endAt : null;
 
     await client.query(
-      'UPDATE activity SET title=$1, "dateStart"=$2, "dateEnd"=$3, content=$4, "classId"=$5, "styleId"=$6, url=$7 WHERE id=$8',
-      [title, dStart, dEnd, content, classId, styleId, url, id]
+      'UPDATE activity SET title=$1, "dateStart"=$2, "dateEnd"=$3, content=$4, "classId"=$5, style=$6, url=$7 WHERE id=$8',
+      [title, dStart, dEnd, content, classId, style, url, id]
     );
 
     // 如果有上傳新圖片，刪除舊的並存入新的

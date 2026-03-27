@@ -185,8 +185,8 @@
   // --- 展開狀態 ---
   &.isOpen {
     .eventHeader {
-      border: 2px solid $color-secondary;
-      background: $color-secondary;
+      border: 2px solid $color-primary;
+      background: $color-primary;
     }
 
     .eventBody {
@@ -206,13 +206,16 @@
     flex: 0 0 150px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 15px;
+    background-color: $color-secondary;
+    padding: 5px;
+    border-radius: 8px;
 
     .imgPlaceholder {
       width: 100%;
       aspect-ratio: 1 / 1;
       background: #e5e5e5;
-      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -249,13 +252,13 @@
     }
 
     .noticeText {
-      background: #f0f0f0;
+      background: #fdfbfb;
       color: #666;
       font-size: 0.95rem;
     }
 
     .dateBar {
-      background: #ddd;
+      background: $color-secondary;
       width: fit-content;
       align-self: flex-end; // 日期資訊靠右下
       font-weight: 600;
@@ -268,7 +271,7 @@
     flex-direction: row; // 文字在左，圖片在右
 
     .imageCol {
-      flex: 0 0 280px; // 側邊大圖版型
+      flex: 0 0 250px; // 側邊大圖版型
 
       .imgPlaceholder {
         aspect-ratio: 3 / 4; // 適合海報比例

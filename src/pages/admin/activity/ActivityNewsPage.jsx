@@ -3,10 +3,11 @@ import '../../../styles/pages/admin/activity/ActivityNewsPage.scss'
 import { Pagination } from '../../../components/admin/Pagination'
 
 const classConfig = {
-  1: { label: '一般活動', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-  2: { label: 'PTCG 比賽', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  3: { label: '超人力霸王', color: 'bg-red-100 text-red-800 border-red-200' },
-  4: { label: '活動成果', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+  1: { label: '一般活動' },
+  2: { label: 'PTCG 比賽' },
+  3: { label: '桌遊/劇本殺' },
+  4: { label: '超人力霸王' },
+  5: { label: '活動成果' },
 }
 
 const styleOptions = [
@@ -24,17 +25,24 @@ export function ActivityNewsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   
-  const defaultForm = {
-    title: '',
-    content: '',
-    images: [null, null], // [File, File]
-    previews: ['', ''],   // [string, string]
-    classId: 1,
-    styleId: 1,
-    startAt: '',
-    endAt: '',
-    url: '',
-  }
+  const defaultForm = (() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    
+    return {
+      title: '',
+      content: '',
+      images: [null, null], // [File, File]
+      previews: ['', ''],   // [string, string]
+      classId: 1,
+      styleId: 1,
+      startAt: `${year}-${month}-${day}`, // 預設為今天
+      endAt: `${year+1}-${month}-${day}`,
+      url: '',
+    };
+  })();
 
   const [form, setForm] = useState(defaultForm)
 
@@ -154,7 +162,8 @@ export function ActivityNewsPage() {
     const config = classConfig[item.classId] || classConfig[1]
     const styleOpt = styleOptions.find(o => o.value === item.styleId) || styleOptions[0]
     const layoutClass = styleOpt.className
-    const period = item.startAt || item.endAt ? `${item.startAt || ''} ~ ${item.endAt || ''}` : null
+    const displayEndAt = item.endAt;
+    const period = item.startAt ? `${item.startAt} ~ ${displayEndAt}` : null;
     const validPreviews = (item.previews || []).filter((p, i) => p && (item.styleId === 1 || i === 0))
 
     return (
@@ -167,7 +176,7 @@ export function ActivityNewsPage() {
           </div>
         )}
         <div className="preview-content">
-          <span className={`badge ${config.color.split(' ').join(' ')}`}>
+          <span className="badge">
             {config.label}
           </span>
           <h3 className="title">{item.title || '尚未輸入標題'}</h3>
@@ -181,13 +190,14 @@ export function ActivityNewsPage() {
   // --- 渲染組件：列表項目 ---
   const AdminListItem = ({ item }) => {
     const config = classConfig[item.classId] || classConfig[1]
-    const period = item.startAt || item.endAt ? `${item.startAt || ''} ~ ${item.endAt || ''}` : null
+    const displayEndAt = item.endAt ? item.endAt : '未定 / 發完為止';
+    const period = item.startAt ? `${item.startAt} ~ ${displayEndAt}` : null;
 
     return (
       <div className="list-item-card">
         <div className="item-content">
           <div className="item-meta">
-            <span className={`badge ${config.color.split(' ').join(' ')}`}>
+            <span className="badge">
               {config.label}
             </span>
             <span className="date-updated">發佈中</span>

@@ -5,34 +5,44 @@
   @extend %layout-container;
   min-height: 100vh;
   background-color: $color-warm-bg;
-  margin: 30px auto;
+  margin: clamp(15px, 4vh, 30px) auto;
+  padding: 0 3vw;
+
+  @media (max-width: 480px) {
+    padding: 0 10px;
+  }
 }
 
 .pageTitle {
   text-align: center;
   color: $color-dark;
-  font-size: $pagetitle-size;
-  margin-bottom: 20px;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  margin-bottom: clamp(15px, 3vh, 25px);
   font-weight: 800;
 }
 
 // 搜尋與篩選區
 .searchContainer {
   background: #fff;
-  padding: 20px 30px;
+  padding: clamp(15px, 3vw, 25px) clamp(15px, 4vw, 40px);
   border-radius: $radius-main;
   box-shadow: $shadow-soft;
-  margin-bottom: 50px;
+  margin-bottom: clamp(30px, 6vh, 60px);
 
   .searchBar {
     display: flex;
     gap: 10px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      gap: 12px;
+    }
 
     .searchInput {
       font-size: 0.75rem;
       flex: 1;
-      padding: 8px 10px;
+      padding: 10px 15px;
       border: 2px solid $color-gray-light;
       border-radius: 50px;
       outline: none;
@@ -40,11 +50,16 @@
       &:focus {
         border-color: $color-primary;
       }
+
+      @media (max-width: 480px) {
+        width: 100%;
+        padding: 12px 15px;
+      }
     }
 
     .searchBtn {
       font-size: 0.8rem;
-      padding: 0 20px;
+      padding: 0 25px;
       background: $color-primary;
       color: #fff;
       border: none;
@@ -56,6 +71,13 @@
       &:hover {
         background: color.adjust($color-primary, $lightness: -10%);
       }
+
+      @media (max-width: 480px) {
+        width: 100%;
+        height: 40px;
+        padding: 0;
+        font-size: 0.85rem;
+      }
     }
   }
 }
@@ -63,27 +85,33 @@
 .filterRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: clamp(10px, 2vw, 20px);
   justify-content: center;
 
   .filterGroup {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 
     .filterLabel {
+      font-size: 0.75rem; // 微調標籤字體
       font-weight: 600;
       color: $color-dark;
     }
 
     .selectBox {
-      font-size: 0.75rem;
-      padding: 6px 10px;
+      font-size: 0.65rem; // 下拉選單字體
+      padding: 4px 8px;
       border-radius: 8px;
       border: 1px solid $color-gray-light;
       background: #fdfdfd;
       color: $color-dark;
       cursor: pointer;
+
+      &:focus {
+        border-color: $color-primary;
+        outline: none;
+      }
     }
   }
 }
@@ -91,16 +119,22 @@
 // 網格佈局
 .gameGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: clamp(15px, 2.5vw, 30px);
 
-  @media (max-width: 1200px) {
+  @media (max-width: 1024px) {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     gap: 15px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr); // 手機強制兩欄
+    gap: 10px;
   }
 }
 
@@ -109,15 +143,16 @@
   border-radius: $radius-main;
   overflow: hidden;
   box-shadow: $shadow-soft;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
     transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
   }
 
   .imageBox {
     width: 100%;
-    aspect-ratio: 16 / 11; // 稍微扁平一點，節省垂直空間
+    aspect-ratio: 16 / 11;
     background: $color-gray-light;
     overflow: hidden;
 
@@ -130,51 +165,50 @@
   }
 
   .infoBox {
-    padding: 20px;
+    padding: clamp(12px, 2vw, 20px);
 
     .gameName {
-      font-size: 1.25rem;
+      font-size: clamp(0.95rem, 1.2vw, 1.1rem); // 再次縮小遊戲標題
       color: $color-dark;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .gameDesc {
-      font-size: 0.875rem;
-      color: #666;
-      line-height: 1.6;
-      margin-bottom: 20px;
-      height: 4.8em; // 約三行高度
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      line-clamp: 3;
-      -webkit-box-orient: vertical;
+      display: none; // 隱藏介紹文字
     }
 
     .tagGrid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(2, 1fr); // 預設(桌機、iPad) 兩個兩個一排
+      gap: 5px;
 
       @media (max-width: 480px) {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; // 手機版改為垂直排列
+        gap: 3px;
       }
 
       .tag {
-        background: #fdf2f2; // 調整為更柔和的背景色
-        padding: 6px 8px;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        color: #444;
+        background: #fdf2f2;
+        padding: 3px 5px;
+        border-radius: 6px;
+        font-size: 0.65rem; // 縮小標籤字體
+        color: #555;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
         border: 1px solid #fee2e2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
         svg {
           color: $color-primary;
-          font-size: 0.9rem;
+          font-size: 0.7rem;
+          flex-shrink: 0;
         }
       }
     }
@@ -186,23 +220,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 60px;
+  gap: 12px;
+  margin-top: clamp(40px, 8vh, 80px);
   color: $color-dark;
 
   span {
-    width: 35px;
-    height: 35px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     border-radius: 50%;
     transition: $transition-base;
+    font-size: 0.9rem;
 
     &.active {
       background: $color-primary;
       color: #fff;
+      font-weight: 700;
     }
 
     &:hover:not(.active) {
@@ -214,9 +250,9 @@
 .noResults {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 50px;
+  padding: 50px 20px;
   color: #888;
-  font-size: 1.1rem;
+  font-size: 1rem;
   background: #fff;
   border-radius: $radius-main;
   box-shadow: $shadow-soft;

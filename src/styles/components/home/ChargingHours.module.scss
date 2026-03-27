@@ -1,27 +1,27 @@
 @use "../../variables.scss" as *;
 
 .chargingHours {
-    padding: 80px 0;
+    padding: clamp(60px, 8vw, 100px) 0;
     background-color: $color-warm-bg;
 
     .container {
         @extend %layout-container;
         border: 2px dashed $color-primary;
-        padding: 3rem 20px;
+        padding: clamp(1.5rem, 4vw, 3rem) clamp(15px, 3vw, 25px);
         border-radius: $radius-main;
     }
 
     .sectionTitle {
         text-align: center;
-        font-size: 2rem;
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
         color: $color-dark;
-        margin-bottom: 40px;
+        margin-bottom: clamp(25px, 4vh, 45px);
         position: relative;
 
         &::after {
             content: '';
             display: block;
-            width: 60px;
+            width: 50px;
             height: 4px;
             background: $color-primary;
             margin: 10px auto 0;
@@ -32,24 +32,25 @@
     .grid {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: clamp(12px, 2vw, 20px);
         max-width: 1000px;
         margin: 0 auto;
     }
 
     .row {
         display: flex;
-        gap: 20px;
+        gap: clamp(12px, 2vw, 20px);
 
         @media (max-width: $breakpoint-mobile) {
             flex-direction: column;
+            gap: 10px;
         }
     }
 
     .item {
         flex: 1;
         background: #fff;
-        padding: 20px;
+        padding: clamp(15px, 2vw, 25px);
         border-radius: $radius-main;
         box-shadow: $shadow-soft;
         display: flex;
@@ -57,50 +58,62 @@
         transition: $transition-base;
 
         &:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba($color-dark, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba($color-dark, 0.1);
         }
 
         &.label {
-            flex: 0 0 300px;
+            flex: 0 0 clamp(200px, 25vw, 300px);
             background: $color-secondary;
             color: $color-dark;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: clamp(0.95rem, 1.1vw, 1.15rem);
 
             @media (max-width: $breakpoint-mobile) {
                 flex: none;
+                width: 100%;
+                text-align: center;
             }
         }
 
         &.value {
             background: #fff;
             color: $color-dark;
-            font-size: 1.1rem;
+            font-size: clamp(0.95rem, 1.1vw, 1.15rem);
+            
+            @media (max-width: $breakpoint-mobile) {
+                justify-content: center;
+                text-align: center;
+            }
         }
     }
 
     .noteBox {
         background: #fff;
-        padding: 30px;
+        padding: clamp(20px, 3vw, 35px);
         border-radius: $radius-main;
         box-shadow: $shadow-soft;
         margin-top: 10px;
         text-align: center;
         border-left: 5px solid $color-primary;
 
+        @media (max-width: $breakpoint-mobile) {
+            border-left: none;
+            border-top: 5px solid $color-primary;
+        }
+
         h4 {
             color: $color-primary;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
+            margin-bottom: 8px;
+            font-size: clamp(1.1rem, 1.3vw, 1.3rem);
         }
 
         p {
             color: $color-dark;
-            line-height: 1.6;
-            font-size: 0.95rem;
+            line-height: 1.7;
+            font-size: clamp(0.85rem, 1vw, 1rem);
             white-space: pre-line;
         }
     }
-}
+}

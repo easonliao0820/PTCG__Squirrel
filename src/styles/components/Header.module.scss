@@ -1,18 +1,27 @@
 @use "../../styles/variables" as *;
 
 .header {
-  background: var(--color-bg-elevated);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  box-shadow: $shadow-soft;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .inner {
   @extend %layout-container;
-  padding: 1rem 1.5rem;
+  padding: 0.8rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
+  position: relative;
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: 0.5rem 1rem;
+    gap: 0.8rem;
+  }
 }
 
 .logo {
@@ -24,6 +33,11 @@
   color: var(--color-primary);
   text-decoration: none;
 
+  @media (max-width: $breakpoint-mobile) {
+    font-size: 1.1rem;
+    z-index: 1001;
+  }
+
   &:hover {
     text-decoration: none;
     color: var(--color-primary-hover);
@@ -34,12 +48,51 @@
   height: 2.5rem;
   width: auto;
   display: block;
+
+  @media (max-width: $breakpoint-mobile) {
+    height: 1.8rem;
+  }
+}
+
+.menuBtn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: $color-dark;
+  cursor: pointer;
+  z-index: 1001;
+
+  @media (max-width: $breakpoint-mobile) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .nav {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: $breakpoint-mobile) {
+    position: fixed;
+    top: 0;
+    right: -280px;
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    flex-direction: column;
+    padding: 80px 20px;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+    z-index: 1000;
+    gap: 0.5rem;
+
+    &.navActive {
+      right: 0;
+    }
+  }
 
   @media (min-width: 768px) {
     gap: 0.25rem;
@@ -49,14 +102,22 @@
 .navLink {
   padding: 0.5rem 1rem;
   border-radius: var(--radius);
-  color: var(--color-text);
+  color: $color-dark;
   font-weight: 500;
   text-decoration: none;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: var(--color-surface);
-    color: var(--color-primary);
+    background: $color-secondary;
+    color: $color-primary;
     text-decoration: none;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 100%;
+    text-align: left;
+    font-size: 1.05rem;
+    padding: 0.8rem 1.2rem;
   }
 }
 
@@ -70,4 +131,31 @@
     background: var(--color-primary-hover) !important;
     color: #fff !important;
   }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-left: 0;
+    margin-top: 1rem;
+    text-align: center !important;
+  }
+}
+
+.overlay {
+  display: none;
+  @media (max-width: $breakpoint-mobile) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

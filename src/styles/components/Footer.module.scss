@@ -1,25 +1,32 @@
+@use "sass:color";
 @use "../../styles/variables" as *;
 
 .footer {
   margin-top: auto;
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
-  padding: 1.5rem 2rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 5vw, 2rem);
 }
 
 .inner {
   @extend %layout-container;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 2rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    gap: 2rem;
+  }
 }
 
 /* 左側 */
 .footerLeft {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.6rem;
+  flex: 1.2;
 }
 
 /* 右側 */
@@ -27,18 +34,27 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: 0.8rem;
+  flex: 1;
   flex-shrink: 0;
+
+  @media (max-width: $breakpoint-mobile) {
+    align-items: flex-start;
+    width: 100%;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 1.5rem;
+  }
 }
 
 .footerLine {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: clamp(0.85rem, 1vw, 0.9rem);
   color: var(--color-text-muted);
-  line-height: 1.6;
+  line-height: 1.7;
 
   a {
     color: var(--color-primary);
+    text-decoration: none;
 
     &:hover {
       text-decoration: underline;
@@ -48,23 +64,28 @@
 
 .footerLabel {
   display: inline-block;
-  min-width: 2.5em;
-  font-weight: 600;
-  color: var(--color-text);
+  min-width: 3em;
+  font-weight: 700;
+  color: $color-dark;
 }
 
 .socialLinks {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.3rem;
-  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    align-items: flex-start;
+  }
 }
 
 .socialLink {
-  font-size: 0.875rem;
+  font-size: clamp(0.85rem, 1vw, 0.9rem);
   color: var(--color-text-muted);
-  transition: color 0.2s;
+  transition: $transition-base;
+  text-decoration: none;
 
   &:hover {
     color: var(--color-primary);
@@ -74,39 +95,26 @@
 
 .shopeeLink {
   display: inline-block;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ff4700; // 蝦皮橘
+  text-decoration: none;
 
   &:hover {
-    color: var(--color-primary-hover);
+    opacity: 0.8;
     text-decoration: underline;
   }
 }
 
 .copyright {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  text-align: left;
-}
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: color.adjust($color-dark, $lightness: 40%);
+  text-align: right;
+  width: 100%;
 
-@media (max-width: 640px) {
-  .inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-
-  .footerRight {
-    align-items: flex-start;
-  }
-
-  .socialLinks {
-    align-items: flex-start;
-  }
-
-  .copyright {
+  @media (max-width: $breakpoint-mobile) {
     text-align: left;
+    margin-top: 1.5rem;
   }
 }

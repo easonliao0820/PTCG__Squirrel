@@ -1,10 +1,9 @@
-// 修正後的路徑：向上跳三層回到 styles 目錄
 @use "../../../styles/variables" as *;
 
 .gallerySection {
   width: 100%;
-  padding: 80px 6vw;
-  background-color: $color-warm-bg; // 使用品牌米色背景
+  padding: clamp(60px, 8vw, 100px) 6vw;
+  background-color: $color-warm-bg; 
 }
 
 .container {
@@ -14,29 +13,29 @@
 
 .sectionTitle {
   text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 50px;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  margin-bottom: clamp(30px, 5vh, 60px);
   font-weight: 700;
-  color: $color-dark; // 使用 Logo 深咖啡色
+  color: $color-dark;
 }
 
 .photoGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 200px; 
-  gap: 15px;
+  grid-auto-rows: clamp(150px, 20vh, 200px); 
+  gap: clamp(10px, 1.5vw, 20px);
 
-  @media (max-width: 768px) {
+  @media (max-width: $breakpoint-mobile) {
     grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 150px;
+    grid-auto-rows: clamp(120px, 15vh, 180px);
   }
 }
 
 .photoItem {
   position: relative;
-  background-color: $color-gray-light; // 使用變數取代 #d9d9d9
+  background-color: $color-gray-light;
   overflow: hidden;
-  border-radius: $radius-main; // 使用品牌圓角
+  border-radius: $radius-main;
 
   img {
     width: 100%;
@@ -45,37 +44,25 @@
     transition: transform 0.5s ease;
   }
 
-  .overlay {
-    position: absolute;
-    inset: 0;
-    // 遮罩改用品牌深色透明，視覺更統一
-    background: rgba($color-dark, 0.4); 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    
-    span {
-      color: #fff;
-      font-weight: 600;
-      border: 2px solid #fff;
-      padding: 8px 16px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-  }
-
   &:hover {
     img { transform: scale(1.1); }
-    .overlay { opacity: 1; }
   }
 }
 
-// 網格佈局邏輯維持不變
+// 預設 (電腦版) 網格規則
 .item1 { grid-column: span 2; grid-row: span 2; }
 .item2 { grid-column: span 1; grid-row: span 1; }
 .item3 { grid-column: span 1; grid-row: span 2; }
 .item4 { grid-column: span 1; grid-row: span 1; }
 .item5 { grid-column: span 2; grid-row: span 1; }
 .item6 { grid-column: span 1; grid-row: span 1; }
+
+// 平板與手機版調整
+@media (max-width: $breakpoint-mobile) {
+  .item1 { grid-column: span 2; grid-row: span 2; }
+  .item2 { grid-column: span 1; grid-row: span 1; }
+  .item3 { grid-column: span 1; grid-row: span 1; }
+  .item4 { grid-column: span 1; grid-row: span 1; }
+  .item5 { grid-column: span 2; grid-row: span 1; }
+  .item6 { grid-column: span 2; grid-row: span 1; } 
+}

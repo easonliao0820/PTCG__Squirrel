@@ -38,13 +38,14 @@
     gap: 10px;
 
     .filterLabel {
+      font-size: 0.75rem; // 微調標籤字體
       font-weight: 600;
       color: $color-dark;
     }
 
     .selectBox {
-      font-size: 0.75rem;
-      padding: 6px 10px;
+      font-size: 0.65rem; // 再次縮下拉選單字體
+      padding: 4px 8px;
       border-radius: 8px;
       border: 1px solid $color-gray-light;
       background: #fdfdfd;
@@ -60,8 +61,8 @@
   }
 
   .searchBtn {
-    font-size: 0.8rem;
-    padding: 6px 25px;
+    font-size: 0.75rem; // 縮小搜尋按鈕字體
+    padding: 6px 20px;
     background: $color-primary;
     color: #fff;
     border: none;
@@ -76,8 +77,8 @@
   }
 
   .resetBtn {
-    font-size: 0.8rem;
-    padding: 5px 15px;
+    font-size: 0.75rem; // 縮小重置按鈕字體
+    padding: 5px 12px;
     background: transparent;
     color: #888;
     border: 1px solid #ddd;
@@ -189,7 +190,7 @@
   background: #fff;
 
   .date {
-    font-size: 0.95rem;
+    font-size: 0.85rem; // 縮小卡片日期字體
     font-weight: 800;
     color: $color-dark;
     margin: 0;

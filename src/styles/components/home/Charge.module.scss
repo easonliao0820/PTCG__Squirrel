@@ -21,48 +21,63 @@
 
 .layout {
   display: flex;
-  gap: 40px;
+  gap: 30px;
   align-items: flex-start;
 
-  @media (max-width: 992px) {
+  @media (max-width: $breakpoint-mobile) {
     flex-direction: column;
+    gap: 20px;
   }
 }
 
 .sidebar {
-  flex: 0 0 250px;
+  flex: 0 0 220px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex: none;
+    width: 100%;
+    flex-direction: row;
+    padding-bottom: 8px;
+    gap: 6px; // 進一步縮小按鈕間距
+    justify-content: space-between; // 均勻分配
+  }
 
   .tabBtn {
-    width: 60%;
-    padding: 15px 25px;
+    width: 75%;
+    padding: 12px 20px;
     border-radius: 50px;
     border: none;
-    background-color: $color-gray-light; // 使用變數
+    background-color: $color-gray-light;
     color: color.adjust($color-dark, $lightness: 20%);
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    overflow: hidden;
 
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-      background-color 0.3s ease,
-      color 0.3s ease;
+    transition: $transition-base;
 
     &:hover {
-      background-color: $color-secondary; // 懸停變淺橘色
-      width: 70%;
+      background-color: $color-secondary;
+      width: 85%;
     }
 
     &.active {
       width: 100%;
-      background-color: $color-primary; // 選中變主色橘
+      background-color: $color-primary;
       color: #fff;
-      box-shadow: $shadow-soft; // 加入柔和陰影
+      box-shadow: $shadow-soft;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      width: auto !important;
+      flex: 1; // 讓四顆平分寬度
+      padding: 8px 5px; // 縮小左右內邊距以適應螢幕
+      font-size: 0.85rem; // 微調字體
+      min-width: 0; // 防止 flex 項目溢出
     }
   }
 }
@@ -73,29 +88,49 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
   animation: slideInDown 0.5s ease-out forwards;
+
+  @media (max-width: $breakpoint-mobile) {
+    gap: 15px;
+  }
 
   .topRow {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
   }
 
   .bottomRow {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 2fr 1fr; // 電腦版圖片佔較大比例，文字佔 1/3
     gap: 20px;
 
+    @media (max-width: 850px) {
+      grid-template-columns: 1fr;
+    }
+
     .textBox {
-      background-color: $color-secondary; // 文字方塊用輔助橘
+      background-color: $color-secondary;
       border-radius: $radius-main;
-      padding: 30px;
+      padding: clamp(25px, 2.5vw, 40px);
       display: flex;
       align-items: center;
       line-height: 1.8;
       font-size: 1.1rem;
       color: $color-dark;
       white-space: pre-wrap;
+
+      @media (max-width: $breakpoint-mobile) {
+        font-size: 1rem;
+        order: -1; // 文字移到大圖上方
+        padding: 20px;
+      }
     }
   }
 }
@@ -123,7 +158,7 @@
   background-color: $color-gray-light;
   overflow: hidden;
   border-radius: $radius-main;
-  aspect-ratio: 4 / 3; // 統一下方大圖比例
+  aspect-ratio: 21 / 9; // 更扁平的電影比例
 
   img {
     width: 100%;
@@ -131,6 +166,11 @@
     object-fit: cover;
     display: block;
     transition: transform 0.5s ease;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    aspect-ratio: 16 / 9;
+    max-height: 250px;
   }
 }
 

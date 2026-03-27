@@ -5,7 +5,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px); // 從下方 30px 開始
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -14,31 +14,30 @@
 }
 
 .cta {
-  max-width: 1000px;
-  margin: 10vh auto;
-  padding: 3rem 0;
+  max-width: clamp(280px, 90vw, 1000px);
+  margin: clamp(40px, 8vh, 100px) auto;
+  padding: clamp(2rem, 5vw, 4rem) 20px;
   text-align: center;
-  background-color: $color-warm-bg; // 換成品牌米色
+  background-color: $color-warm-bg;
   border-top: 1px solid rgba($color-dark, 0.1); 
   border-radius: 30px;
-  box-shadow: $shadow-soft; // 加入柔和陰影增加立體感
+  box-shadow: $shadow-soft;
   
-  // 注入動畫
   animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
 .ctaTitle {
-  margin: 0 10vw 1.5rem;
-  font-size: 1.8rem; // 稍微加大
-  font-weight: 700;
-  color: $color-primary; // 換成品牌主色橘
+  margin-bottom: 1rem;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 800;
+  color: $color-primary;
 }
 
 .ctaText {
   margin: 0 auto;
   max-width: 32rem;
-  font-size: 1.1rem;
-  color: $color-dark; // 使用深咖啡色
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  color: $color-dark;
   line-height: 1.8;
   opacity: 0.9;
 }
@@ -46,23 +45,36 @@
 .links {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 2rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 
   a {
-    padding: 10px 20px;
-    border-radius: 30px;
+    padding: 12px 25px;
+    border-radius: 50px;
     background-color: $color-primary;
     color: #fff;
-    font-weight: 500;
-    transition: all 0.3s ease;
+    font-weight: 600;
+    transition: $transition-base;
     text-decoration: none;
+    font-size: 0.95rem;
+    width: 100%;
+    max-width: 320px;
+
+    @media (min-width: 600px) {
+      width: auto;
+    }
 
     &:hover {
       background-color: color.adjust($color-primary, $lightness: -10%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba($color-dark, 0.2);
     }
   }
 }

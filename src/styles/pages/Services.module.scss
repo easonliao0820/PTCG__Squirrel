@@ -11,7 +11,7 @@
 }
 
 .pageTitle {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 3vw, 2rem); // 縮小標題
   font-weight: 800;
   text-align: center;
   margin-bottom: 30px;
@@ -26,12 +26,12 @@
   margin-bottom: 80px;
 
   .filterBtn {
-    padding: 10px 25px;
+    padding: 10px 20px;
     border-radius: 30px;
     border: none;
     background-color: #f0f0f0;
     color: #555;
-    font-size: 1.05rem;
+    font-size: 0.95rem; // 縮小案紐文字
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -141,7 +141,7 @@
     }
 
     @media (max-width: 768px) {
-      font-size: 0.9375rem;
+      font-size: 0.9rem; // 縮小內文
     }
   }
 }
@@ -181,7 +181,7 @@
 
       // 文字格專用樣式
       &.textItem {
-        font-size: 1rem;
+        font-size: 0.95rem; // 縮小文字格字體
         padding: 15px 20px;
         align-items: flex-start;
         justify-content: center;
@@ -274,7 +274,7 @@
           color: #333;
 
           p {
-            font-size: 1.1rem;
+            font-size: 1rem; // 縮小 PTCG 內文字體
             line-height: 1.5; // 加大行距
             text-align: justify;
             text-indent: 2em;
@@ -283,6 +283,10 @@
 
             &:last-child {
               margin-bottom: 0;
+            }
+
+            @media (max-width: 768px) {
+              font-size: 0.9rem;
             }
           }
         }

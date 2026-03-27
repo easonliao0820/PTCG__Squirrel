@@ -196,6 +196,37 @@
   }
 }
 
+// 分頁
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 60px;
+  margin-bottom: 40px;
+  color: $color-dark;
+
+  span {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: $transition-base;
+
+    &.active {
+      background: $color-primary;
+      color: #fff;
+    }
+
+    &:hover:not(.active) {
+      background: $color-secondary;
+    }
+  }
+}
+
 // Modal for full-size viewing
 .modalOverlay {
   position: fixed;

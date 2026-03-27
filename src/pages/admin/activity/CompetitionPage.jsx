@@ -6,6 +6,8 @@ const STORAGE_KEY = 'esn_competition'
 
 
 const typeLabels = {
+  normal: '一般',
+  tablegame: '桌遊',
   ptcg: 'PTCG',
   ultraman: '超人力霸王',
   result: '活動成果',

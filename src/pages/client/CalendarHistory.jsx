@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styles from '../../styles/pages/CalendarHistory.module.scss';
 
 const CalendarHistory = () => {
@@ -15,15 +15,20 @@ const CalendarHistory = () => {
   const [filterYear, setFilterYear] = useState('All');
   const [filterMonth, setFilterMonth] = useState('All');
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+
   useEffect(() => {
     const fetchCalendars = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/calendar');
+        // 將 limit 設大一點以配合前端的全載入過濾與分頁
+        const response = await fetch('http://localhost:3000/api/calendar?limit=1000');
         if (!response.ok) {
           throw new Error('無法取得行事曆資料');
         }
-        const data = await response.json();
-        setCalendars(data);
+        const json = await response.json();
+        // 後端 API 回傳格式為 { data: [...], pagination: {...} }
+        setCalendars(json.data || []);
       } catch (err) {
         console.error('Fetch error:', err);
         setError(err.message);
@@ -39,6 +44,7 @@ const CalendarHistory = () => {
   const handleSearch = () => {
     setFilterYear(tempYear);
     setFilterMonth(tempMonth);
+    setCurrentPage(1);
   };
 
   // 重設篩選 (立即生效)
@@ -47,18 +53,41 @@ const CalendarHistory = () => {
     setTempMonth('All');
     setFilterYear('All');
     setFilterMonth('All');
+    setCurrentPage(1);
   };
 
   // 取得不重複的年份與月份供下拉選單使用
-  const availableYears = [...new Set(calendars.map(c => c.year))].sort((a, b) => b - a);
-  const availableMonths = [...new Set(calendars.map(c => c.month))].sort((a, b) => a - b);
+  const availableYears = [...new Set(calendars?.map(c => c.year))].sort((a, b) => b - a);
+  const availableMonths = [...new Set(calendars?.map(c => c.month))].sort((a, b) => a - b);
 
   // 根據選擇進行篩選
-  const filteredCalendars = calendars.filter(cal => {
-    const matchYear = filterYear === 'All' || cal.year.toString() === filterYear;
-    const matchMonth = filterMonth === 'All' || cal.month.toString() === filterMonth;
-    return matchYear && matchMonth;
-  });
+  const filteredCalendars = useMemo(() => {
+    return calendars?.filter(cal => {
+      const matchYear = filterYear === 'All' || cal.year.toString() === filterYear;
+      const matchMonth = filterMonth === 'All' || cal.month.toString() === filterMonth;
+      return matchYear && matchMonth;
+    });
+  }, [calendars, filterYear, filterMonth]);
+
+  // 分頁邏輯
+  const totalPages = Math.ceil((filteredCalendars?.length || 0) / itemsPerPage);
+  const paginatedCalendars = useMemo(() => {
+    if (!filteredCalendars) return [];
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredCalendars.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredCalendars, currentPage, itemsPerPage]);
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
   if (loading) return <div className={styles.loading}>正在載入歷年行事曆...</div>;
   if (error) return <div className={styles.error}>出錯了：{error}</div>;
@@ -97,11 +126,11 @@ const CalendarHistory = () => {
         </div>
       </div>
       
-      {filteredCalendars.length === 0 ? (
+      {filteredCalendars?.length === 0 ? (
         <div className={styles.noData}>找不到符合篩選條件的行事曆。</div>
       ) : (
         <div className={styles.calendarGrid}>
-          {filteredCalendars.map((cal) => (
+          {paginatedCalendars.map((cal) => (
             <div 
               key={cal.id} 
               className={styles.calendarCard}
@@ -118,6 +147,35 @@ const CalendarHistory = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 分頁按鈕 */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <span 
+            onClick={() => goToPage(currentPage - 1)}
+            style={{ opacity: currentPage === 1 ? 0.3 : 1, cursor: currentPage === 1 ? 'default' : 'pointer' }}
+          >
+            &lt;
+          </span>
+          
+          {pageNumbers.map(num => (
+            <span 
+              key={num} 
+              className={currentPage === num ? styles.active : ''}
+              onClick={() => goToPage(num)}
+            >
+              {num}
+            </span>
+          ))}
+
+          <span 
+            onClick={() => goToPage(currentPage + 1)}
+            style={{ opacity: currentPage === totalPages ? 0.3 : 1, cursor: currentPage === totalPages ? 'default' : 'pointer' }}
+          >
+            &gt;
+          </span>
         </div>
       )}
 

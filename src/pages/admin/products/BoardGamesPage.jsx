@@ -23,7 +23,7 @@ const parsePlayerCount = (str) => {
 };
 
 const parseAge = (str) => {
-  const valid = ['0+', '6+', '12+', '15+', '18+'];
+  const valid = ['0+', '6+', '9+', '12+', '15+', '18+'];
   if (valid.includes(str)) return str;
   const numMatch = str?.match(/\d+/);
   if (numMatch) {
@@ -31,6 +31,7 @@ const parseAge = (str) => {
     if (n >= 18) return '18+';
     if (n >= 15) return '15+';
     if (n >= 12) return '12+';
+    if (n >= 9) return '9+';
     if (n >= 6) return '6+';
   }
   return '0+';

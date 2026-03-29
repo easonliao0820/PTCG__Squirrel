@@ -1,0 +1,64 @@
+{
+  "tag": [
+    {
+      "column_name": "id",
+      "data_type": "integer"
+    },
+    {
+      "column_name": "title",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "class",
+      "data_type": "integer"
+    }
+  ],
+  "playTag": [
+    {
+      "column_name": "id",
+      "data_type": "integer"
+    },
+    {
+      "column_name": "class",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "classId",
+      "data_type": "integer"
+    },
+    {
+      "column_name": "tagId",
+      "data_type": "integer"
+    }
+  ],
+  "boardGames": [
+    {
+      "column_name": "id",
+      "data_type": "integer"
+    },
+    {
+      "column_name": "name",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "time",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "age",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "people",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "img",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "content",
+      "data_type": "text"
+    }
+  ]
+}

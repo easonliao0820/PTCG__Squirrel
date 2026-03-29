@@ -98,7 +98,13 @@ router.get('/board-games', async (req, res) => {
 
     res.json({
       status: 'success',
-      data: games
+      data: games,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+        limit
+      }
     });
   } catch (err) {
     console.error('Fetch board games failed:', err);

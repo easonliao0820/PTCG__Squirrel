@@ -184,11 +184,11 @@ export function LarpPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">🏷️ 標籤 (最多 2 個)</label>
-                <TagSelect 
-                  selectedTags={form.tags} 
-                  onTagsChange={(newTags) => setForm(f => ({ ...f, tags: newTags }))} 
-                  max={2}
+                <label className="form-label">🏷️ 標籤 (最多 3 個)</label>
+                <TagSelect
+                  selectedTags={form.tags}
+                  onTagsChange={(newTags) => setForm(f => ({ ...f, tags: newTags }))}
+                  max={3}
                   tagClass={1}
                 />
               </div>
@@ -280,10 +280,10 @@ export function LarpPage() {
               ))
             )}
           </div>
-          <Pagination 
-            currentPage={currentPage} 
-            totalPages={totalPages} 
-            onPageChange={setCurrentPage} 
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
           />
         </>
       )}

@@ -48,6 +48,10 @@ router.get('/lapr', async (req, res) => {
       params.push(`%${search}%`);
     }
 
+    // 取得總筆數
+    const countRes = await pool.query(`SELECT COUNT(*) FROM lapr l ${whereClause}`, params);
+    const totalItems = parseInt(countRes.rows[0].count);
+
     // 取得分頁資料
     const dataParams = [...params, limit, offset];
     const result = await pool.query(`
@@ -73,7 +77,13 @@ router.get('/lapr', async (req, res) => {
 
     res.json({
       status: 'success',
-      data: laprs
+      data: laprs,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+        limit
+      }
     });
   } catch (err) {
     console.error('Fetch lapr failed:', err);

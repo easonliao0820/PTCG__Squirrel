@@ -312,11 +312,11 @@ export function BoardGamesPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">🏷️ 標籤 (最多 2 個)</label>
+                  <label className="form-label">🏷️ 標籤 (最多 3 個)</label>
                   <TagSelect
                     selectedTags={form.tags}
                     onTagsChange={(newTags) => setForm(f => ({ ...f, tags: newTags }))}
-                    max={2}
+                    max={3}
                     tagClass={0}
                   />
                 </div>

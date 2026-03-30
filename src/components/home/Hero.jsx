@@ -10,7 +10,7 @@ const Hero = () => {
   useEffect(() => {
     const fetchTopEvents = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/activities/top');
+        const res = await axios.get('/api/activities/top');
         if (res.data.status === 'success') {
           setTopEvents(res.data.data);
         }

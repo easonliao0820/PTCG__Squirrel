@@ -49,7 +49,7 @@ const Events = () => {
           classId: activeCategory === 'All' ? 'all' : categories.find(c => c.name === activeCategory)?.dbId || 'all'
         });
 
-        const url = `http://localhost:3000/api/activities?${queryParams.toString()}`;
+        const url = `/api/activities?${queryParams.toString()}`;
         console.log('Fetching:', url);
         const res = await fetch(url);
         if (res.ok) {

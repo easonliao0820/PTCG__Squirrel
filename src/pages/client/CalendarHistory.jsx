@@ -22,7 +22,7 @@ const CalendarHistory = () => {
     const fetchCalendars = async () => {
       try {
         // 將 limit 設大一點以配合前端的全載入過濾與分頁
-        const response = await fetch('http://localhost:3000/api/calendar?limit=1000');
+        const response = await fetch('/api/calendar?limit=1000');
         if (!response.ok) {
           throw new Error('無法取得行事曆資料');
         }

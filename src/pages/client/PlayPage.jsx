@@ -41,8 +41,8 @@ const PlayPage = () => {
 
         // 1. 抓取分頁資訊 (總頁數) - 只有當搜尋或類別改變時才需要重新計算，但這裡合併處理
         const [bgPagRes, laprPagRes] = await Promise.all([
-          fetch(`http://localhost:3000/api/board-games/pagination?${queryParams.toString()}`),
-          fetch(`http://localhost:3000/api/lapr/pagination?${queryParams.toString()}`)
+          fetch(`/api/board-games/pagination?${queryParams.toString()}`),
+          fetch(`/api/lapr/pagination?${queryParams.toString()}`)
         ]);
 
         let bgTotal = 0;
@@ -77,7 +77,7 @@ const PlayPage = () => {
 
         if (activeFilters.playType === '' || activeFilters.playType === '一般桌遊') {
           fetchPromises.push(
-            fetch(`http://localhost:3000/api/board-games?${dataParams.toString()}`)
+            fetch(`/api/board-games?${dataParams.toString()}`)
               .then(res => res.ok ? res.json() : { data: [] })
               .then(json => json.data.map(item => ({ ...item, type: '一般桌遊' })))
           );
@@ -85,7 +85,7 @@ const PlayPage = () => {
 
         if (activeFilters.playType === '' || activeFilters.playType === '劇本殺') {
           fetchPromises.push(
-            fetch(`http://localhost:3000/api/lapr?${dataParams.toString()}`)
+            fetch(`/api/lapr?${dataParams.toString()}`)
               .then(res => res.ok ? res.json() : { data: [] })
               .then(json => json.data.map(item => ({ 
                 id: `lapr_${item.id}`,

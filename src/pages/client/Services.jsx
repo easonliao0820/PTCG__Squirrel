@@ -3,8 +3,8 @@ import styles from '../../styles/pages/Services.module.scss';
 
 // 咖啡
 const COFFEE_ICON = '/images/icon/coffee_LOGO.png';
-const COFFEE_MENU1 = '/images/location/menu.jpg';
-const COFFEE_MENU2 = '/images/location/menu2.jpg';
+const COFFEE_MENU1 = '/images/allofservice/menu1.jpg';
+const COFFEE_MENU2 = '/images/allofservice/menu2.jpg';
 const FOOD_IMG1 = '/images/allofservice/food1.png';
 const FOOD_IMG2 = '/images/allofservice/food2.png';
 const FOOD_IMG3 = '/images/allofservice/food3.png';
@@ -30,10 +30,10 @@ const PTCG_IMAGES = [
 ];
 // 超人力霸王
 const UCG_ICON = '/images/icon/ucg_LOGO.png';
-const UCG_MAIN_IMG = '/images/location/ultraman_main.png';
-const UCG_POST1_IMG = '/images/location/ultraman_post1.jpg';
-const UCG_POST2_IMG = '/images/location/ultraman_post2.jpg';
-const UCG_CARDS_IMG = '/images/location/ultraman_cards.jpg';
+const UCG_MAIN_IMG = '/images/allofservice/ucg1.jpeg';
+const UCG_POST1_IMG = '/images/allofservice/ucg2.jpg';
+const UCG_POST2_IMG = '/images/allofservice/ucg3.jpg';
+const UCG_CARDS_IMG = '/images/allofservice/ucg4.png';
 // 桌遊
 const BOARDGAME_ICON = '/images/icon/tablegame_LOGO.png';
 const BOARDGAME_IMG1 = '/images/allofservice/boardgame1.jpeg';
@@ -49,7 +49,7 @@ const Services = () => {
   useEffect(() => {
     const fetchLatestCalendar = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/calendar');
+        const response = await fetch('/api/calendar');
         if (response.ok) {
           const json = await response.json();
           const calendars = json.data || [];

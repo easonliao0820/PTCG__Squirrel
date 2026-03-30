@@ -1,26 +1,9 @@
-// --- 1. 環境變數預載入 ---
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-dotenv.config(); // 雲端環境會自動抓取 Render 設定的變數
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-console.log('-------------------------------------------');
-console.log('✅ 環境變數已載入');
-console.log('📡 目標資料庫:', process.env.DATABASE_URL ? '已讀取連線字串' : '❌ 讀取失敗');
-console.log('-------------------------------------------');
-
-// --- 2. 導入其餘模組 ---
+import './loadEnv.js'; // 必須放在第一行，確保所有模組載入前環境變數已就緒
 import express from 'express';
 import cors from 'cors';
 import pool from './db.js';
 
-// 導入路由 (維持不變)
+// 導入路由
 import adminRoutes from './routes/admin.js';
 import calendarRoutes from './routes/calendar.js';
 import activityRoutes from './routes/activity.js';
@@ -29,8 +12,9 @@ import boardGamesRoutes from './routes/boardGames.js';
 import laprRoutes from './routes/lapr.js';
 import tagRoutes from './routes/tag.js';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const app = express();
-// 重要：優先使用雲端分配的 PORT，本機則預設 3000
 const PORT = process.env.PORT || 3000; 
 
 app.get('/', (req, res) => {
@@ -38,11 +22,10 @@ app.get('/', (req, res) => {
 });
 
 // Middleware
-// 建議修改：允許所有來源，避免 Vercel 連不進來
 app.use(cors({ origin: true, credentials: true })); 
 app.use(express.json());
 
-// 註冊路由 (維持不變)
+// 註冊路由
 app.use('/api', adminRoutes);
 app.use('/api', calendarRoutes);
 app.use('/api', activityRoutes);

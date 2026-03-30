@@ -1,24 +1,21 @@
 import express from 'express';
 import multer from 'multer';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '../supabase.js';
 import pool from '../db.js';
 
 const router = express.Router();
 
-// 1. 初始化 Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// 1. 初始化 Supabase (延遲初始化)
+const getClient = () => getSupabase();
+const BUCKET_NAME = 'ptcg-assets'; 
 
 // 2. 配置 Multer 使用記憶體儲存 (不存硬碟)
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const BUCKET_NAME = 'ptcg-assets'; // 與 activity.js 保持一致
-
 // 輔助函式：上傳圖片到 Supabase Storage
 async function uploadToSupabase(file, customName) {
-  const { data, error } = await supabase.storage
+  const { data, error } = await getClient().storage
     .from(BUCKET_NAME)
     .upload(customName, file.buffer, {
       contentType: file.mimetype,
@@ -27,7 +24,7 @@ async function uploadToSupabase(file, customName) {
 
   if (error) throw error;
   
-  const { data: publicUrlData } = supabase.storage
+  const { data: publicUrlData } = getClient().storage
     .from(BUCKET_NAME)
     .getPublicUrl(customName);
 
@@ -36,7 +33,7 @@ async function uploadToSupabase(file, customName) {
 
 // 輔助函式：從 Supabase Storage 刪除圖片
 async function deleteFromSupabase(fileName) {
-  const { error } = await supabase.storage
+  const { error } = await getClient().storage
     .from(BUCKET_NAME)
     .remove([fileName]);
   
@@ -63,7 +60,7 @@ router.get('/calendar', async (req, res) => {
     const calendars = result.rows.map(row => {
       let imageUrl = row.img;
       if (row.img && !row.img.startsWith('http')) {
-        const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(row.img);
+        const { data } = getClient().storage.from(BUCKET_NAME).getPublicUrl(row.img);
         imageUrl = data.publicUrl;
       }
       return { ...row, imageUrl };

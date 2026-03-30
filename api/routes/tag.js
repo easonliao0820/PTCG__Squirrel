@@ -3,29 +3,23 @@ import pool from '../db.js';
 
 const router = express.Router();
 
-// GET /api/tags: Fetch all unique tags, optionally filtered by class
+// GET /api/tags: Fetch all tags with their class metadata
 router.get('/tags', async (req, res) => {
-  const { class: tagClassStr } = req.query;
   try {
-    let query = 'SELECT title FROM tag';
-    let params = [];
+    const result = await pool.query('SELECT title, class FROM tag ORDER BY title ASC');
     
-    // Check if tagClassStr is provided and not empty
-    if (tagClassStr !== undefined && tagClassStr !== '') {
-      const tagClass = parseInt(tagClassStr, 10);
-      if (!isNaN(tagClass)) {
-        query += ' WHERE class = $1';
-        params.push(tagClass);
-      }
-    }
-    
-    query += ' ORDER BY title ASC';
-    
-    const result = await pool.query(query, params);
-    const tags = result.rows.map(row => row.title);
-    res.json(tags);
+    // 將後端的整數 class (0, 1) 轉換為前端辨識的字串 ('boardGames', 'lapr')
+    const tags = result.rows.map(row => ({
+      title: row.title,
+      class: row.class === 1 ? 'lapr' : 'boardGames'
+    }));
+
+    res.json({
+      status: 'success',
+      data: tags
+    });
   } catch (err) {
-    console.error('Fetch tags failed:', err);
+    console.error('Fetch tags failed:', err.message);
     res.status(500).json({ status: 'error', message: err.message });
   }
 });

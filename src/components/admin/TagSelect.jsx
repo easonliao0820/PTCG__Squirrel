@@ -10,13 +10,15 @@ export function TagSelect({ selectedTags = [], onTagsChange, max = 2, tagClass }
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const url = tagClass !== undefined 
-          ? `/api/tags?class=${tagClass}`
-          : '/api/tags';
+        const url = '/api/tags';
         const res = await fetch(url)
         if (res.ok) {
-          const data = await res.json()
-          setAllTags(data)
+          const json = await res.json()
+          let tagsList = Array.isArray(json.data) ? json.data : []
+          if (tagClass !== undefined) {
+             tagsList = tagsList.filter(t => t.class === tagClass)
+          }
+          setAllTags(tagsList.map(t => t.title))
         }
       } catch (err) {
         console.error('Failed to fetch tags:', err)

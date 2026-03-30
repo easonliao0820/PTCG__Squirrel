@@ -31,6 +31,10 @@ const app = express();
 // 重要：優先使用雲端分配的 PORT，本機則預設 3000
 const PORT = process.env.PORT || 3000; 
 
+app.get('/', (req, res) => {
+  res.send('🚀 PTCG Squirrel API 運行中！請使用 /api/test_connection 測試連線。');
+});
+
 // Middleware
 // 建議修改：允許所有來源，避免 Vercel 連不進來
 app.use(cors({ origin: true, credentials: true })); 

@@ -3,8 +3,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 dotenv.config(); // 雲端環境會自動抓取 Render 設定的變數
 
 const __filename = fileURLToPath(import.meta.url);

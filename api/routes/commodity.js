@@ -1,25 +1,51 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { createClient } from '@supabase/supabase-js';
 import pool from '../db.js';
 
 const router = express.Router();
 
-const commodityStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = 'public/uploads/commodity';
-    if (!fs.existsSync(dir)){
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, `com_${Date.now()}${ext}`); // img: varchar(50)
+// 1. 初始化 Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// 2. 配置 Multer 使用記憶體儲存
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const BUCKET_NAME = 'ptcg-assets';
+
+// 輔助函式：上傳圖片到 Supabase Storage
+async function uploadToSupabase(file, folder = 'commodity') {
+  const fileName = `${folder}/com_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true
+    });
+
+  if (error) throw error;
+  
+  const { data: publicUrlData } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(fileName);
+
+  return { fileName, publicUrl: publicUrlData.publicUrl };
+}
+
+// 輔助函式：從 Supabase Storage 刪除圖片
+async function deleteFromSupabase(fileName) {
+  if (!fileName) return;
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .remove([fileName]);
+  
+  if (error) {
+    console.error(`Failed to delete file from Supabase: ${fileName}`, error.message);
   }
-});
-const uploadCommodity = multer({ storage: commodityStorage });
+}
 
 // API: 取得所有商品 (支援分頁與搜尋)
 router.get('/commodities', async (req, res) => {
@@ -36,25 +62,30 @@ router.get('/commodities', async (req, res) => {
       params.push(`%${search}%`);
     }
 
-    // 取得總筆數
     const countRes = await pool.query(`SELECT COUNT(*) FROM commodity ${whereClause}`, params);
     const totalItems = parseInt(countRes.rows[0].count);
 
-    // 取得分頁資料
     const dataParams = [...params, limit, offset];
     const result = await pool.query(
       `SELECT * FROM commodity ${whereClause} ORDER BY id DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       dataParams
     );
 
-    const commodities = result.rows.map(row => ({
-      id: row.id,
-      name: row.name,
-      price: row.money, // db column is 'money'
-      stock: row.stock,
-      content: row.content, // 商品說明
-      imageUrl: row.img ? `http://localhost:3000/uploads/commodity/${row.img}` : null
-    }));
+    const commodities = result.rows.map(row => {
+      let imageUrl = row.img;
+      if (row.img && !row.img.startsWith('http')) {
+        const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(row.img);
+        imageUrl = data.publicUrl;
+      }
+      return {
+        id: row.id,
+        name: row.name,
+        price: row.money,
+        stock: row.stock,
+        content: row.content,
+        imageUrl: imageUrl
+      };
+    });
 
     res.json({
       data: commodities,
@@ -72,10 +103,15 @@ router.get('/commodities', async (req, res) => {
 });
 
 // API: 新增商品
-router.post('/commodities', uploadCommodity.single('image'), async (req, res) => {
+router.post('/commodities', upload.single('image'), async (req, res) => {
   try {
     const { name, price, stock, content } = req.body;
-    const imgFilename = req.file ? req.file.filename : null;
+    let imgFilename = null;
+
+    if (req.file) {
+      const { fileName } = await uploadToSupabase(req.file);
+      imgFilename = fileName;
+    }
 
     const result = await pool.query(
       'INSERT INTO commodity (name, money, stock, img, content) VALUES ($1, $2, $3, $4, $5) RETURNING *',
@@ -90,7 +126,7 @@ router.post('/commodities', uploadCommodity.single('image'), async (req, res) =>
 });
 
 // API: 更新商品
-router.put('/commodities/:id', uploadCommodity.single('image'), async (req, res) => {
+router.put('/commodities/:id', upload.single('image'), async (req, res) => {
   try {
     const id = req.params.id;
     const { name, price, stock, content } = req.body;
@@ -101,12 +137,12 @@ router.put('/commodities/:id', uploadCommodity.single('image'), async (req, res)
     if (req.file) {
       const oldResult = await pool.query('SELECT img FROM commodity WHERE id=$1', [id]);
       if (oldResult.rows.length > 0 && oldResult.rows[0].img) {
-        const oldFile = path.join('public', 'uploads', 'commodity', oldResult.rows[0].img);
-        if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
+        await deleteFromSupabase(oldResult.rows[0].img);
       }
 
+      const { fileName } = await uploadToSupabase(req.file);
       query = 'UPDATE commodity SET name=$1, money=$2, stock=$3, content=$4, img=$5 WHERE id=$6 RETURNING *';
-      values = [name, Number(price) || 0, Number(stock) || 0, content || null, req.file.filename, id];
+      values = [name, Number(price) || 0, Number(stock) || 0, content || null, fileName, id];
     }
 
     const result = await pool.query(query, values);
@@ -123,8 +159,7 @@ router.delete('/commodities/:id', async (req, res) => {
     const id = req.params.id;
     const oldResult = await pool.query('SELECT img FROM commodity WHERE id=$1', [id]);
     if (oldResult.rows.length > 0 && oldResult.rows[0].img) {
-      const oldFile = path.join('public', 'uploads', 'commodity', oldResult.rows[0].img);
-      if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
+      await deleteFromSupabase(oldResult.rows[0].img);
     }
     await pool.query('DELETE FROM commodity WHERE id=$1', [id]);
     res.json({ status: 'success' });

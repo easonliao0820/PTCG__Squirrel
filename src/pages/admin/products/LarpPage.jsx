@@ -24,7 +24,7 @@ export function LarpPage() {
 
   const fetchLarp = async (page = currentPage, searchTerm = search) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/lapr?page=${page}&limit=20&search=${searchTerm}`)
+      const res = await fetch(`/api/lapr?page=${page}&limit=20&search=${searchTerm}`)
       if (res.ok) {
         const { data, pagination } = await res.json()
         setItems(data)
@@ -82,13 +82,13 @@ export function LarpPage() {
     try {
       let res;
       if (editing) {
-        res = await fetch(`http://localhost:3000/api/lapr/${editing.id}`, {
+        res = await fetch(`/api/lapr/${editing.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         })
       } else {
-        res = await fetch('http://localhost:3000/api/lapr', {
+        res = await fetch('/api/lapr', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -116,7 +116,7 @@ export function LarpPage() {
   const handleDelete = async (id) => {
     if (!confirm('確定要刪除？')) return
     try {
-      const res = await fetch(`http://localhost:3000/api/lapr/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/lapr/${id}`, { method: 'DELETE' })
       if (res.ok) {
         fetchLarp()
       } else {

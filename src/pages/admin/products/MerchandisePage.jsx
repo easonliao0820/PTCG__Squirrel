@@ -26,7 +26,7 @@ export function MerchandisePage() {
 
   const fetchCommodities = async (page = currentPage, searchTerm = search) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/commodities?page=${page}&limit=20&search=${searchTerm}`)
+      const res = await fetch(`/api/commodities?page=${page}&limit=20&search=${searchTerm}`)
       if (res.ok) {
         const { data, pagination } = await res.json()
         setItems(data)
@@ -97,12 +97,12 @@ export function MerchandisePage() {
     try {
       let res;
       if (editing) {
-        res = await fetch(`http://localhost:3000/api/commodities/${editing.id}`, {
+        res = await fetch(`/api/commodities/${editing.id}`, {
           method: 'PUT',
           body: formData
         })
       } else {
-        res = await fetch('http://localhost:3000/api/commodities', {
+        res = await fetch('/api/commodities', {
           method: 'POST',
           body: formData
         })
@@ -129,7 +129,7 @@ export function MerchandisePage() {
   const handleDelete = async (id) => {
     if (!confirm('確定要刪除？')) return
     try {
-      const res = await fetch(`http://localhost:3000/api/commodities/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/commodities/${id}`, { method: 'DELETE' })
       if (res.ok) {
         fetchCommodities()
       } else {

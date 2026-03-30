@@ -67,7 +67,7 @@ export function BoardGamesPage() {
 
   const fetchGames = async (page = currentPage, searchTerm = search) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/board-games?page=${page}&limit=20&search=${searchTerm}`)
+      const res = await fetch(`/api/board-games?page=${page}&limit=20&search=${searchTerm}`)
       if (res.ok) {
         const { data, pagination } = await res.json()
         setItems(data)
@@ -174,12 +174,12 @@ export function BoardGamesPage() {
     try {
       let res;
       if (editing) {
-        res = await fetch(`http://localhost:3000/api/board-games/${editing.id}`, {
+        res = await fetch(`/api/board-games/${editing.id}`, {
           method: 'PUT',
           body: formData
         })
       } else {
-        res = await fetch('http://localhost:3000/api/board-games', {
+        res = await fetch('/api/board-games', {
           method: 'POST',
           body: formData
         })
@@ -206,7 +206,7 @@ export function BoardGamesPage() {
   const handleDelete = async (id) => {
     if (!confirm('確定要刪除？')) return
     try {
-      const res = await fetch(`http://localhost:3000/api/board-games/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/board-games/${id}`, { method: 'DELETE' })
       if (res.ok) {
         fetchGames()
       } else {

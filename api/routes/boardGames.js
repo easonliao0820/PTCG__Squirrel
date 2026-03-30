@@ -1,31 +1,56 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { createClient } from '@supabase/supabase-js';
 import pool from '../db.js';
 
 const router = express.Router();
 
-const gameStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = 'public/uploads/boardGames';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, `bg_${Date.now()}${ext}`);
-  }
-});
-const uploadGame = multer({ storage: gameStorage });
+// 1. 初始化 Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// API: 取得桌遊分頁資訊 (總筆數與總頁數)
+// 2. 配置 Multer 使用記憶體儲存
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const BUCKET_NAME = 'ptcg-assets';
+
+// 輔助函式：上傳圖片到 Supabase Storage
+async function uploadToSupabase(file, folder = 'boardGames') {
+  const fileName = `${folder}/bg_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true
+    });
+
+  if (error) throw error;
+  
+  const { data: publicUrlData } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(fileName);
+
+  return { fileName, publicUrl: publicUrlData.publicUrl };
+}
+
+// 輔助函式：從 Supabase Storage 刪除圖片
+async function deleteFromSupabase(fileName) {
+  if (!fileName) return;
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .remove([fileName]);
+  
+  if (error) {
+    console.error(`Failed to delete file from Supabase: ${fileName}`, error.message);
+  }
+}
+
+// API: 取得桌遊分頁資訊
 router.get('/board-games/pagination', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
-
     const search = req.query.search || '';
     
     let whereClause = '';
@@ -53,7 +78,6 @@ router.get('/board-games/pagination', async (req, res) => {
 
 // API: 取得所有桌遊 (支援分頁與搜尋)
 router.get('/board-games', async (req, res) => {
-  console.log('GET /api/board-games called');
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -67,11 +91,9 @@ router.get('/board-games', async (req, res) => {
       params.push(`%${search}%`);
     }
 
-    // 取得總筆數
     const countRes = await pool.query(`SELECT COUNT(*) FROM "boardGames" b ${whereClause}`, params);
     const totalItems = parseInt(countRes.rows[0].count);
 
-    // 取得分頁資料
     const dataParams = [...params, limit, offset];
     const result = await pool.query(`
       SELECT b.*, 
@@ -85,16 +107,23 @@ router.get('/board-games', async (req, res) => {
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, dataParams);
 
-    const games = result.rows.map(row => ({
-      id: row.id,
-      name: row.name,
-      playingTime: row.time,
-      suggestedAge: row.age,
-      playerCount: row.people,
-      description: row.content,
-      imageUrl: row.img ? `http://localhost:3000/uploads/boardGames/${row.img}` : null,
-      tags: row.tags || []
-    }));
+    const games = result.rows.map(row => {
+      let imageUrl = row.img;
+      if (row.img && !row.img.startsWith('http')) {
+        const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(row.img);
+        imageUrl = data.publicUrl;
+      }
+      return {
+        id: row.id,
+        name: row.name,
+        playingTime: row.time,
+        suggestedAge: row.age,
+        playerCount: row.people,
+        description: row.content,
+        imageUrl: imageUrl,
+        tags: row.tags || []
+      };
+    });
 
     res.json({
       status: 'success',
@@ -113,12 +142,17 @@ router.get('/board-games', async (req, res) => {
 });
 
 // API: 新增桌遊
-router.post('/board-games', uploadGame.single('image'), async (req, res) => {
+router.post('/board-games', upload.single('image'), async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const { name, time, age, people, content, tags } = req.body;
-    const imgFilename = req.file ? req.file.filename : null;
+    let imgFilename = null;
+
+    if (req.file) {
+      const { fileName } = await uploadToSupabase(req.file);
+      imgFilename = fileName;
+    }
 
     const result = await client.query(
       'INSERT INTO "boardGames" (name, time, age, people, content, img) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
@@ -126,11 +160,9 @@ router.post('/board-games', uploadGame.single('image'), async (req, res) => {
     );
     const gameId = result.rows[0].id;
 
-    // Handle Tags (JSON array of titles)
     if (tags) {
       const tagList = Array.isArray(tags) ? tags : JSON.parse(tags);
       for (const title of tagList) {
-        // Find or create tag
         let tagRes = await client.query('SELECT id FROM tag WHERE title = $1', [title]);
         let tagId;
         if (tagRes.rows.length === 0) {
@@ -155,7 +187,7 @@ router.post('/board-games', uploadGame.single('image'), async (req, res) => {
 });
 
 // API: 更新桌遊
-router.put('/board-games/:id', uploadGame.single('image'), async (req, res) => {
+router.put('/board-games/:id', upload.single('image'), async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -168,16 +200,15 @@ router.put('/board-games/:id', uploadGame.single('image'), async (req, res) => {
     if (req.file) {
       const oldResult = await client.query('SELECT img FROM "boardGames" WHERE id=$1', [id]);
       if (oldResult.rows.length > 0 && oldResult.rows[0].img) {
-        const oldFile = path.join('public', 'uploads', 'boardGames', oldResult.rows[0].img);
-        if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
+        await deleteFromSupabase(oldResult.rows[0].img);
       }
+      const { fileName } = await uploadToSupabase(req.file);
       query = 'UPDATE "boardGames" SET name=$1, time=$2, age=$3, people=$4, content=$5, img=$6 WHERE id=$7';
-      values = [name, time, age, people, content, req.file.filename, id];
+      values = [name, time, age, people, content, fileName, id];
     }
 
     await client.query(query, values);
 
-    // Handle Tags update
     if (tags) {
       await client.query('DELETE FROM "playTag" WHERE class = $1 AND "classId" = $2', ['boardGames', id]);
       const tagList = Array.isArray(tags) ? tags : JSON.parse(tags);
@@ -213,11 +244,9 @@ router.delete('/board-games/:id', async (req, res) => {
     const id = req.params.id;
     const oldResult = await client.query('SELECT img FROM "boardGames" WHERE id=$1', [id]);
     if (oldResult.rows.length > 0 && oldResult.rows[0].img) {
-      const oldFile = path.join('public', 'uploads', 'boardGames', oldResult.rows[0].img);
-      if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
+      await deleteFromSupabase(oldResult.rows[0].img);
     }
     await client.query('DELETE FROM "boardGames" WHERE id=$1', [id]);
-    // Cascade delete in DB will handle playTag records
     await client.query('COMMIT');
     res.json({ status: 'success' });
   } catch (err) {

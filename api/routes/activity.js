@@ -1,27 +1,53 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { createClient } from '@supabase/supabase-js';
 import pool from '../db.js';
 
 const router = express.Router();
 
-const activityStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = 'public/uploads/activity';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, `act_${Date.now()}${ext}`); // img: varchar(50)
-  }
-});
-const uploadActivity = multer({ storage: activityStorage });
+// 1. 初始化 Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// API: 取得所有活動 (支援分頁、搜尋與分類篩選)
+// 2. 配置 Multer 使用記憶體儲存 (不存硬碟)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const BUCKET_NAME = 'ptcg-assets'; // 請確保 Supabase Storage 有這個 Bucket
+
+// 輔助函式：上傳圖片到 Supabase Storage
+async function uploadToSupabase(file) {
+  const fileName = `act_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true
+    });
+
+  if (error) throw error;
+  
+  // 取得公開訪問網址
+  const { data: publicUrlData } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(fileName);
+
+  return { fileName, publicUrl: publicUrlData.publicUrl };
+}
+
+// 輔助函式：從 Supabase Storage 刪除圖片
+async function deleteFromSupabase(fileName) {
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .remove([fileName]);
+  
+  if (error) {
+    console.error(`Failed to delete file from Supabase: ${fileName}`, error.message);
+  }
+}
+
+// API: 取得所有活動 (支援分頁、搜尋、分類、年月篩選)
 router.get('/activities', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -45,7 +71,6 @@ router.get('/activities', async (req, res) => {
       filters.push(`a."classId" = $${params.length}`);
     }
 
-    // 新增日期篩選邏輯
     if (year !== 'All' && month !== 'All') {
       params.push(`${year}-${month}%`);
       filters.push(`to_char(a."dateStart", 'YYYY-MM') LIKE $${params.length}`);
@@ -59,11 +84,9 @@ router.get('/activities', async (req, res) => {
 
     const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
 
-    // 取得總筆數
     const countRes = await pool.query(`SELECT COUNT(*) FROM activity a ${whereClause}`, params);
     const totalItems = parseInt(countRes.rows[0].count);
 
-    // 取得分頁資料
     const dataParams = [...params, limit, offset];
     const result = await pool.query(`
       SELECT a.*, 
@@ -91,7 +114,12 @@ router.get('/activities', async (req, res) => {
       className: row.class_name,
       url: row.url,
       isTop: row.is_top,
-      imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
+      imageUrls: (row.images || []).map(img => {
+          // 如果資料庫存的是完整的 URL，直接返回；否則組合成 Supabase URL
+          if (img.startsWith('http')) return img;
+          const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(img);
+          return data.publicUrl;
+      })
     }));
 
     res.json({
@@ -109,26 +137,24 @@ router.get('/activities', async (req, res) => {
   }
 });
 
-// API: 新增活動
-router.post('/activities', uploadActivity.array('images', 2), async (req, res) => {
+// API: 新增活動 (上傳至 Supabase)
+router.post('/activities', upload.array('images', 2), async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const { title, startAt, endAt, content, classId, style, url } = req.body;
     const files = req.files || [];
 
-    const dStart = startAt ? startAt : null;
-    const dEnd = endAt ? endAt : null;
-
     const result = await client.query(
       'INSERT INTO activity (title, "dateStart", "dateEnd", content, "classId", style, url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [title, dStart, dEnd, content, classId, style, url]
+      [title, startAt || null, endAt || null, content, classId, style, url]
     );
     const activityId = result.rows[0].id;
 
     if (files.length > 0) {
       for (const file of files) {
-        await client.query('INSERT INTO "activityImg" ("activityId", img) VALUES ($1, $2)', [activityId, file.filename]);
+        const { fileName } = await uploadToSupabase(file);
+        await client.query('INSERT INTO "activityImg" ("activityId", img) VALUES ($1, $2)', [activityId, fileName]);
       }
     }
 
@@ -144,32 +170,31 @@ router.post('/activities', uploadActivity.array('images', 2), async (req, res) =
 });
 
 // API: 更新活動
-router.put('/activities/:id', uploadActivity.array('images', 2), async (req, res) => {
+router.put('/activities/:id', upload.array('images', 2), async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const id = req.params.id;
     const { title, startAt, endAt, content, classId, style, url } = req.body;
     const files = req.files || [];
-    const dStart = startAt ? startAt : null;
-    const dEnd = endAt ? endAt : null;
 
     await client.query(
       'UPDATE activity SET title=$1, "dateStart"=$2, "dateEnd"=$3, content=$4, "classId"=$5, style=$6, url=$7 WHERE id=$8',
-      [title, dStart, dEnd, content, classId, style, url, id]
+      [title, startAt || null, endAt || null, content, classId, style, url, id]
     );
 
-    // 如果有上傳新圖片，刪除舊的並存入新的
     if (files.length > 0) {
+      // 找出舊圖片並從 Supabase 刪除
       const oldImgs = await client.query('SELECT img FROM "activityImg" WHERE "activityId"=$1', [id]);
       for (const row of oldImgs.rows) {
-        const filePath = path.join('public', 'uploads', 'activity', row.img);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        await deleteFromSupabase(row.img);
       }
       await client.query('DELETE FROM "activityImg" WHERE "activityId"=$1', [id]);
 
+      // 上傳新圖片
       for (const file of files) {
-        await client.query('INSERT INTO "activityImg" ("activityId", img) VALUES ($1, $2)', [id, file.filename]);
+        const { fileName } = await uploadToSupabase(file);
+        await client.query('INSERT INTO "activityImg" ("activityId", img) VALUES ($1, $2)', [id, fileName]);
       }
     }
 
@@ -191,14 +216,12 @@ router.delete('/activities/:id', async (req, res) => {
     await client.query('BEGIN');
     const id = req.params.id;
 
-    // 找出所有圖片並刪除檔案
+    // 找出所有圖片並從 Supabase 刪除
     const imgs = await client.query('SELECT img FROM "activityImg" WHERE "activityId"=$1', [id]);
     for (const row of imgs.rows) {
-      const filePath = path.join('public', 'uploads', 'activity', row.img);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await deleteFromSupabase(row.img);
     }
 
-    // 刪除活動 (會 Cascade 刪除 activityImg 記錄)
     await client.query('DELETE FROM activity WHERE id=$1', [id]);
 
     await client.query('COMMIT');
@@ -212,12 +235,11 @@ router.delete('/activities/:id', async (req, res) => {
   }
 });
 
-// API: 切換置頂狀態 (最多5項)
+// API: 切換置頂狀態
 router.post('/activities/toggle-top', async (req, res) => {
   const { activityId, isTop } = req.body;
   try {
     if (isTop) {
-      // 檢查是否已達 5 項上限
       const countRes = await pool.query('SELECT COUNT(*) FROM "activityTop"');
       if (parseInt(countRes.rows[0].count) >= 5) {
         return res.status(400).json({ status: 'error', message: '最多只能設定 5 個置頂輪播項目' });
@@ -258,7 +280,11 @@ router.get('/activities/top', async (req, res) => {
       style: row.style,
       className: row.class_name,
       url: row.url,
-      imageUrls: (row.images || []).map(img => `http://localhost:3000/uploads/activity/${img}`)
+      imageUrls: (row.images || []).map(img => {
+          if (img.startsWith('http')) return img;
+          const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(img);
+          return data.publicUrl;
+      })
     }));
 
     res.json({ status: 'success', data: activities });

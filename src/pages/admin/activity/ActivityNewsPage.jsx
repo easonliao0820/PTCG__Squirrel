@@ -48,7 +48,7 @@ export function ActivityNewsPage() {
 
   const fetchActivities = async (page = currentPage, searchTerm = search, classFilter = filter) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/activities?page=${page}&limit=20&search=${searchTerm}&classId=${classFilter}`)
+      const res = await fetch(`/api/activities?page=${page}&limit=20&search=${searchTerm}&classId=${classFilter}`)
       if (res.ok) {
         const { data, pagination } = await res.json()
         setItems(data)
@@ -113,12 +113,12 @@ export function ActivityNewsPage() {
     try {
       let res;
       if (editing) {
-        res = await fetch(`http://localhost:3000/api/activities/${editing.id}`, {
+        res = await fetch(`/api/activities/${editing.id}`, {
           method: 'PUT',
           body: formData
         })
       } else {
-        res = await fetch('http://localhost:3000/api/activities', {
+        res = await fetch('/api/activities', {
           method: 'POST',
           body: formData
         })
@@ -145,7 +145,7 @@ export function ActivityNewsPage() {
   const handleDelete = async (id) => {
     if (!confirm('確定要刪除？')) return
     try {
-      const res = await fetch(`http://localhost:3000/api/activities/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/activities/${id}`, { method: 'DELETE' })
       if (res.ok) {
         fetchActivities()
       } else {
@@ -159,7 +159,7 @@ export function ActivityNewsPage() {
 
   const handleToggleTop = async (id, isTop) => {
     try {
-      const res = await fetch('http://localhost:3000/api/activities/toggle-top', {
+      const res = await fetch('/api/activities/toggle-top', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activityId: id, isTop: !isTop })

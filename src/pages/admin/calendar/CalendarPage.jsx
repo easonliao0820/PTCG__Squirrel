@@ -21,7 +21,7 @@ export function CalendarPage() {
 
   const fetchCalendars = async (page = currentPage) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/calendar?page=${page}&limit=20`)
+      const res = await fetch(`/api/calendar?page=${page}&limit=20`)
       if (res.ok) {
         const { data, pagination } = await res.json()
         setMonths(data)
@@ -53,7 +53,7 @@ export function CalendarPage() {
     formData.append('image', uploadFile)
 
     try {
-      const res = await fetch('http://localhost:3000/api/calendar/upload', {
+      const res = await fetch('/api/calendar/upload', {
         method: 'POST',
         body: formData,
       })
@@ -82,7 +82,7 @@ export function CalendarPage() {
     if (!confirm('確定要刪除？')) return
     
     try {
-      const res = await fetch(`http://localhost:3000/api/calendar/${year}/${month}`, {
+      const res = await fetch(`/api/calendar/${year}/${month}`, {
         method: 'DELETE'
       })
       if (res.ok) {

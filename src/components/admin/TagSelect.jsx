@@ -11,8 +11,8 @@ export function TagSelect({ selectedTags = [], onTagsChange, max = 2, tagClass }
     const fetchTags = async () => {
       try {
         const url = tagClass !== undefined 
-          ? `http://localhost:3000/api/tags?class=${tagClass}`
-          : 'http://localhost:3000/api/tags';
+          ? `/api/tags?class=${tagClass}`
+          : '/api/tags';
         const res = await fetch(url)
         if (res.ok) {
           const data = await res.json()

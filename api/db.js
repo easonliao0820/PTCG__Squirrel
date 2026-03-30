@@ -9,7 +9,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     // 關鍵在這一行：允許使用 Supabase 的自簽署憑證
-    rejectUnauthorized: true 
+    rejectUnauthorized: false
   }
 });
 

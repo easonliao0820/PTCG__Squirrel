@@ -30,13 +30,41 @@ const PlayPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
+  // 新增：儲存所有標籤，避免選單坍塌
+  const [allTags, setAllTags] = useState([]);
+
+  useEffect(() => {
+    const fetchAllTags = async () => {
+      try {
+        const res = await fetch('/api/tags');
+        if (res.ok) {
+          const json = await res.json();
+          // 安全檢查：確保 json.data 存在且為陣列
+          if (json && json.data && Array.isArray(json.data)) {
+            const filtered = json.data
+              .filter(t => t.class === (activeFilters.playType === '一般桌遊' ? 'boardGames' : 'lapr'))
+              .map(t => t.title);
+            setAllTags(Array.from(new Set(filtered)).sort());
+          } else {
+            console.warn('Invalid tag data format:', json);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch tags:', err);
+      }
+    };
+    fetchAllTags();
+  }, [activeFilters.playType]);
+
   useEffect(() => {
     const fetchGames = async () => {
       setIsLoading(true);
       try {
         const queryParams = new URLSearchParams({
           limit: itemsPerPage,
-          search: searchTerm
+          search: searchTerm,
+          age: activeFilters.age,
+          tag: activeFilters.groups
         });
 
         // 1. 抓取分頁資訊 (總頁數) - 只有當搜尋或類別改變時才需要重新計算，但這裡合併處理
@@ -69,7 +97,9 @@ const PlayPage = () => {
         const dataParams = new URLSearchParams({
           page: currentPage,
           limit: activeFilters.playType === '' ? Math.ceil(itemsPerPage / 2) : itemsPerPage,
-          search: searchTerm
+          search: searchTerm,
+          age: activeFilters.age,
+          tag: activeFilters.groups
         });
 
         let allGames = [];
@@ -113,20 +143,33 @@ const PlayPage = () => {
     };
 
     fetchGames();
-  }, [currentPage, searchTerm, activeFilters.playType]);
+  }, [currentPage, searchTerm, activeFilters.playType, activeFilters.age, activeFilters.groups]);
 
   // 類型選擇的處理函式：直接更新生效篩選 + 抓取對應標籤 (0=桌遊, 1=劇本殺)
   const handleTypeChange = (newType) => {
-    // 同時更新 temp 與 active，讓資料立即重新抓取
     setTempFilters(prev => ({ ...prev, playType: newType, groups: '所有組合' }));
     setActiveFilters(prev => ({ ...prev, playType: newType, groups: '所有組合' }));
     setCurrentPage(1);
   };
 
-  // 點擊搜尋按鈕
+  // 下拉選單改為「選中即搜尋」
+  const handleDropdownChange = (key, value) => {
+    setTempFilters(prev => ({ ...prev, [key]: value }));
+    setActiveFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  };
+
+  // 點擊搜尋按鈕 (處理搜尋文字)
   const handleSearch = () => {
     setSearchTerm(inputValue);
     setActiveFilters({ ...tempFilters });
+    setCurrentPage(1);
+  };
+
+  // 人數輸入也改為即時觸發
+  const handlePeopleChange = (val) => {
+    setTempFilters(prev => ({ ...prev, people: val }));
+    setActiveFilters(prev => ({ ...prev, people: val }));
     setCurrentPage(1);
   };
 
@@ -155,17 +198,10 @@ const PlayPage = () => {
 
   const filteredGames = useMemo(() => {
     return games.filter(game => {
-      // 由於後端已經處理了 playType 與 search，這裡只需要處理剩餘的前端過濾 (或您可以之後再補後端)
-      // 注意：如果您希望完全後端過濾，請將 people, age 等也加入 query
-
-      const matchesType = activeFilters.playType === '' || game.type === activeFilters.playType;
-      const matchesPeople = isPeopleMatch(game.playerCount, activeFilters.people);
-      const matchesGroups = activeFilters.groups === '所有組合' || (game.tags && game.tags.includes(activeFilters.groups));
-      const matchesAge = activeFilters.age === '所有年齡' || game.suggestedAge === activeFilters.age;
-
-      return matchesType && matchesPeople && matchesGroups && matchesAge;
+      // 人數過濾暫時保留在前端，因為後端解析人數區間較複雜
+      return isPeopleMatch(game.playerCount, activeFilters.people);
     });
-  }, [games, activeFilters]);
+  }, [games, activeFilters.people]);
 
   // 分頁切片邏輯 (現在由後端提供 20 筆，前端只需要過濾後的這 20 筆即可)
   const paginatedGames = filteredGames;
@@ -209,17 +245,10 @@ const PlayPage = () => {
   // 組合選項：直接從目前類型的 games 中對應的 tags
   // 這樣不管 tag 表的 class 欄位是否正確，都能正確展示
   const groupOptions = useMemo(() => {
-    if (!activeFilters.playType) return ['所有組合'];
-    const tagSet = new Set();
-    games.forEach(game => {
-      if (game.tags && Array.isArray(game.tags)) {
-        game.tags.forEach(tag => tagSet.add(tag));
-      }
-    });
-    return ['所有組合', ...Array.from(tagSet).sort()];
-  }, [games, activeFilters.playType]);
+    return ['所有組合', ...allTags];
+  }, [allTags]);
 
-  const ageOptions = ['所有年齡', '0+', '6+', '12+', '15+', '18+'];
+  const ageOptions = ['所有年齡', '0+', '6+', '9+', '12+', '15+', '18+'];
 
   return (
     <div className={styles.pageWrapper}>
@@ -257,7 +286,7 @@ const PlayPage = () => {
             <select
               className={styles.selectBox}
               value={tempFilters.groups}
-              onChange={(e) => handleTempFilterChange('groups', e.target.value)}
+              onChange={(e) => handleDropdownChange('groups', e.target.value)}
               disabled={!tempFilters.playType} // 未選類型前禁用
               style={{ opacity: !tempFilters.playType ? 0.5 : 1, cursor: !tempFilters.playType ? 'not-allowed' : 'pointer' }}
             >
@@ -276,7 +305,7 @@ const PlayPage = () => {
               className={styles.selectBox} // 沿用樣式
               style={{ width: '80px' }}
               value={tempFilters.people}
-              onChange={(e) => handleTempFilterChange('people', e.target.value)}
+              onChange={(e) => handlePeopleChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
@@ -285,7 +314,7 @@ const PlayPage = () => {
             <select
               className={styles.selectBox}
               value={tempFilters.age}
-              onChange={(e) => handleTempFilterChange('age', e.target.value)}
+              onChange={(e) => handleDropdownChange('age', e.target.value)}
             >
               {ageOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
             </select>

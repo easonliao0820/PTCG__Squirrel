@@ -1,25 +1,22 @@
 import express from 'express';
 import multer from 'multer';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '../supabase.js';
 import pool from '../db.js';
 
 const router = express.Router();
 
-// 1. 初始化 Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// 1. 初始化 Supabase (延遲初始化)
+const getClient = () => getSupabase();
+const BUCKET_NAME = 'ptcg-assets'; 
 
 // 2. 配置 Multer 使用記憶體儲存 (不存硬碟)
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const BUCKET_NAME = 'ptcg-assets'; // 請確保 Supabase Storage 有這個 Bucket
-
 // 輔助函式：上傳圖片到 Supabase Storage
 async function uploadToSupabase(file) {
   const fileName = `act_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-  const { data, error } = await supabase.storage
+  const { data, error } = await getClient().storage
     .from(BUCKET_NAME)
     .upload(fileName, file.buffer, {
       contentType: file.mimetype,
@@ -29,7 +26,7 @@ async function uploadToSupabase(file) {
   if (error) throw error;
   
   // 取得公開訪問網址
-  const { data: publicUrlData } = supabase.storage
+  const { data: publicUrlData } = getClient().storage
     .from(BUCKET_NAME)
     .getPublicUrl(fileName);
 
@@ -38,7 +35,7 @@ async function uploadToSupabase(file) {
 
 // 輔助函式：從 Supabase Storage 刪除圖片
 async function deleteFromSupabase(fileName) {
-  const { error } = await supabase.storage
+  const { error } = await getClient().storage
     .from(BUCKET_NAME)
     .remove([fileName]);
   
@@ -115,9 +112,8 @@ router.get('/activities', async (req, res) => {
       url: row.url,
       isTop: row.is_top,
       imageUrls: (row.images || []).map(img => {
-          // 如果資料庫存的是完整的 URL，直接返回；否則組合成 Supabase URL
           if (img.startsWith('http')) return img;
-          const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(img);
+          const { data } = getClient().storage.from(BUCKET_NAME).getPublicUrl(img);
           return data.publicUrl;
       })
     }));
@@ -137,7 +133,7 @@ router.get('/activities', async (req, res) => {
   }
 });
 
-// API: 新增活動 (上傳至 Supabase)
+// [後續的新增、更新、刪除 API 保持不變...]
 router.post('/activities', upload.array('images', 2), async (req, res) => {
   const client = await pool.connect();
   try {
@@ -169,7 +165,6 @@ router.post('/activities', upload.array('images', 2), async (req, res) => {
   }
 });
 
-// API: 更新活動
 router.put('/activities/:id', upload.array('images', 2), async (req, res) => {
   const client = await pool.connect();
   try {
@@ -184,14 +179,12 @@ router.put('/activities/:id', upload.array('images', 2), async (req, res) => {
     );
 
     if (files.length > 0) {
-      // 找出舊圖片並從 Supabase 刪除
       const oldImgs = await client.query('SELECT img FROM "activityImg" WHERE "activityId"=$1', [id]);
       for (const row of oldImgs.rows) {
         await deleteFromSupabase(row.img);
       }
       await client.query('DELETE FROM "activityImg" WHERE "activityId"=$1', [id]);
 
-      // 上傳新圖片
       for (const file of files) {
         const { fileName } = await uploadToSupabase(file);
         await client.query('INSERT INTO "activityImg" ("activityId", img) VALUES ($1, $2)', [id, fileName]);
@@ -209,14 +202,12 @@ router.put('/activities/:id', upload.array('images', 2), async (req, res) => {
   }
 });
 
-// API: 刪除活動
 router.delete('/activities/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const id = req.params.id;
 
-    // 找出所有圖片並從 Supabase 刪除
     const imgs = await client.query('SELECT img FROM "activityImg" WHERE "activityId"=$1', [id]);
     for (const row of imgs.rows) {
       await deleteFromSupabase(row.img);
@@ -235,7 +226,6 @@ router.delete('/activities/:id', async (req, res) => {
   }
 });
 
-// API: 切換置頂狀態
 router.post('/activities/toggle-top', async (req, res) => {
   const { activityId, isTop } = req.body;
   try {
@@ -255,7 +245,6 @@ router.post('/activities/toggle-top', async (req, res) => {
   }
 });
 
-// API: 取得置頂活動 (用於 Hero 輪播)
 router.get('/activities/top', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -282,7 +271,7 @@ router.get('/activities/top', async (req, res) => {
       url: row.url,
       imageUrls: (row.images || []).map(img => {
           if (img.startsWith('http')) return img;
-          const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(img);
+          const { data } = getClient().storage.from(BUCKET_NAME).getPublicUrl(img);
           return data.publicUrl;
       })
     }));

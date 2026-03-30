@@ -9,12 +9,21 @@ router.get('/lapr/pagination', async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
 
     const search = req.query.search || '';
+    const tag = req.query.tag || '';
     
-    let whereClause = '';
+    let whereClause = 'WHERE 1=1';
     let params = [];
     if (search) {
-      whereClause = 'WHERE name ILIKE $1 OR publisher ILIKE $1 OR remark ILIKE $1';
       params.push(`%${search}%`);
+      whereClause += ` AND (name ILIKE $${params.length} OR publisher ILIKE $${params.length} OR remark ILIKE $${params.length})`;
+    }
+    if (tag && tag !== '所有組合') {
+      params.push(tag);
+      whereClause += ` AND EXISTS (
+        SELECT 1 FROM \"playTag\" pt 
+        JOIN tag t ON pt.\"tagId\" = t.id 
+        WHERE pt.class = 'lapr' AND pt.\"classId\" = lapr.id AND t.title = $${params.length}
+      )`;
     }
 
     const countRes = await pool.query(`SELECT COUNT(*) FROM lapr ${whereClause}`, params);
@@ -40,12 +49,21 @@ router.get('/lapr', async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
+    const tag = req.query.tag || '';
 
-    let whereClause = '';
+    let whereClause = 'WHERE 1=1';
     let params = [];
     if (search) {
-      whereClause = 'WHERE l.name ILIKE $1 OR l.publisher ILIKE $1 OR l.remark ILIKE $1';
       params.push(`%${search}%`);
+      whereClause += ` AND (l.name ILIKE $${params.length} OR l.publisher ILIKE $${params.length} OR l.remark ILIKE $${params.length})`;
+    }
+    if (tag && tag !== '所有組合') {
+      params.push(tag);
+      whereClause += ` AND EXISTS (
+        SELECT 1 FROM \"playTag\" pt 
+        JOIN tag t ON pt.\"tagId\" = t.id 
+        WHERE pt.class = 'lapr' AND pt.\"classId\" = l.id AND t.title = $${params.length}
+      )`;
     }
 
     // 取得總筆數

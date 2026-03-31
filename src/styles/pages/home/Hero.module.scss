@@ -48,10 +48,6 @@
     &.next {
       right: 2vw;
     }
-
-    @media (max-width: $breakpoint-mobile) {
-      display: none; // 手機版隱藏導覽鍵，通常建議用手勢滑送
-    }
   }
 }
 
